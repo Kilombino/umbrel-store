@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-thunderhub-xbt_web_1
+      APP_PORT: 3000
+
+  web:
+    image: ghcr.io/kilombino/thunderhub-xbt:0.19.0-xbt.1@sha256:0299b8ffc8788397397483c21f9746c17a201f1d6fd48c1abb818619de495b4b
+    user: "1000:1000"
+    restart: on-failure
+    stop_grace_period: 1m
+    volumes:
+      # Lightning Fork's LND directory: tls.cert and the admin macaroon, read only.
+      - ${APP_LIGHTNING_FORK_NODE_DATA_DIR}:/lnd:ro
+      # accounts file and the channel notes database
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      MASTER_PASSWORD_OVERRIDE: "$APP_PASSWORD"
+      NO_VERSION_CHECK: "true"
+      ACCOUNT_CONFIG_PATH: "/data/thubConfig.yaml"
+      # Lightning Fork's gRPC, on its own port (10010) beside the official Lightning Node app's
+      YML_ENV_1: "$APP_LIGHTNING_FORK_NODE_IP:$APP_LIGHTNING_FORK_NODE_GRPC_PORT"
+      TOR_PROXY_SERVER: "socks://$TOR_PROXY_IP:$TOR_PROXY_PORT"

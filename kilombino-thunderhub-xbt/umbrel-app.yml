@@ -1,0 +1,53 @@
+manifestVersion: 1.1
+id: kilombino-thunderhub-xbt
+category: bitcoin
+name: ThunderHub XBT
+version: "0.19.0-xbt.1"
+tagline: ThunderHub for Lightning on the Bitcoin BLAKE2b chain
+description: >-
+  ThunderHub XBT is ThunderHub, the LND node manager, forked for the Bitcoin
+  BLAKE2b chain (XBT). It manages a Lightning Fork node: channels, payments,
+  forwards, fees, rebalancing and reports, with everything that pointed at the
+  SHA-256 chain pointed at this one instead.
+
+
+  WHAT CHANGES FROM THUNDERHUB
+
+
+  Fiat prices of BTCB2 come from Neoxa, where it trades, not the SHA-256
+  chain's price. Transactions, addresses, fee rates and block height come from
+  mempool.kilombino.com, which follows the BLAKE2b chain. Node and channel
+  links open lightning.paperclippool.xyz. Amboss and Magma, which belong to
+  the other chain's Lightning network, are removed. It adds notes on
+  channels, coin control when opening channels, CPFP, and a Spanish
+  interface.
+
+
+  WHICH NODE IT NEEDS
+
+
+  Lightning Fork, LND for the BLAKE2b chain, from the PaulsCode.Com community
+  store (https://github.com/paulscode/umbrel-store). The official Lightning
+  Node app follows the SHA-256 chain and is not used. ThunderHub XBT can be
+  installed beside the official ThunderHub.
+developer: Kilombino
+website: https://github.com/Kilombino/thunderhub/tree/xbt
+dependencies:
+  - paulscode-lightning-fork
+repo: https://github.com/Kilombino/thunderhub
+support: https://t.me/Kilombino
+# Clear of the official ThunderHub (3000) and of the PaulsCode.Com store's tiles.
+port: 7160
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-thunderhub-xbt/icon.png
+gallery: []
+path: ""
+defaultUsername: ""
+deterministicPassword: true
+releaseNotes: >-
+  First release: ThunderHub 0.19.0 for the Bitcoin BLAKE2b chain, managing a
+  Lightning Fork node. BTCB2 prices from Neoxa, explorer and fee rates from
+  mempool.kilombino.com, Lightning explorer links to lightning.paperclippool.xyz,
+  no Amboss or Magma, channel notes, coin control, CPFP and a Spanish
+  interface.
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store

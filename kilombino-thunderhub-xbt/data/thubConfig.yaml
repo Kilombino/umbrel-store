@@ -1,0 +1,5 @@
+accounts:
+  - name: 'Lightning Fork'
+    serverUrl: '{YML_ENV_1}'
+    certificatePath: '/lnd/tls.cert'
+    macaroonPath: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon'
