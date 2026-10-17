@@ -8,3 +8,94 @@ KILOWALLET_DATA_DIR="${APP_DATA_DIR}/data"
 mkdir -p "${KILOWALLET_DATA_DIR}"
 
 chown -R "1000:1000" "${KILOWALLET_DATA_DIR}"
+
+# One-time move from the per-node versions of this app.
+#
+# Earlier versions depended on one node app by its id (paulscode-knots-blake2b,
+# or btc-bitcoinknots for "Kilowallet (Bitcoin Knots)"); this one depends on
+# "bitcoin" and lets the user pick the node. umbrelOS keeps the old choice
+# under the old id in settings.yml and, without a choice for "bitcoin", would
+# use the Bitcoin Node app (SHA-256 chain), or nothing. So when there is no
+# choice for "bitcoin" yet but there is one for an old id whose app is still
+# installed, carry it over. app-script reads settings.yml again when it starts
+# the containers, right after this hook, so it takes effect on this start
+# (on umbrelOS 2.0 the first attempt can fail on the data-root list umbreld
+# built before this hook, and umbreld's own retry then starts it).
+#
+# Never fails: a problem here leaves the selection as umbrelOS has it.
+migrate_dependency() {
+	local settings="${APP_DATA_DIR}/settings.yml"
+	command -v yq >/dev/null 2>&1 || return 0
+	[[ -f "${settings}" ]] || return 0
+
+	local current
+	current="$(yq e '.dependencies.bitcoin // ""' "${settings}" 2>/dev/null)" || return 0
+	[[ -z "${current}" ]] || return 0
+
+	local legacy provider tmp
+	for legacy in paulscode-knots-blake2b btc-bitcoinknots; do
+		provider="$(yq e ".dependencies[\"${legacy}\"] // \"\"" "${settings}" 2>/dev/null)" || continue
+		[[ -n "${provider}" ]] || continue
+		[[ -f "${UMBREL_ROOT:-/nonexistent}/app-data/${provider}/umbrel-app.yml" ]] || continue
+
+		tmp="$(mktemp "${settings}.tmp.XXXXXX")" || return 0
+		if PROVIDER="${provider}" yq e ".dependencies.bitcoin = strenv(PROVIDER) | del(.dependencies[\"${legacy}\"])" \
+			"${settings}" > "${tmp}" 2>/dev/null && [[ -s "${tmp}" ]]; then
+			chmod --reference="${settings}" "${tmp}" 2>/dev/null || true
+			chown --reference="${settings}" "${tmp}" 2>/dev/null || true
+			mv -f "${tmp}" "${settings}"
+			echo "Kilowallet: the node app selected before (${provider}) is now the selected Bitcoin node app"
+		else
+			rm -f "${tmp}"
+		fi
+		return 0
+	done
+}
+
+migrate_dependency || true
+
+# Pick the BLAKE2b node by itself.
+#
+# Umbrel offers the first installed app that implements "bitcoin", which is the
+# Bitcoin Node app (SHA-256 chain) whenever it is installed, or none at all if
+# the user never chose. So when the selection is empty or a node app that
+# follows the SHA-256 chain, and a node app on the BLAKE2b chain is installed,
+# select that one. A selection of a BLAKE2b node app, or of an app this hook
+# doesn't know, is left alone. Takes effect like the move above. Never fails.
+select_blake2b_node() {
+	local settings="${APP_DATA_DIR}/settings.yml"
+	command -v yq >/dev/null 2>&1 || return 0
+
+	local current=""
+	if [[ -f "${settings}" ]]; then
+		current="$(yq e '.dependencies.bitcoin // ""' "${settings}" 2>/dev/null)" || return 0
+	fi
+	case "${current}" in
+		""|bitcoin|bitcoin-knots|paulscode-knots-sha256) ;;
+		*) return 0 ;;
+	esac
+
+	local candidate provider=""
+	for candidate in paulscode-knots-blake2b btc-bitcoinknots; do
+		if [[ -f "${UMBREL_ROOT:-/nonexistent}/app-data/${candidate}/umbrel-app.yml" ]]; then
+			provider="${candidate}"
+			break
+		fi
+	done
+	[[ -n "${provider}" ]] || return 0
+
+	local tmp
+	tmp="$(mktemp "${settings}.tmp.XXXXXX")" || return 0
+	if [[ -f "${settings}" ]]; then
+		PROVIDER="${provider}" yq e '.dependencies.bitcoin = strenv(PROVIDER)' "${settings}" > "${tmp}" 2>/dev/null || { rm -f "${tmp}"; return 0; }
+		chmod --reference="${settings}" "${tmp}" 2>/dev/null || true
+		chown --reference="${settings}" "${tmp}" 2>/dev/null || true
+	else
+		printf 'dependencies:\n  bitcoin: %s\n' "${provider}" > "${tmp}" || { rm -f "${tmp}"; return 0; }
+	fi
+	[[ -s "${tmp}" ]] || { rm -f "${tmp}"; return 0; }
+	mv -f "${tmp}" "${settings}"
+	echo "Kilowallet: using ${provider}, the Bitcoin node app on the BLAKE2b chain"
+}
+
+select_blake2b_node || true

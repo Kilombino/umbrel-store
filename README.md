@@ -15,13 +15,12 @@ https://github.com/Kilombino/umbrel-store
 | App | What it is |
 | --- | --- |
 | [ThunderHub XBT](kilombino-thunderhub-xbt) | ThunderHub forked for the BLAKE2b chain, managing a Lightning Fork node |
-| [Kilowallet](kilombino-kilowallet) | The Kilowallet XBT wallet with a web app for the phone, on Knots (BLAKE2b) Companion |
-| [Kilowallet (Bitcoin Knots)](kilombino-kilowallet-misc) | The same wallet, on Léo Haf's Bitcoin Knots app from the Misc community store (Horizon-btc/Bitcoin-store), whose latest Knots versions have BLAKE2b |
+| [Kilowallet](kilombino-kilowallet) | The Kilowallet XBT wallet with a web app for the phone, on your BLAKE2b node: Knots (BLAKE2b) Companion or the Misc store's Bitcoin Knots, found by itself |
 
-ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet needs that node, **Knots (BLAKE2b) Companion**, from the same store. Add that store too:
+ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet needs a node on the BLAKE2b chain: **Knots (BLAKE2b) Companion** from the same store, or **Bitcoin Knots** from Léo Haf's Misc store (`https://github.com/Horizon-btc/Bitcoin-store`), and finds it by itself. Add the PaulsCode.Com store:
 
 ```
 https://github.com/paulscode/umbrel-store
 ```
 
-**Kilowallet (Bitcoin Knots)** is for Léo Haf's **Bitcoin Knots** app from the Misc community store instead, whose latest Knots versions follow the BLAKE2b chain; nothing to set up. Add that store: `https://github.com/Horizon-btc/Bitcoin-store`. (The Bitcoin Knots app of the Umbrel App Store, version 1.2.13, has no Knots version with BLAKE2b yet.) Both Kilowallet apps check the node's chain and refuse the SHA-256 chain.
+Kilowallet checks the node's chain and refuses the SHA-256 chain (the Bitcoin Node app, and the Umbrel App Store's Bitcoin Knots 1.2.13). Needs umbrelOS 1.3 or later.

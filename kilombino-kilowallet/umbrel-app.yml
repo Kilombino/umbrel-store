@@ -1,8 +1,11 @@
-manifestVersion: 1.1
+# umbrelOS 1.3 is the first version that lets the user pick which app answers a
+# dependency (any installed app that declares `implements: [bitcoin]`), and from
+# 1.3 the App Store asks for an umbrelOS update on an older system.
+manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.4.3"
+version: "0.4.3-1"
 tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -37,27 +40,40 @@ description: >-
   own Telegram bot. Ark gives you payments to Ark addresses and Lightning
   through the Paperclip Ark server (ark.paperclippool.xyz), with the same
   words as the wallet. Ark reads the chain from the node only if it has
-  txindex on, which Knots (BLAKE2b) Companion turns off while it is pruned (its
-  default); choose mempool.kilombino.com as the chain source when activating
-  Ark instead. Both are for hot wallets only.
+  txindex on: the Bitcoin Knots app has it by default (unless you turn on
+  pruning), Knots (BLAKE2b) Companion turns it off while it is pruned (its
+  default). Without txindex, choose mempool.kilombino.com as the chain source
+  when activating Ark. Both are for hot wallets only.
 
 
   WHICH NODE IT NEEDS
 
 
-  Knots (BLAKE2b) Companion, from the PaulsCode.Com community store
+  Any Bitcoin node app on your Umbrel that follows the BLAKE2b chain.
+  Kilowallet finds it by itself: if Umbrel offers another node when you
+  install it (the Bitcoin Node app, on the SHA-256 chain, comes first when it
+  is installed), Kilowallet switches to the BLAKE2b node when it starts.
+
+  - Knots (BLAKE2b) Companion, from the PaulsCode.Com community store
   (https://github.com/paulscode/umbrel-store), with its wallet feature on
-  (the default). The official Bitcoin Node app follows the SHA-256 chain and
-  is not used. If your node is Léo Haf's Bitcoin Knots app from the Misc
-  community store, install "Kilowallet (Bitcoin Knots)" from this same store
-  instead.
+  (the default).
+
+  - Bitcoin Knots from the Misc community store
+  (https://github.com/Horizon-btc/Bitcoin-store), running Knots v29.4.1 or
+  later, which its default choice (the latest version) already is.
+
+
+  The Bitcoin Node app of the Umbrel App Store follows the SHA-256 chain, and
+  so does the Bitcoin Knots app of the Umbrel App Store for now: if one of
+  those is the only node, Kilowallet shows a page that says so and does
+  nothing. Needs umbrelOS 1.3 or later.
 developer: Kilombino
 website: https://github.com/Kilombino/kilowallet-server
 dependencies:
-  - paulscode-knots-blake2b
+  - bitcoin
 repo: https://github.com/Kilombino/kilowallet-server
 support: https://t.me/Kilombino
-# Beside ThunderHub XBT (7160), clear of the PaulsCode.Com store's tiles (7150-7156).
+# Clear of the PaulsCode.Com store's tiles (7150-7156) and ThunderHub XBT (7160).
 port: 7161
 icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-kilowallet/icon.png
 gallery: []
@@ -65,11 +81,8 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  Kilowallet now checks on its own which chain the node follows, at start and
-  every minute. The SHA-256 chain shares its history with BLAKE2b up to block
-  961,639, so a node on it would show the same coins as if they were XBT. If
-  the node follows the SHA-256 chain, has stopped just before the BLAKE2b fork,
-  or is still syncing below it, the page says so and Kilowallet creates, scans
-  and sends nothing until it is on the BLAKE2b chain.
+  One Kilowallet for any Bitcoin node app on the BLAKE2b chain: it works with
+  Knots (BLAKE2b) Companion and with the Misc store's Bitcoin Knots alike, and
+  picks the BLAKE2b node by itself. Your wallet and settings stay as they are.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
