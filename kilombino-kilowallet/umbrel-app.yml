@@ -1,0 +1,69 @@
+manifestVersion: 1.1
+id: kilombino-kilowallet
+category: bitcoin
+name: Kilowallet
+version: "0.4.2"
+tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
+description: >-
+  Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
+  BLAKE2b chain (XBT), on your Umbrel: the same wallet code, with a web app
+  made for the phone (add it to your home screen), reading the chain straight
+  from your own BLAKE2b node, with no Electrum server in between.
+
+
+  HOW IT WORKS
+
+
+  The node gets a watch-only wallet named kilowallet-… with the public key
+  only, which tracks history, the mempool and balances; a pruned node works
+  too. A hot wallet's words are encrypted with your password on this server
+  (PBKDF2 and AES-256-GCM), never enter the node, and the password is asked
+  again before every send. There is no way to recover the password: keep your
+  words safe. A watch-only wallet (xpub, ypub, zpub) sends through a PSBT
+  signed elsewhere. Every signature uses the unified sighash (0x21), so a
+  spend cannot be replayed on the SHA-256 chain.
+
+
+  Coin control, RBF, CPFP, a second confirmation for a fee that looks like a
+  slip, contacts, street mode, and USD/EUR prices if you want them.
+
+
+  COINJOIN AND ARK (BETA, OFF UNTIL YOU TURN THEM ON)
+
+
+  Coinjoin mixes your coins in the same pools as the Kilowallet app and
+  Kilojoin (relay.kilombino.com), with alerts in the browser and through your
+  own Telegram bot. Ark gives you payments to Ark addresses and Lightning
+  through the Paperclip Ark server (ark.paperclippool.xyz), with the same
+  words as the wallet. Ark reads the chain from the node only if it has
+  txindex on, which Knots (BLAKE2b) Companion turns off while it is pruned (its
+  default); choose mempool.kilombino.com as the chain source when activating
+  Ark instead. Both are for hot wallets only.
+
+
+  WHICH NODE IT NEEDS
+
+
+  Knots (BLAKE2b) Companion, from the PaulsCode.Com community store
+  (https://github.com/paulscode/umbrel-store), with its wallet feature on
+  (the default). The official Bitcoin Node app follows the SHA-256 chain and
+  is not used.
+developer: Kilombino
+website: https://github.com/Kilombino/kilowallet-server
+dependencies:
+  - paulscode-knots-blake2b
+repo: https://github.com/Kilombino/kilowallet-server
+support: https://t.me/Kilombino
+# Beside ThunderHub XBT (7160), clear of the PaulsCode.Com store's tiles (7150-7156).
+port: 7161
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-kilowallet/icon.png
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: >-
+  First release on Umbrel, the same Kilowallet server as the StartOS package
+  0.4.2: a coinjoin round whose pool's creator is gone no longer stays in
+  progress for good.
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store

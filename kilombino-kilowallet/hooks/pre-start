@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Kilowallet runs as 1000:1000. Make sure its data directory exists and is
+# writable by that user before the container starts.
+KILOWALLET_DATA_DIR="${APP_DATA_DIR}/data"
+
+mkdir -p "${KILOWALLET_DATA_DIR}"
+
+chown -R "1000:1000" "${KILOWALLET_DATA_DIR}"

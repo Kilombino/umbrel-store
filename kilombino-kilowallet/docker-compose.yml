@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-kilowallet_web_1
+      APP_PORT: 8080
+
+  web:
+    image: ghcr.io/kilombino/kilowallet-server:0.4.2@sha256:d55c0b2e12ded0dd5167823fb218da7414884a986efa66dec980cca75a08120f
+    user: "1000:1000"
+    restart: on-failure
+    # A coinjoin round or the Ark engine may be writing its state when stopped.
+    stop_grace_period: 1m
+    volumes:
+      # the encrypted wallet, settings, coinjoin state and the Ark engine's data (ark/)
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      HOME: "/data"
+      KILOWALLET_DATA: "/data"
+      KILOWALLET_PORT: "8080"
+      # Knots (BLAKE2b) Companion's RPC and the credentials its exports.sh generates.
+      # The node's rpcallowip covers the apps' subnet.
+      BITCOIN_RPC_URL: "http://${APP_KNOTS_BLAKE2B_NODE_IP}:${APP_KNOTS_BLAKE2B_RPC_PORT}/"
+      BITCOIN_RPC_USER: "${APP_KNOTS_BLAKE2B_RPC_USER}"
+      BITCOIN_RPC_PASS: "${APP_KNOTS_BLAKE2B_RPC_PASS}"
