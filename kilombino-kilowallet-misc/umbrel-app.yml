@@ -1,7 +1,7 @@
 manifestVersion: 1.1
 id: kilombino-kilowallet-misc
 category: bitcoin
-name: Kilowallet (Bitcoin Knots, Misc store)
+name: Kilowallet (Bitcoin Knots)
 version: "0.4.3"
 tagline: The Bitcoin BLAKE2b (XBT) wallet, on the Bitcoin Knots app of the Misc store
 description: >-
@@ -57,16 +57,17 @@ description: >-
   page that says so and does nothing until the node is on the BLAKE2b chain.
 
 
-  Other nodes: for the Bitcoin Knots app of the Umbrel App Store install
-  "Kilowallet (Bitcoin Knots)", and for Knots (BLAKE2b) Companion, from the
-  PaulsCode.Com store, install "Kilowallet", both from this same store.
+  The Bitcoin Knots app of the Umbrel App Store (version 1.2.13) has no Knots
+  version with BLAKE2b yet: use the one from the Misc store. For Knots
+  (BLAKE2b) Companion, from the PaulsCode.Com store, install "Kilowallet" from
+  this same store instead.
 developer: Kilombino
 website: https://github.com/Kilombino/kilowallet-server
 dependencies:
   - btc-bitcoinknots
 repo: https://github.com/Kilombino/kilowallet-server
 support: https://t.me/Kilombino
-# After Kilowallet (7161) and Kilowallet (Bitcoin Knots) (7162); the Misc store's Knots uses 2113.
+# After Kilowallet (7161); the Misc store's Knots uses 2113.
 port: 7163
 icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-kilowallet-misc/icon.png
 gallery: []

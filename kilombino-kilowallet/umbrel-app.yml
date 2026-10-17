@@ -48,8 +48,9 @@ description: >-
   Knots (BLAKE2b) Companion, from the PaulsCode.Com community store
   (https://github.com/paulscode/umbrel-store), with its wallet feature on
   (the default). The official Bitcoin Node app follows the SHA-256 chain and
-  is not used. If your node is the Bitcoin Knots app from the Umbrel App
-  Store, install "Kilowallet (Bitcoin Knots)" from this same store instead.
+  is not used. If your node is Léo Haf's Bitcoin Knots app from the Misc
+  community store, install "Kilowallet (Bitcoin Knots)" from this same store
+  instead.
 developer: Kilombino
 website: https://github.com/Kilombino/kilowallet-server
 dependencies:
