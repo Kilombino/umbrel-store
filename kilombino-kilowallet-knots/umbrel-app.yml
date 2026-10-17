@@ -62,6 +62,11 @@ description: >-
   and creates, scans and sends nothing until the node is on the BLAKE2b chain.
 
 
+  If your node is the Bitcoin Knots app of the Misc community store
+  (Horizon-btc/Bitcoin-store), which already has Knots versions with BLAKE2b,
+  install "Kilowallet (Bitcoin Knots, Misc store)" from this same store.
+
+
   If your node is Knots (BLAKE2b) Companion, from the PaulsCode.Com community
   store, install "Kilowallet" from this same store instead: that one is made
   for Paul's Companion.

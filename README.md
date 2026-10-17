@@ -17,6 +17,7 @@ https://github.com/Kilombino/umbrel-store
 | [ThunderHub XBT](kilombino-thunderhub-xbt) | ThunderHub forked for the BLAKE2b chain, managing a Lightning Fork node |
 | [Kilowallet](kilombino-kilowallet) | The Kilowallet XBT wallet with a web app for the phone, on Knots (BLAKE2b) Companion |
 | [Kilowallet (Bitcoin Knots)](kilombino-kilowallet-knots) | The same wallet, on the Bitcoin Knots app from the Umbrel App Store running a Knots version with BLAKE2b |
+| [Kilowallet (Bitcoin Knots, Misc store)](kilombino-kilowallet-misc) | The same wallet, on the Bitcoin Knots app of the Misc community store (Horizon-btc/Bitcoin-store), whose latest Knots versions have BLAKE2b |
 
 ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet needs that node, **Knots (BLAKE2b) Companion**, from the same store. Add that store too:
 

@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-kilowallet-misc_web_1
+      APP_PORT: 8080
+
+  web:
+    image: ghcr.io/kilombino/kilowallet-server:0.4.3@sha256:5db7c12d29f7f0de349932be0bf36f35edbdfe5ada85cbe9dd8f5a32bee0dd96
+    user: "1000:1000"
+    restart: on-failure
+    # A coinjoin round or the Ark engine may be writing its state when stopped.
+    stop_grace_period: 1m
+    volumes:
+      # the encrypted wallet, settings, coinjoin state and the Ark engine's data (ark/)
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      HOME: "/data"
+      KILOWALLET_DATA: "/data"
+      KILOWALLET_PORT: "8080"
+      # The Bitcoin Knots app's RPC and the credentials its exports.sh generates.
+      # Its bitcoin.conf allows RPC from the apps' subnet and keeps the wallet feature on.
+      # The server checks that the node follows the BLAKE2b chain and refuses any other.
+      BITCOIN_RPC_URL: "http://${APP_BITCOIN_KNOTS_NODE_IP}:${APP_BITCOIN_KNOTS_RPC_PORT}/"
+      BITCOIN_RPC_USER: "${APP_BITCOIN_KNOTS_RPC_USER}"
+      BITCOIN_RPC_PASS: "${APP_BITCOIN_KNOTS_RPC_PASS}"

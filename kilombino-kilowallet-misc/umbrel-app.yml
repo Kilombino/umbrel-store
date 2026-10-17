@@ -1,0 +1,80 @@
+manifestVersion: 1.1
+id: kilombino-kilowallet-misc
+category: bitcoin
+name: Kilowallet (Bitcoin Knots, Misc store)
+version: "0.4.3"
+tagline: The Bitcoin BLAKE2b (XBT) wallet, on the Bitcoin Knots app of the Misc store
+description: >-
+  Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
+  BLAKE2b chain (XBT), on your Umbrel: the same wallet code, with a web app
+  made for the phone (add it to your home screen), reading the chain straight
+  from the Bitcoin Knots app, with no Electrum server in between.
+
+
+  HOW IT WORKS
+
+
+  Kilowallet first checks that the node follows the BLAKE2b chain, and does
+  nothing on a node that does not. Then the node gets a watch-only wallet named
+  kilowallet-… with the public key only, which tracks history, the mempool and
+  balances; a pruned node works too. A hot wallet's words are encrypted with your password on this server
+  (PBKDF2 and AES-256-GCM), never enter the node, and the password is asked
+  again before every send. There is no way to recover the password: keep your
+  words safe. A watch-only wallet (xpub, ypub, zpub) sends through a PSBT
+  signed elsewhere. Every signature uses the unified sighash (0x21), so a
+  spend cannot be replayed on the SHA-256 chain.
+
+
+  Coin control, RBF, CPFP, a second confirmation for a fee that looks like a
+  slip, contacts, street mode, and USD/EUR prices if you want them.
+
+
+  COINJOIN AND ARK (BETA, OFF UNTIL YOU TURN THEM ON)
+
+
+  Coinjoin mixes your coins in the same pools as the Kilowallet app and
+  Kilojoin (relay.kilombino.com), with alerts in the browser and through your
+  own Telegram bot. Ark gives you payments to Ark addresses and Lightning
+  through the Paperclip Ark server (ark.paperclippool.xyz), with the same
+  words as the wallet. Ark reads the chain from the node only if it has
+  txindex on, which the Bitcoin Knots app has by default (unless you turn on
+  pruning); otherwise choose mempool.kilombino.com as the chain source when
+  activating Ark. Both are for hot wallets only.
+
+
+  WHICH NODE IT NEEDS
+
+
+  The Bitcoin Knots app from the Misc community store
+  (https://github.com/Horizon-btc/Bitcoin-store, formerly
+  Retropex/Bitcoin-store), running a Knots version that follows the BLAKE2b
+  chain: v29.4.1 or later, which its default choice (the latest version)
+  already is. Nothing to set up here: Kilowallet uses that app's RPC with the
+  credentials it generates, and its default settings (wallet feature on, RPC
+  open to the apps, txindex) are what Kilowallet needs. If you pinned an older
+  Knots version in that app's settings, the node follows the SHA-256 chain or
+  stops on block 961,639 just before the BLAKE2b fork, and Kilowallet shows a
+  page that says so and does nothing until the node is on the BLAKE2b chain.
+
+
+  Other nodes: for the Bitcoin Knots app of the Umbrel App Store install
+  "Kilowallet (Bitcoin Knots)", and for Knots (BLAKE2b) Companion, from the
+  PaulsCode.Com store, install "Kilowallet", both from this same store.
+developer: Kilombino
+website: https://github.com/Kilombino/kilowallet-server
+dependencies:
+  - btc-bitcoinknots
+repo: https://github.com/Kilombino/kilowallet-server
+support: https://t.me/Kilombino
+# After Kilowallet (7161) and Kilowallet (Bitcoin Knots) (7162); the Misc store's Knots uses 2113.
+port: 7163
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-kilowallet-misc/icon.png
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: >-
+  First release: Kilowallet on the Bitcoin Knots app of the Misc community
+  store, whose latest Knots versions follow the BLAKE2b chain.
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store
