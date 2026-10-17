@@ -7,7 +7,7 @@ services:
       APP_PORT: 3000
 
   web:
-    image: ghcr.io/kilombino/thunderhub-xbt:0.19.0-xbt.1@sha256:0299b8ffc8788397397483c21f9746c17a201f1d6fd48c1abb818619de495b4b
+    image: ghcr.io/kilombino/thunderhub-xbt:0.19.0-xbt.2@sha256:51f7faa846b4674cac6c5d65bbe1da0853d267f5f5e9f4be86521f667bbb6ccd
     user: "1000:1000"
     restart: on-failure
     stop_grace_period: 1m

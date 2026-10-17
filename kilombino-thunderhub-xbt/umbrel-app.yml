@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-thunderhub-xbt
 category: bitcoin
 name: ThunderHub XBT
-version: "0.19.0-xbt.1"
+version: "0.19.0-xbt.2"
 tagline: ThunderHub for Lightning on the Bitcoin BLAKE2b chain
 description: >-
   ThunderHub XBT is ThunderHub, the LND node manager, forked for the Bitcoin
@@ -44,10 +44,11 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
-  First release: ThunderHub 0.19.0 for the Bitcoin BLAKE2b chain, managing a
-  Lightning Fork node. BTCB2 prices from Neoxa, explorer and fee rates from
-  mempool.kilombino.com, Lightning explorer links to lightning.paperclippool.xyz,
-  no Amboss or Magma, channel notes, coin control, CPFP and a Spanish
-  interface.
+  Resize channels without closing them (splicing): Channels → Resize adds funds
+  from the on-chain wallet to a channel or moves funds out of your side to an
+  on-chain address, with an estimate of the fee, the new capacity and balance
+  and the confirmations until it locks. Shows whether splicing is on in your
+  node and whether each channel's peer supports it. Needs Lightning Fork
+  0.21.4-beta-blake2b.19 or later with Resize Channels turned on.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
