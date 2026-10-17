@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.4.2"
+version: "0.4.3"
 tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -14,9 +14,10 @@ description: >-
   HOW IT WORKS
 
 
-  The node gets a watch-only wallet named kilowallet-… with the public key
-  only, which tracks history, the mempool and balances; a pruned node works
-  too. A hot wallet's words are encrypted with your password on this server
+  Kilowallet first checks that the node follows the BLAKE2b chain, and does
+  nothing on a node that does not. Then the node gets a watch-only wallet named
+  kilowallet-… with the public key only, which tracks history, the mempool and
+  balances; a pruned node works too. A hot wallet's words are encrypted with your password on this server
   (PBKDF2 and AES-256-GCM), never enter the node, and the password is asked
   again before every send. There is no way to recover the password: keep your
   words safe. A watch-only wallet (xpub, ypub, zpub) sends through a PSBT
@@ -47,7 +48,8 @@ description: >-
   Knots (BLAKE2b) Companion, from the PaulsCode.Com community store
   (https://github.com/paulscode/umbrel-store), with its wallet feature on
   (the default). The official Bitcoin Node app follows the SHA-256 chain and
-  is not used.
+  is not used. If your node is the Bitcoin Knots app from the Umbrel App
+  Store, install "Kilowallet (Bitcoin Knots)" from this same store instead.
 developer: Kilombino
 website: https://github.com/Kilombino/kilowallet-server
 dependencies:
@@ -62,8 +64,11 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  First release on Umbrel, the same Kilowallet server as the StartOS package
-  0.4.2: a coinjoin round whose pool's creator is gone no longer stays in
-  progress for good.
+  Kilowallet now checks on its own which chain the node follows, at start and
+  every minute. The SHA-256 chain shares its history with BLAKE2b up to block
+  961,639, so a node on it would show the same coins as if they were XBT. If
+  the node follows the SHA-256 chain, has stopped just before the BLAKE2b fork,
+  or is still syncing below it, the page says so and Kilowallet creates, scans
+  and sends nothing until it is on the BLAKE2b chain.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
