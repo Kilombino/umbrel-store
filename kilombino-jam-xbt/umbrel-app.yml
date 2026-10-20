@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinMarket XBT (Jam)
-version: "0.41.0-xbt1"
+version: "0.41.0-xbt2"
 tagline: CoinJoin on Bitcoin BLAKE2b (XBT) with the Jam wallet
 description: >-
   JoinMarket-NG built for the Bitcoin BLAKE2b chain (XBT), with the Jam web
@@ -54,7 +54,10 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  First release: JoinMarket-NG 0.41.0 for Bitcoin BLAKE2b (XBT) with Jam
-  v2.0.0-beta.4 (XBT build xbt1), with the XBT directory preconfigured.
+  Settings › Wallet › View in Kilowallet (read-only): a QR code to follow this
+  wallet from your phone with Kilowallet (balance of the five jars and fidelity
+  bonds, with an alert when a bond unlocks). No private key leaves Jam. Jam also
+  shows the new icon in the browser tab. JoinMarket-NG 0.41.0, Jam
+  v2.0.0-beta.4, XBT build xbt2.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
