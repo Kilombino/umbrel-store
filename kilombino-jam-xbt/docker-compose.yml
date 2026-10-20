@@ -7,10 +7,8 @@ services:
       APP_PORT: 28183
 
   web:
-    # Multi-arch index of the reproducible local build of 0.41.0-xbt1 (joinmarket-ng
-    # a33fbfa5, jam 355f1e84): sha256:56ca65a7f07dd7b9290a98db44991245380bb4166adc52fb8c964b6c1bacd139
-    # Replace the placeholder with the digest ghcr shows after the push (expected: that one).
-    image: ghcr.io/kilombino/jam-xbt:0.41.0-xbt1@sha256:REPLACE_WITH_GHCR_INDEX_DIGEST
+    # Reproducible build of joinmarket-ng v0.41.0-xbt1 + jam v2.0.0-beta.4-xbt1 (amd64 + arm64).
+    image: ghcr.io/kilombino/jam-xbt:0.41.0-xbt1@sha256:3bf7c49107f4bc8e6a6420a470ce0de1c4d0f8a827148354c443c174fbd501f5
     user: "1000:1000"
     restart: on-failure
     # A CoinJoin in progress may be signing when stopped.
