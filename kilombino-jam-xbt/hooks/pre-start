@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Jam runs as 1000:1000 (the image refuses root). Make sure its data directory
+# exists and is writable by that user before the container starts.
+JAM_DATA_DIR="${APP_DATA_DIR}/data"
+
+mkdir -p "${JAM_DATA_DIR}"
+
+chown -R "1000:1000" "${JAM_DATA_DIR}"
+chmod 700 "${JAM_DATA_DIR}"
+
+# Pick the BLAKE2b node by itself.
+#
+# Umbrel offers the first installed app that implements "bitcoin", which is the
+# Bitcoin Node app (SHA-256 chain) whenever it is installed, or none at all if
+# the user never chose. So when the selection is empty or a node app that
+# follows the SHA-256 chain, and a node app on the BLAKE2b chain is installed,
+# select that one. A selection of a BLAKE2b node app, or of an app this hook
+# doesn't know, is left alone. Takes effect like the move above. Never fails.
+select_blake2b_node() {
+	local settings="${APP_DATA_DIR}/settings.yml"
+	command -v yq >/dev/null 2>&1 || return 0
+
+	local current=""
+	if [[ -f "${settings}" ]]; then
+		current="$(yq e '.dependencies.bitcoin // ""' "${settings}" 2>/dev/null)" || return 0
+	fi
+	case "${current}" in
+		""|bitcoin|bitcoin-knots|paulscode-knots-sha256) ;;
+		*) return 0 ;;
+	esac
+
+	local candidate provider=""
+	for candidate in paulscode-knots-blake2b btc-bitcoinknots; do
+		if [[ -f "${UMBREL_ROOT:-/nonexistent}/app-data/${candidate}/umbrel-app.yml" ]]; then
+			provider="${candidate}"
+			break
+		fi
+	done
+	[[ -n "${provider}" ]] || return 0
+
+	local tmp
+	tmp="$(mktemp "${settings}.tmp.XXXXXX")" || return 0
+	if [[ -f "${settings}" ]]; then
+		PROVIDER="${provider}" yq e '.dependencies.bitcoin = strenv(PROVIDER)' "${settings}" > "${tmp}" 2>/dev/null || { rm -f "${tmp}"; return 0; }
+		chmod --reference="${settings}" "${tmp}" 2>/dev/null || true
+		chown --reference="${settings}" "${tmp}" 2>/dev/null || true
+	else
+		printf 'dependencies:\n  bitcoin: %s\n' "${provider}" > "${tmp}" || { rm -f "${tmp}"; return 0; }
+	fi
+	[[ -s "${tmp}" ]] || { rm -f "${tmp}"; return 0; }
+	mv -f "${tmp}" "${settings}"
+	echo "Jam: using ${provider}, the Bitcoin node app on the BLAKE2b chain"
+}
+
+select_blake2b_node || true

@@ -1,0 +1,63 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-jam-xbt_web_1
+      APP_PORT: 28183
+
+  web:
+    # Multi-arch index of the reproducible local build of 0.41.0-xbt1 (joinmarket-ng
+    # a33fbfa5, jam 355f1e84): sha256:56ca65a7f07dd7b9290a98db44991245380bb4166adc52fb8c964b6c1bacd139
+    # Replace the placeholder with the digest ghcr shows after the push (expected: that one).
+    image: ghcr.io/kilombino/jam-xbt:0.41.0-xbt1@sha256:REPLACE_WITH_GHCR_INDEX_DIGEST
+    user: "1000:1000"
+    restart: on-failure
+    # A CoinJoin in progress may be signing when stopped.
+    stop_grace_period: 1m
+    volumes:
+      # wallets (*.jmdat), PoDLE commitments, history, Tor state
+      - ${APP_DATA_DIR}/data:/data
+    # The node is whichever app the user picked for the "bitcoin" dependency
+    # (umbrelOS 1.3 or later), as in Kilowallet: every node app that implements
+    # "bitcoin" exports APP_BITCOIN_*; the app-specific names are a fallback. The
+    # first set with an address and a port wins. Then the image's own entrypoint
+    # runs unchanged; it refuses (and waits) on a node not on the BLAKE2b chain.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        for p in KNOTS_BLAKE2B BITCOIN_KNOTS BITCOIN; do
+          eval "ip=\$${NODE_$${p}_IP:-} port=\$${NODE_$${p}_PORT:-}"
+          if [ -n "$$ip" ] && [ -n "$$port" ]; then
+            eval "BITCOIN_RPC_USER=\$${NODE_$${p}_USER:-} BITCOIN_RPC_PASS=\$${NODE_$${p}_PASS:-}"
+            BITCOIN_RPC_URL="http://$$ip:$$port"
+            export BITCOIN_RPC_URL BITCOIN_RPC_USER BITCOIN_RPC_PASS
+            echo "Jam: using the node at $$BITCOIN_RPC_URL (APP_$${p}_*)" >&2
+            break
+          fi
+        done
+        if [ -z "$${BITCOIN_RPC_URL:-}" ]; then
+          echo "Jam: no Bitcoin node app is selected or installed; choose one in this app's settings (a node on the BLAKE2b chain)" >&2
+        fi
+        unset NODE_KNOTS_BLAKE2B_PASS NODE_BITCOIN_KNOTS_PASS NODE_BITCOIN_PASS
+        exec tini -g -- jm-xbt-entrypoint
+    environment:
+      # Umbrel's app_proxy adds the login; it reaches jmwalletd over plain HTTP
+      # on the app network. Tor and the orderbook watcher stay on 127.0.0.1.
+      JMWALLETD_NO_TLS: "true"
+      # Knots (BLAKE2b) Companion, PaulsCode.Com store
+      NODE_KNOTS_BLAKE2B_IP: "${APP_KNOTS_BLAKE2B_NODE_IP:-}"
+      NODE_KNOTS_BLAKE2B_PORT: "${APP_KNOTS_BLAKE2B_RPC_PORT:-}"
+      NODE_KNOTS_BLAKE2B_USER: "${APP_KNOTS_BLAKE2B_RPC_USER:-}"
+      NODE_KNOTS_BLAKE2B_PASS: "${APP_KNOTS_BLAKE2B_RPC_PASS:-}"
+      # Bitcoin Knots, Misc store (btc-bitcoinknots) or Umbrel App Store (bitcoin-knots)
+      NODE_BITCOIN_KNOTS_IP: "${APP_BITCOIN_KNOTS_NODE_IP:-}"
+      NODE_BITCOIN_KNOTS_PORT: "${APP_BITCOIN_KNOTS_RPC_PORT:-}"
+      NODE_BITCOIN_KNOTS_USER: "${APP_BITCOIN_KNOTS_RPC_USER:-}"
+      NODE_BITCOIN_KNOTS_PASS: "${APP_BITCOIN_KNOTS_RPC_PASS:-}"
+      # The selected "bitcoin" provider, whichever it is
+      NODE_BITCOIN_IP: "${APP_BITCOIN_NODE_IP:-}"
+      NODE_BITCOIN_PORT: "${APP_BITCOIN_RPC_PORT:-}"
+      NODE_BITCOIN_USER: "${APP_BITCOIN_RPC_USER:-}"
+      NODE_BITCOIN_PASS: "${APP_BITCOIN_RPC_PASS:-}"

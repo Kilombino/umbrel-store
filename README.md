@@ -15,9 +15,10 @@ https://github.com/Kilombino/umbrel-store
 | App | What it is |
 | --- | --- |
 | [ThunderHub XBT](kilombino-thunderhub-xbt) | ThunderHub forked for the BLAKE2b chain, managing a Lightning Fork node |
+| [JoinMarket XBT (Jam)](kilombino-jam-xbt) | JoinMarket-NG for the BLAKE2b chain with the Jam web wallet: CoinJoin as a taker or a maker, on your BLAKE2b node, found by itself |
 | [Kilowallet](kilombino-kilowallet) | The Kilowallet XBT wallet with a web app for the phone, on your BLAKE2b node: Knots (BLAKE2b) Companion or the Misc store's Bitcoin Knots, found by itself |
 
-ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet needs a node on the BLAKE2b chain: **Knots (BLAKE2b) Companion** from the same store, or **Bitcoin Knots** from Léo Haf's Misc store (`https://github.com/Horizon-btc/Bitcoin-store`), and finds it by itself. Add the PaulsCode.Com store:
+ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet and JoinMarket XBT (Jam) need a node on the BLAKE2b chain: **Knots (BLAKE2b) Companion** from the same store, or **Bitcoin Knots** from Léo Haf's Misc store (`https://github.com/Horizon-btc/Bitcoin-store`), and finds it by itself. Add the PaulsCode.Com store:
 
 ```
 https://github.com/paulscode/umbrel-store
