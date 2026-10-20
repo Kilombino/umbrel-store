@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.5.0"
+version: "0.6.0"
 tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -82,10 +82,10 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  Kilojoin v3, as in Kilowallet 1.1.5: every coinjoin pool you open now has
-  blind outputs. When a round closes, each member's mixed output is signed
-  blindly by the pool's creator and handed in from a fresh key, so nobody (not
-  the relay, the other members, or the creator) can tell whose output is
-  whose. v1 and v2 pools still join as before.
+  Kilojoin v4, as in Kilowallet 1.2.0: whoever opens a coinjoin pool now picks
+  how many mixed outputs each person gets, 1 to 5. With 4 outputs of 1 000 000
+  sats, each person gets four outputs of 1 000 000 to four unused addresses of
+  their own, and the perfect coin is 4 000 000 plus the fee. A pool of one
+  output each is still v3, so every v3 wallet can join it.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
