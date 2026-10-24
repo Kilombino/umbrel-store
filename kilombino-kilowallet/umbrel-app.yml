@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.7.0"
+version: "0.8.0"
 tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -83,13 +83,17 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  As in Kilowallet 1.2.3. Coinjoin outputs to another wallet: in the COINJOIN
-  tab, add a watch-only wallet (its zpub, or a Taproot xpub) or your Jam
-  wallet (its "View in Kilowallet" line) with the day it was made; the node
-  keeps a watch-only copy, and a pool's mixed outputs can go to its first
-  addresses that never received anything (this wallet stays the default; it
-  works for the perfect coin too). 36 fiat currencies, and an amount box in
-  your currency in Send and Receive (BTC and Ark); BTC receive can ask for an
-  amount in its QR. Movements fold away so Coins stays at hand.
+  As in Kilowallet 1.2.6. Cancel an unconfirmed send: in its details, CANCEL
+  replaces it (RBF) with one that sends the same coins back to a fresh address
+  of this wallet, paying a little more fee; cancelling the payment that makes a
+  perfect coin drops that coin and its pool. The perfect coin's change goes to
+  the pool's address type. Coinjoin to another wallet: SHOW THE ADDRESSES lists
+  the unused addresses the mixed outputs would take, with their path, to
+  compare with that wallet before joining, and a round's card shows its real
+  addresses and which wallet (name and key start). A plain xpub asks for its
+  address type, and a key that is not an account key is pointed out. Each open
+  pool is notified once. The COINJOIN tab can be opened without notifications,
+  and settings open in place of the page. Speeding up or cancelling no longer
+  takes a minute.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
