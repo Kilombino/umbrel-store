@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.8.0"
+version: "0.9.0"
 tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -83,17 +83,17 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  As in Kilowallet 1.2.6. Cancel an unconfirmed send: in its details, CANCEL
-  replaces it (RBF) with one that sends the same coins back to a fresh address
-  of this wallet, paying a little more fee; cancelling the payment that makes a
-  perfect coin drops that coin and its pool. The perfect coin's change goes to
-  the pool's address type. Coinjoin to another wallet: SHOW THE ADDRESSES lists
-  the unused addresses the mixed outputs would take, with their path, to
-  compare with that wallet before joining, and a round's card shows its real
-  addresses and which wallet (name and key start). A plain xpub asks for its
-  address type, and a key that is not an account key is pointed out. Each open
-  pool is notified once. The COINJOIN tab can be opened without notifications,
-  and settings open in place of the page. Speeding up or cancelling no longer
-  takes a minute.
+  As in Kilowallet 1.3.0. Pay through a coinjoin: SEND takes several
+  recipients, and once they are filled in it offers to pay them through a new
+  pool. Equal amounts of one address type make a pool whose outputs for you go
+  straight to the recipients; different amounts make a payment pool (Kilojoin
+  v5, 1 to 5 recipients, all bc1q or all bc1p): the others put in the same
+  total and get it back in equal outputs. The payment only goes out when the
+  pool closes; if it doesn't fill, nothing is paid, and BACK returns to SEND as
+  it was. Open a pool from your coins: tick whole coins and the amount is
+  worked out so there is no change. The pool minimum is now per person in all
+  (2 × 5 000 is a pool, 3 × 3 000 only a test). Payment pools opened by others
+  are listed and joined like any other, and a payment pool's card shows what
+  it pays and to whom.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
