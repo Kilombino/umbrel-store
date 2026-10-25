@@ -5,14 +5,14 @@ id: kilombino-jam-xbt
 category: bitcoin
 name: JoinMarket XBT (Jam)
 version: "0.41.0-xbt3"
-tagline: CoinJoin on Bitcoin BLAKE2b (XBT) with the Jam wallet
+tagline: CoinJoin on Bitcoin BLAKE2b (BTC) with the Jam wallet
 description: >-
-  JoinMarket-NG built for the Bitcoin BLAKE2b chain (XBT), with the Jam web
+  JoinMarket-NG built for the Bitcoin BLAKE2b chain (BTC), with the Jam web
   wallet. Mix your coins with other people's in CoinJoins, or offer them to
   others and earn; your coins never leave your wallet. Nothing to configure.
 
 
-  CoinJoin en Bitcoin BLAKE2b (XBT) con la cartera Jam: mezcla tus monedas
+  CoinJoin en Bitcoin BLAKE2b (BTC) con la cartera Jam: mezcla tus monedas
   con las de otros, u ofrécelas y gana. Nada que configurar; Jam sale en
   español si tu navegador está en español.
 
@@ -22,8 +22,8 @@ description: >-
 
   Jam keeps a watch-only wallet in your BLAKE2b node and checks that the node
   follows the BLAKE2b chain: on any other node it does not start. It talks to
-  the XBT JoinMarket directory over its own Tor, with verified nick
-  authentication, and only to XBT JoinMarket peers. It mixes only with makers
+  the BLAKE2b JoinMarket directory over its own Tor, with verified nick
+  authentication, and only to JoinMarket peers on the BLAKE2b chain. It mixes only with makers
   that hold a fidelity bond; to earn you need one too (created in Jam, it
   locks the coins in it until the date you choose). Every signature uses the
   unified sighash (0x21), so nothing can be replayed on the SHA-256 chain.

@@ -6,10 +6,10 @@ id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
 version: "0.9.0"
-tagline: The Bitcoin BLAKE2b (XBT) wallet, on your own node
+tagline: The Bitcoin BLAKE2b (BTC) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
-  BLAKE2b chain (XBT), on your Umbrel: the same wallet code, with a web app
+  BLAKE2b chain (BTC), on your Umbrel: the same wallet code, with a web app
   made for the phone (add it to your home screen), reading the chain straight
   from your own BLAKE2b node, with no Electrum server in between.
 

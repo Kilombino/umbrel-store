@@ -6,7 +6,7 @@ version: "0.19.0-xbt.2"
 tagline: ThunderHub for Lightning on the Bitcoin BLAKE2b chain
 description: >-
   ThunderHub XBT is ThunderHub, the LND node manager, forked for the Bitcoin
-  BLAKE2b chain (XBT). It manages a Lightning Fork node: channels, payments,
+  BLAKE2b chain (BTC). It manages a Lightning Fork node: channels, payments,
   forwards, fees, rebalancing and reports, with everything that pointed at the
   SHA-256 chain pointed at this one instead.
 
