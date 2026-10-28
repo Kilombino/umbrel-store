@@ -11,9 +11,12 @@ x-roblosats: &roblosats
   restart: on-failure
   network_mode: service:tor
   entrypoint: ["/umbrel/run.sh"]
+  # secrets.env is made by hooks/pre-start, which Umbrel runs after pulling the images: optional
+  # here so the pull does not stop on it.
   env_file:
     - ${APP_DATA_DIR}/data/settings.env
-    - ${APP_DATA_DIR}/data/secrets.env
+    - path: ${APP_DATA_DIR}/data/secrets.env
+      required: false
   volumes:
     - ${APP_DATA_DIR}/data/run.sh:/umbrel/run.sh:ro
     - ${APP_DATA_DIR}/data/tor:/tor:ro
@@ -108,7 +111,8 @@ services:
     restart: on-failure
     network_mode: service:tor
     env_file:
-      - ${APP_DATA_DIR}/data/secrets.env
+      - path: ${APP_DATA_DIR}/data/secrets.env
+        required: false
     environment:
       POSTGRES_USER: roblosats
       POSTGRES_DB: roblosats
