@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.8.7-rl14"
+version: "0.8.7-rl15"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -26,7 +26,7 @@ description: >-
   - Over 60 fiat currencies, priced from the BLAKE2b chain's own markets.
 
 
-  Coordinators today: Kilobot and marcanoTrades. Keep your robots' tokens: on
+  Coordinators today: Kilobot, marcanoTrades and Rose Garden. Keep your robots' tokens: on
   another device or browser, recover a robot with its token.
 
 
@@ -34,10 +34,9 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
-  First version on Umbrel. Dark theme by default, Spamcoin in every currency
-  list, long invoices that wrap in the chat. The client reaches each
-  coordinator of the federation it ships with through Umbrel's Tor; new
-  coordinators come with new versions of the app.
+  Rose Garden joins the federation: Kilobot, marcanoTrades and Rose Garden,
+  all reached through Umbrel's Tor. Dark theme by default, Spamcoin in every
+  currency list, long invoices that wrap in the chat.
 developer: Kilombino
 website: https://roblosats.kilombino.com
 dependencies: []
