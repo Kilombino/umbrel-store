@@ -5,7 +5,7 @@ set -euo pipefail
 # Umbrel's backups): Django's key, the database password and the coordinator's Nostr key, which
 # signs its orders. Losing the Nostr key changes the coordinator's identity in the federation.
 D="${APP_DATA_DIR}/data"
-mkdir -p "${D}/tor" "${D}/postgres" "${D}/relay" "${D}/static"
+mkdir -p "${D}/tor" "${D}/postgres" "${D}/relay" "${D}/static" "${D}/no-lightning-fork"
 S="${D}/secrets.env"
 if [ ! -s "${S}" ]; then
   umask 077

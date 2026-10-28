@@ -18,11 +18,12 @@ x-roblosats: &roblosats
     - ${APP_DATA_DIR}/data/run.sh:/umbrel/run.sh:ro
     - ${APP_DATA_DIR}/data/tor:/tor:ro
     - ${APP_DATA_DIR}/data/static:/usr/src/static
-    - ${APP_LIGHTNING_FORK_NODE_DATA_DIR}:/lnd:ro
+    # Until Lightning Fork is installed, an empty directory: run.sh waits for its credentials.
+    - ${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}:/lnd:ro
   environment: &env
     SKIP_COLLECT_STATIC: "true"
     LNVENDOR: LND
-    LND_GRPC_HOST: "${APP_LIGHTNING_FORK_NODE_IP}:${APP_LIGHTNING_FORK_NODE_GRPC_PORT}"
+    LND_GRPC_HOST: "${APP_LIGHTNING_FORK_NODE_IP:-127.0.0.1}:${APP_LIGHTNING_FORK_NODE_GRPC_PORT:-10010}"
     # The node is whichever app the user picked for the "bitcoin" dependency, as Lightning Fork
     # does (Knots (BLAKE2b) Companion, or Bitcoin Knots 29.4.1 or later): run.sh takes the first
     # set with an address and a port.
