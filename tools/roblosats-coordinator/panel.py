@@ -24,6 +24,7 @@ ONION_FILE = "/tor/coordinator/hostname"
 LND_DIR = "/lnd"
 MACAROON = "data/chain/bitcoin/mainnet/admin.macaroon"
 REPO = "https://github.com/Kilombino/roblosats"
+FEDERATION_URL = "https://raw.githubusercontent.com/Kilombino/roblosats/roblosats/frontend/static/federation.json"
 GUIDE = "https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md"
 CSRF = secrets.token_urlsafe(24)
 
@@ -41,9 +42,9 @@ FIELDS = [
     ("DEVFUND", "Donation to Roblosats", "num", "Share of your fees, by keysend to the Roblosats maintainer (0.1 = 10 %)."),
     ("NOTICE_SEVERITY", "Notice on your page", "severity", ""),
     ("NOTICE_MESSAGE", "Notice text", "text", ""),
-    ("TELEGRAM_TOKEN", "Telegram bot token", "secret", "From @BotFather: your robots get their order alerts through it."),
-    ("TELEGRAM_BOT_NAME", "Telegram bot name", "text", "Without the @."),
-    ("TELEGRAM_COORDINATOR_CHAT_ID", "Your Telegram chat id", "text", "Where the bot tells you about disputes."),
+    ("TELEGRAM_TOKEN", "Telegram bot token", "secret", "Optional. In Telegram, talk to @BotFather, send /newbot and paste the token it gives you. Your robots get their order alerts through this bot."),
+    ("TELEGRAM_BOT_NAME", "Telegram bot name", "text", "The bot's username, without the @ (it ends in bot)."),
+    ("TELEGRAM_COORDINATOR_CHAT_ID", "Your Telegram chat id", "text", "Where the bot tells you about disputes: send any message to @userinfobot and copy the number it answers (your Id). After restarting, send /start to your own bot once."),
     ("ADMIN_TIME_ZONE", "Time zone of the admin panel", "text", "For example UTC or Europe/Madrid."),
 ]
 FED_FIELDS = [
@@ -196,7 +197,11 @@ def db_status():
             busy = cur.fetchone()[0]
             cur.execute("SELECT count(*) FROM api_order WHERE status = 1")
             public = cur.fetchone()[0]
-            return {"busy": busy, "public": public}
+            cur.execute("SELECT count(*) FROM api_order WHERE status = 14")
+            done = cur.fetchone()[0]
+            cur.execute("SELECT count(*) FROM api_order WHERE status = 11")
+            disputes = cur.fetchone()[0]
+            return {"busy": busy, "public": public, "done": done, "disputes": disputes}
         finally:
             c.close()
     except Exception:
@@ -210,6 +215,63 @@ def server_status():
         return {}
     except OSError:
         return {"error": "The Roblosats server is starting (it waits for Tor, Lightning Fork and the database)."}
+
+
+def live_info():
+    """What the coordinator tells robots now (its /api/info), or {} while it starts."""
+    try:
+        import requests
+        return requests.get("http://127.0.0.1:8000/api/info/", headers={"Host": "localhost"}, timeout=4).json()
+    except Exception:
+        return {}
+
+
+def pending_restart(s, live):
+    """The saved settings that the running coordinator does not use yet."""
+    if not live:
+        return []
+    out = []
+    try:
+        if abs(float(live.get("maker_fee", 0)) + float(live.get("taker_fee", 0)) - float(s.get("FEE", "0"))) > 1e-7:
+            out.append("fee")
+    except ValueError:
+        pass
+    for key, name in (("MIN_ORDER_SIZE", "min_order_size"), ("MAX_ORDER_SIZE", "max_order_size")):
+        if str(live.get(name, "")) != s.get(key, "").strip():
+            out.append(key.lower().replace("_", " "))
+    if live.get("node_alias", "") != s.get("NODE_ALIAS", s.get("COORDINATOR_ALIAS", "")):
+        out.append("name")
+    if live.get("notice_message", "") != s.get("NOTICE_MESSAGE", ""):
+        out.append("notice")
+    return out
+
+
+_fed = {"at": 0, "onions": None}
+
+
+def listed(on):
+    """Whether the federation published in Roblosats lists this onion (checked every 10 minutes)."""
+    if time.time() - _fed["at"] > 600:
+        try:
+            import requests
+            d = requests.get(FEDERATION_URL, timeout=6).json()
+            _fed["onions"] = {str(v.get("mainnet", {}).get("onion", "")).replace("http://", "").strip("/") for v in d.values()}
+        except Exception:
+            pass
+        _fed["at"] = time.time()
+    if _fed["onions"] is None:
+        return None
+    return on in _fed["onions"]
+
+
+def restart_note(s=None, live=None):
+    s = s if s is not None else settings()
+    live = live if live is not None else live_info()
+    p = pending_restart(s, live)
+    if not p:
+        return ""
+    return ('<div class="note warn">Saved settings not in use yet (%s): restart the app in Umbrel '
+            '(right-click its icon → Restart) when no order is in progress.</div>') % esc(", ".join(p))
 
 
 def sats(n):
@@ -231,11 +293,13 @@ nav a,.btn{display:inline-block;padding:7px 12px;border:1px solid var(--line);bo
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:0 0 14px}
 .row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
 .k{color:var(--mute)}.v{text-align:right;overflow-wrap:anywhere}
-.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.ok{color:var(--ok)}.mute{color:var(--mute)}.warn{color:var(--warn)}.bad{color:var(--bad)}
 code{font:13px ui-monospace,monospace;overflow-wrap:anywhere}
 label{display:block;margin:12px 0 4px;font-weight:600}.help{color:var(--mute);font-size:13px;margin:2px 0 0}
 input,select,textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
 .copy{margin-left:6px;padding:2px 8px;font-size:12px}.note{padding:10px 12px;border-radius:8px;border:1px solid var(--line);margin:0 0 14px}
+.chk{list-style:none;padding:0;margin:0}.chk li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.chk li:first-child{border-top:0}
+.chk .i{flex:0 0 22px;font-weight:700}.chk .t{flex:1}.chk .d{color:var(--mute);font-size:13px}.bar{height:6px;border-radius:3px;background:var(--line);margin:0 0 12px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
 .note.ok{border-color:var(--ok)}.note.warn{border-color:var(--warn)}.note.bad{border-color:var(--bad)}
 ol{padding-left:20px}li{margin:4px 0}
 """
@@ -271,31 +335,67 @@ def copyable(text):
 
 def status_page():
     on, (nhex, npub), ln, btc, db, srv, s = onion(), nostr_keys(), lnd_status(), bitcoin_status(), db_status(), server_status(), settings()
+    live = live_info() if not srv.get("error") else {}
+    fed = read_json(FEDERATION)
     ok = lambda b: '<span class=ok>●</span> ' if b else '<span class=bad>●</span> '
     parts = []
     starting = bool(srv.get("error") or db.get("error") or not on)
     if starting:
         parts.append('<div class="note warn">Starting… this page refreshes itself. The first start creates the database and the onion, and can take a few minutes.</div>')
+    parts.append(restart_note(s, live))
+
+    # The way to a running coordinator, ticked as each step is done.
+    mx = int(s.get("MAX_ORDER_SIZE", "0") or 0)
+    ln_ok = not ln.get("error")
+    liq_ok = ln_ok and ln["active"] > 0 and min(ln["max_local"], ln["max_remote"]) >= mx
+    is_listed = listed(on) if on else False
+    steps = [
+        (ln_ok, "Lightning Fork with a wallet", "Install Lightning Fork (PaulsCode.Com store) and create its wallet; then restart this app." if not ln_ok else "%s · %s" % (esc(ln["alias"] or "no alias"), "synced" if ln["synced"] else "syncing")),
+        (not btc.get("error") and not btc.get("ibd"), "Bitcoin node synced", esc(btc.get("error") or ("syncing %.1f %%" % (btc["progress"] * 100) if btc.get("ibd") else "block %s" % btc.get("blocks")))),
+        (liq_ok, "Channels for your largest order", ("Open channels in Lightning Fork that can both receive and send at least %s sats (your largest order), or lower it in <a href=\"/setup/settings\">Settings</a>." % sats(mx)) if not liq_ok else "inbound and outbound above %s sats" % sats(mx)),
+        (s.get("COORDINATOR_ALIAS", "My coordinator") not in ("", "My coordinator") and "name" not in pending_restart(s, live), "Your name, fees and limits", "Set them in <a href=\"/setup/settings\">Settings</a> and restart the app." if s.get("COORDINATOR_ALIAS", "My coordinator") in ("", "My coordinator") else esc(s.get("COORDINATOR_ALIAS"))),
+        (bool(s.get("TELEGRAM_TOKEN")), "Telegram alerts (optional)", "A bot for your robots' order alerts and your dispute alerts: <a href=\"/setup/settings\">Settings</a>."),
+        (bool(db.get("done")), "A first trade", "Open Roblosats with Tor Browser, add your onion under Coordinators, and buy and sell a small amount with two robots, paying from a wallet on another node." if not db.get("done") else "%s finished" % db["done"]),
+        (bool(fed.get("signature")) and fed.get("onion") == on, "Request to join the federation", "Your node signs it on <a href=\"/setup/federation\">Join the federation</a>; send it on GitHub or Telegram."),
+        (bool(is_listed), "Listed in the federation", "Shown in every Roblosats app, web and relay once you are added." if is_listed is not None else "Could not check the published list right now."),
+    ]
+    done = sum(1 for d, _, _ in steps if d)
+    items = "".join('<li><span class="i %s">%s</span><span class=t>%s<br><span class=d>%s</span></span></li>' % (
+        "ok" if d else "mute", "✓" if d else "○", t, h) for d, t, h in steps)
+    parts.append('<div class=card><h2>Getting started · %d of %d</h2><div class=bar><i style="width:%d%%"></i></div><ul class=chk>%s</ul></div>' % (
+        done, len(steps), done * 100 // len(steps), items))
+
     st = [row(ok(on) + "Tor", "onion ready" if on else "creating the onion…")]
-    st.append(row(ok(not ln.get("error")) + "Lightning Fork", esc(ln["error"]) if ln.get("error") else
+    st.append(row(ok(ln_ok) + "Lightning Fork", esc(ln["error"]) if not ln_ok else
                   "%s · %s · block %s" % (esc(ln["alias"] or "no alias"), "synced" if ln["synced"] else "syncing", ln["height"])))
     st.append(row(ok(not btc.get("error") and not btc.get("ibd")) + "Bitcoin node", esc(btc["error"]) if btc.get("error") else
                   ("block %s%s" % (btc["blocks"], " · syncing %.1f %%" % (btc["progress"] * 100) if btc["ibd"] else ""))))
     st.append(row(ok(not db.get("error")) + "Database", esc(db.get("error") or "ready")))
     st.append(row(ok(not srv.get("error")) + "Roblosats server", esc(srv.get("error") or "running")))
     if not db.get("error"):
-        st.append(row("Orders", "%s in the book · %s in progress%s" % (db["public"], db["busy"],
-                      " (don't restart now)" if db["busy"] else "")))
+        st.append(row("Orders", "%s in the book · %s in progress%s · %s finished" % (db["public"], db["busy"],
+                      " (don't restart now)" if db["busy"] else "", db["done"]), "warn" if db["busy"] else ""))
+        if db["disputes"]:
+            st.append(row("Disputes", '<a href="/coordinator/api/order/?status__exact=11">%s open: solve them in the admin panel</a>' % db["disputes"], "warn"))
     parts.append('<div class=card><h2>Status</h2>%s</div>' % "".join(st))
 
-    ident = [row("Name", esc(s.get("COORDINATOR_ALIAS", ""))),
-             row("Onion", copyable(on)),
+    if live:
+        fee = float(live.get("maker_fee", 0)) + float(live.get("taker_fee", 0))
+        pub = [row("Name", esc(live.get("node_alias", ""))),
+               row("Trade fee", "%.2f %% (maker %.3f %% · taker %.3f %%)" % (fee * 100, float(live.get("maker_fee", 0)) * 100, float(live.get("taker_fee", 0)) * 100)),
+               row("Orders", "%s to %s sats" % (sats(live.get("min_order_size", 0)), sats(live.get("max_order_size", 0)))),
+               row("On-chain payouts", "up to %s sats" % sats(live.get("max_swap", 0)) if live.get("swap_enabled") else "off"),
+               row("Donation to Roblosats", "%g %% of fees" % float(live.get("devfund", 0))),
+               row("Version", "Roblosats %s.%s.%s · LND %s" % (live.get("version", {}).get("major", "?"), live.get("version", {}).get("minor", "?"),
+                                                          live.get("version", {}).get("patch", "?"), esc(live.get("lnd_version", ""))))]
+        parts.append('<div class=card><h2>What robots see</h2>%s<p class=help>Read from your coordinator just now. If it differs from Settings, restart the app.</p></div>' % "".join(pub))
+
+    ident = [row("Onion", copyable(on)),
              row("Nostr key (hex)", copyable(nhex)), row("Nostr key (npub)", copyable(npub)),
              row("Node id", copyable(ln.get("pubkey", "")))]
-    parts.append('<div class=card><h2>Identity</h2>%s<p class=help>Robots can reach your coordinator by its onion right away: in Roblosats, Coordinators → add one by its address. To be listed for everyone, join the federation.</p></div>' % "".join(ident))
+    parts.append('<div class=card><h2>Identity</h2>%s<p class=help>Robots can reach your coordinator by its onion right away: in Roblosats, Coordinators → add one by its address. To be listed for everyone, join the federation. Your onion and Nostr key are your identity: Umbrel\'s backups of this app keep them.</p></div>' % "".join(ident))
 
-    if not ln.get("error"):
-        mx = int(s.get("MAX_ORDER_SIZE", "0") or 0)
+    if ln_ok:
         lim = min(ln["max_local"], ln["max_remote"])
         liq = [row("Active channels", "%s (%s inactive) · %s peers" % (ln["active"], ln["inactive"], ln["peers"])),
                row("Can send (outbound)", "%s sats · largest channel %s" % (sats(ln["local"]), sats(ln["max_local"]))),
@@ -306,14 +406,11 @@ def status_page():
               "<p class=help>The bonds and the seller's escrow come in through your inbound capacity; buyers are paid from your outbound capacity. Keep both above your largest order, ideally twice, for several orders at once.</p>"
         parts.append('<div class=card><h2>Liquidity</h2>%s%s</div>' % ("".join(liq), tip))
 
-    steps = """<ol>
-<li>Open channels in Lightning Fork, with liquidity both ways.</li>
-<li>Set your name, fees and limits in <a href="/setup/settings">Settings</a>, then restart the app in Umbrel.</li>
-<li>Try a small buy and a small sell against your own onion, paying from a wallet on another node.</li>
-<li><a href="/setup/federation">Join the federation</a>: your node signs the request and you send it.</li>
-<li>Look after your orders and disputes in the <a href="/coordinator/">admin panel</a> (user <code>admin</code>, the password Umbrel shows for this app).</li>
-</ol>"""
-    parts.append('<div class=card><h2>Getting started</h2>%s</div>' % steps)
+    parts.append('<div class=card><h2>Day to day</h2><ul>'
+                 '<li>Orders, disputes and robots: the <a href="/coordinator/">admin panel</a> (user <code>admin</code>, the password Umbrel shows for this app).</li>'
+                 '<li>A dispute: read both robots\' chat in the order, ask them for proof, and settle it for one of them.</li>'
+                 '<li>Never restart or update the app while an order is in progress.</li>'
+                 '<li>Questions: <a href="https://t.me/roblosats" target=_blank rel=noopener>t.me/roblosats</a>.</li></ul></div>')
     return page("Status", "".join(parts), refresh=starting)
 
 
@@ -337,6 +434,7 @@ def settings_page(msg="", cls="ok"):
     form = "".join(field_html(n, l, k, h, s.get(n, "")) for n, l, k, h in FIELDS)
     note = '<div class="note %s">%s</div>' % (cls, msg) if msg else ""
     busy = ('<div class="note warn">%s orders are in progress: restart only when they finish.</div>' % db["busy"]) if db.get("busy") else ""
+    busy += restart_note(s)
     body = ('%s%s<div class=card><h2>Settings</h2><form method=post action="/setup/settings">'
             '<input type=hidden name=csrf value="%s">%s<p><button class="btn p">Save</button></p></form>'
             '<p class=help>Saved settings take effect when the app restarts (Umbrel → this app → Restart). Never restart while an order is in progress.</p></div>') % (note, busy, CSRF, form)

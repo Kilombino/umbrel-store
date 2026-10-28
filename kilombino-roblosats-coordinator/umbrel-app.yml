@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.7-rl15-5"
+version: "0.8.7-rl15-6"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,6 +50,14 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  For new coordinators: a Getting started checklist that ticks itself (wallet,
+  node, channels for your largest order, name and fees, Telegram, a first
+  trade, the federation request, listed), what robots see from your
+  coordinator now, a warning when saved settings wait for a restart, help to
+  set up Telegram, open disputes on the status page, and a Setup button on
+  every admin page.
+
+
   Fix: the app's page (/setup/) now arrives on updates too. The app's own
   files are written by its start hook on every start, since an update only
   brings docker-compose.yml, umbrel-app.yml and hooks/.
