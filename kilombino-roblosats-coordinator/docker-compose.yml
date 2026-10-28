@@ -17,6 +17,9 @@ x-roblosats: &roblosats
     - ${APP_DATA_DIR}/data/settings.env
     - path: ${APP_DATA_DIR}/data/secrets.env
       required: false
+    # What the app's Settings page saves (data/panel.py), over settings.env.
+    - path: ${APP_DATA_DIR}/data/panel/settings.local.env
+      required: false
   volumes:
     - ${APP_DATA_DIR}/data/run.sh:/umbrel/run.sh:ro
     - ${APP_DATA_DIR}/data/tor:/tor:ro
@@ -163,6 +166,19 @@ services:
   celery-beat:
     <<: *roblosats
     command: ["celery", "-A", "robosats", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+
+  # The app's own page on the tile (/setup/): status, identity, liquidity, settings, and the
+  # request to join the federation, signed by the node. Never on the onion.
+  panel:
+    <<: *roblosats
+    entrypoint: ["python3", "/umbrel/panel.py"]
+    command: []
+    volumes:
+      - ${APP_DATA_DIR}/data/panel.py:/umbrel/panel.py:ro
+      - ${APP_DATA_DIR}/data/settings.env:/umbrel/settings.env:ro
+      - ${APP_DATA_DIR}/data/panel:/umbrel/panel
+      - ${APP_DATA_DIR}/data/tor:/tor:ro
+      - ${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}:/lnd:ro
 
   nginx:
     image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10

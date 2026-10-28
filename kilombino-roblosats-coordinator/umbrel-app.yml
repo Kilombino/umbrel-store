@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.7-rl15-2"
+version: "0.8.7-rl15-3"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -33,24 +33,16 @@ description: >-
   one Lightning Fork uses.
 
 
-  SETTINGS
+  EVERYTHING FROM THE TILE
 
 
-  Your coordinator's name, fees, order limits, on-chain payouts and Telegram
-  alerts are in settings.env in this app's data directory
-  (~/umbrel/app-data/kilombino-roblosats-coordinator/data/settings.env):
-  edit it and restart the app, never while an order is in progress.
-
-
-  JOINING THE FEDERATION
-
-
-  To be listed in the Roblosats apps, open an issue at
-  https://github.com/Kilombino/roblosats with your alias, your onion (in
-  the file data/tor/coordinator/hostname of this app, and in the app's logs),
-  your Nostr public key (from NOSTR_NSEC in data/secrets.env) and your node's signature
-  of "Roblosats federation: <your onion>". Until then, robots can still use
-  your coordinator by its onion.
+  The app opens on its own page: whether Tor, Lightning Fork, the Bitcoin
+  node and the server are running; your onion, Nostr key and node id; your
+  channels' inbound and outbound liquidity against your largest order; a
+  Settings form (name, fees, order limits, on-chain payouts, Telegram
+  alerts); and Join the federation, where your node signs the request and it
+  opens on GitHub filled in. Settings take effect when the app restarts:
+  never restart it while an order is in progress (the page tells you).
 
 
   Running a coordinator means solving disputes and keeping your node healthy:
@@ -58,6 +50,11 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  The app's own page: status, identity, liquidity, settings and the request
+  to join the federation, all from the tile, and a "Starting" page instead of
+  an error while the server starts. Installs before Lightning Fork too.
+
+
   First version (beta): the Roblosats rl15 server with the hardening of
   rl9 to rl13 (locks against simultaneous cancellations, rewards backed by
   settled bonds, payout limits, the BLAKE2b price oracle and timelocks).
@@ -73,7 +70,7 @@ port: 7167
 icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats-coordinator/icon.png
 gallery:
   - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats/1.jpg
-path: "/coordinator/"
+path: "/setup/"
 defaultUsername: "admin"
 deterministicPassword: true
 submitter: Kilombino
