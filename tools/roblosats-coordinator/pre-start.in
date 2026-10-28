@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The coordinator's secrets, made once on this Umbrel and kept in its data directory (and so in
+# Umbrel's backups): Django's key, the database password and the coordinator's Nostr key, which
+# signs its orders. Losing the Nostr key changes the coordinator's identity in the federation.
+D="${APP_DATA_DIR}/data"
+mkdir -p "${D}/tor" "${D}/postgres" "${D}/relay" "${D}/static" "${D}/no-lightning-fork" "${D}/panel"
+S="${D}/secrets.env"
+if [ ! -s "${S}" ]; then
+  umask 077
+  {
+    echo "SECRET_KEY='$(openssl rand -hex 32)'"
+    echo "POSTGRES_PASSWORD='$(openssl rand -hex 24)'"
+    echo "NOSTR_NSEC='$(openssl rand -hex 32)'"
+  } > "${S}"
+fi
+chmod 600 "${S}"
+# Tor wants its hidden service directory to itself (the image runs it as uid 100, group 1000).
+chmod 700 "${D}/tor"
