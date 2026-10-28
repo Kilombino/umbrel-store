@@ -14,6 +14,19 @@ fi
 export HOST_NAME="$onion" ONION_LOCATION="$onion" HOST_NAME2="localhost" LOCAL_ALIAS="localhost"
 export CSRF_TRUSTED_ORIGINS="http://$onion,http://localhost"
 
+# The Bitcoin node picked for the "bitcoin" dependency: the first set with an address and a port.
+for p in KNOTS_BLAKE2B BITCOIN_KNOTS BITCOIN; do
+  eval "ip=\${NODE_${p}_IP:-} port=\${NODE_${p}_PORT:-}"
+  if [ -n "$ip" ] && [ -n "$port" ]; then
+    eval "BITCOIND_RPCUSER=\${NODE_${p}_USER:-} BITCOIND_RPCPASSWORD=\${NODE_${p}_PASS:-}"
+    BITCOIND_RPCURL="http://$ip:$port"
+    export BITCOIND_RPCURL BITCOIND_RPCUSER BITCOIND_RPCPASSWORD
+    [ "${ROBLOSATS_ROLE:-}" = main ] && echo "Bitcoin node: $BITCOIND_RPCURL (APP_${p}_*)"
+    break
+  fi
+done
+unset NODE_KNOTS_BLAKE2B_PASS NODE_BITCOIN_KNOTS_PASS NODE_BITCOIN_PASS
+
 # Lightning Fork (PaulsCode.Com store): its LND directory, read-only.
 export LND_DIR=/lnd MACAROON_PATH=data/chain/bitcoin/mainnet/admin.macaroon
 until [ -s "$LND_DIR/tls.cert" ] && [ -s "$LND_DIR/$MACAROON_PATH" ]; do

@@ -28,7 +28,9 @@ description: >-
   liquidity to receive the bonds and escrows, outbound to pay buyers. Start
   with small orders and raise the limits as your channels grow.
 
-  - Knots (BLAKE2b) Companion (PaulsCode.Com store), synced.
+  - A Bitcoin node on the BLAKE2b chain, synced: Knots (BLAKE2b) Companion
+  (PaulsCode.Com store), or Bitcoin Knots 29.4.3 (Misc store). Pick the same
+  one Lightning Fork uses.
 
 
   SETTINGS
@@ -63,7 +65,7 @@ developer: Kilombino
 website: https://roblosats.kilombino.com
 dependencies:
   - paulscode-lightning-fork
-  - paulscode-knots-blake2b
+  - bitcoin
 repo: https://github.com/Kilombino/roblosats
 support: https://t.me/roblosats
 # Clear of the PaulsCode.Com store's tiles (7150-7156) and the other apps of this store.

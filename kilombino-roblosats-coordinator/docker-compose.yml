@@ -3,8 +3,8 @@ version: "3.7"
 # A Roblosats coordinator on Umbrel: the Roblosats server (Django, Daphne, Celery and the order
 # and invoice loops), PostgreSQL, Redis, nginx, a Nostr relay and its own Tor onion, all in the
 # network namespace of the tor service (they talk on 127.0.0.1, as in the upstream deployment).
-# Lightning: Lightning Fork (PaulsCode.Com store), read-only credentials. Chain: the selected
-# BLAKE2b node, for addresses of on-chain payouts.
+# Lightning: Lightning Fork (PaulsCode.Com store), read-only credentials. Chain: the node picked
+# for the "bitcoin" dependency (on the BLAKE2b chain), for addresses of on-chain payouts.
 
 x-roblosats: &roblosats
   image: ghcr.io/kilombino/roblosats-coordinator:0.8.7-rl15@sha256:4c50bb928333249ec45471eaa09b2fc1e0a76ccc3a02cd468306191387829c87
@@ -23,9 +23,21 @@ x-roblosats: &roblosats
     SKIP_COLLECT_STATIC: "true"
     LNVENDOR: LND
     LND_GRPC_HOST: "${APP_LIGHTNING_FORK_NODE_IP}:${APP_LIGHTNING_FORK_NODE_GRPC_PORT}"
-    BITCOIND_RPCURL: "http://${APP_KNOTS_BLAKE2B_NODE_IP}:${APP_KNOTS_BLAKE2B_RPC_PORT}"
-    BITCOIND_RPCUSER: "${APP_KNOTS_BLAKE2B_RPC_USER}"
-    BITCOIND_RPCPASSWORD: "${APP_KNOTS_BLAKE2B_RPC_PASS}"
+    # The node is whichever app the user picked for the "bitcoin" dependency, as Lightning Fork
+    # does (Knots (BLAKE2b) Companion, or Bitcoin Knots 29.4.1 or later): run.sh takes the first
+    # set with an address and a port.
+    NODE_KNOTS_BLAKE2B_IP: "${APP_KNOTS_BLAKE2B_NODE_IP:-}"
+    NODE_KNOTS_BLAKE2B_PORT: "${APP_KNOTS_BLAKE2B_RPC_PORT:-}"
+    NODE_KNOTS_BLAKE2B_USER: "${APP_KNOTS_BLAKE2B_RPC_USER:-}"
+    NODE_KNOTS_BLAKE2B_PASS: "${APP_KNOTS_BLAKE2B_RPC_PASS:-}"
+    NODE_BITCOIN_KNOTS_IP: "${APP_BITCOIN_KNOTS_NODE_IP:-}"
+    NODE_BITCOIN_KNOTS_PORT: "${APP_BITCOIN_KNOTS_RPC_PORT:-}"
+    NODE_BITCOIN_KNOTS_USER: "${APP_BITCOIN_KNOTS_RPC_USER:-}"
+    NODE_BITCOIN_KNOTS_PASS: "${APP_BITCOIN_KNOTS_RPC_PASS:-}"
+    NODE_BITCOIN_IP: "${APP_BITCOIN_NODE_IP:-}"
+    NODE_BITCOIN_PORT: "${APP_BITCOIN_RPC_PORT:-}"
+    NODE_BITCOIN_USER: "${APP_BITCOIN_RPC_USER:-}"
+    NODE_BITCOIN_PASS: "${APP_BITCOIN_RPC_PASS:-}"
     REDIS_URL: redis://127.0.0.1:6379/1
     POSTGRES_DB: roblosats
     POSTGRES_USER: roblosats
