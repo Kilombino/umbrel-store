@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.7-rl15-3"
+version: "0.8.7-rl15-4"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,6 +50,10 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Fix: the app's page (/setup/) now arrives on update too (its files moved
+  out of data/, which Umbrel keeps as it is on updates).
+
+
   The app's own page: status, identity, liquidity, settings and the request
   to join the federation, all from the tile, and a "Starting" page instead of
   an error while the server starts. Installs before Lightning Fork too.
