@@ -45,7 +45,9 @@ support: https://t.me/roblosats
 port: 7166
 requiresHttps: true
 icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats/icon.png
-gallery: []
+gallery:
+  - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats/1.jpg
+  - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats/2.jpg
 path: ""
 defaultUsername: ""
 defaultPassword: ""
