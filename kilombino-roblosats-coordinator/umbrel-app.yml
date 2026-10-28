@@ -1,0 +1,78 @@
+manifestVersion: 1.3.0
+id: kilombino-roblosats-coordinator
+category: bitcoin
+name: Roblosats Coordinator
+version: "0.8.7-rl15"
+tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
+description: >-
+  Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
+  chain (RoboSats for BTC), on your Umbrel: robots trade through your
+  coordinator, with hold invoices on your Lightning Fork node, and you earn
+  the trade fees.
+
+
+  WHAT YOU GET
+
+
+  The Roblosats server (the same image as the Kilobot coordinator), its
+  database, its Nostr relay (synced with the rest of the federation) and its
+  own Tor onion, where robots reach it. The admin panel (orders, disputes,
+  rewards) opens from this tile, behind Umbrel's login, and is never served
+  on the onion. User "admin", password: the one Umbrel shows for this app.
+
+
+  WHAT IT NEEDS
+
+
+  - Lightning Fork (PaulsCode.Com store), with a wallet and channels: inbound
+  liquidity to receive the bonds and escrows, outbound to pay buyers. Start
+  with small orders and raise the limits as your channels grow.
+
+  - Knots (BLAKE2b) Companion (PaulsCode.Com store), synced.
+
+
+  SETTINGS
+
+
+  Your coordinator's name, fees, order limits, on-chain payouts and Telegram
+  alerts are in settings.env in this app's data directory
+  (~/umbrel/app-data/kilombino-roblosats-coordinator/data/settings.env):
+  edit it and restart the app, never while an order is in progress.
+
+
+  JOINING THE FEDERATION
+
+
+  To be listed in the Roblosats apps, open an issue at
+  https://github.com/Kilombino/roblosats with your alias, your onion (in
+  the file data/tor/coordinator/hostname of this app, and in the app's logs),
+  your Nostr public key (from NOSTR_NSEC in data/secrets.env) and your node's signature
+  of "Roblosats federation: <your onion>". Until then, robots can still use
+  your coordinator by its onion.
+
+
+  Running a coordinator means solving disputes and keeping your node healthy:
+  read the guide at
+  https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
+  first.
+releaseNotes: >-
+  First version (beta): the Roblosats rl15 server with the hardening of
+  rl9 to rl13 (locks against simultaneous cancellations, rewards backed by
+  settled bonds, payout limits, the BLAKE2b price oracle and timelocks).
+developer: Kilombino
+website: https://roblosats.kilombino.com
+dependencies:
+  - paulscode-lightning-fork
+  - paulscode-knots-blake2b
+repo: https://github.com/Kilombino/roblosats
+support: https://t.me/roblosats
+# Clear of the PaulsCode.Com store's tiles (7150-7156) and the other apps of this store.
+port: 7167
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats-coordinator/icon.png
+gallery:
+  - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats/1.jpg
+path: "/coordinator/"
+defaultUsername: "admin"
+deterministicPassword: true
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store

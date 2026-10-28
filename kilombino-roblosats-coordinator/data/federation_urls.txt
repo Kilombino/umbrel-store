@@ -1,0 +1,4 @@
+# Relays of the other coordinators of the Roblosats federation, synced every two minutes.
+ws://kiloblo3ibbey3wridofauizwb467y5osfaycxoecgsf66mggsrw6ryd.onion/relay
+ws://olwrnvnukon2lkgqmbdtjfm3vqzadhbtbjmi4abillzjmhwfhhp3mryd.onion/relay
+ws://fvdl26sy3yquqp5ft5p6gkwf3utztghncqcz5vjg62cwsurr2yyjluid.onion/relay
