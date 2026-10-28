@@ -1,0 +1,55 @@
+manifestVersion: 2
+id: kilombino-roblosats
+category: bitcoin
+name: Roblosats
+version: "0.8.7-rl14"
+tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
+description: >-
+  Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
+  private way to exchange bitcoin for national currencies (and for Spamcoin),
+  peer to peer, over the Lightning network, with hold invoices so neither side
+  can run away with the funds.
+
+
+  This app is the Roblosats client served from your own Umbrel. It talks to
+  every coordinator of the Roblosats federation over Umbrel's Tor, so they
+  only ever see a Tor connection. No account, no KYC: your robot is generated
+  from a token that only you keep.
+
+
+  - Fidelity bonds and escrow with Lightning hold invoices.
+
+  - PGP-encrypted chat with your peer.
+
+  - The buyer can take the sats on-chain.
+
+  - Over 60 fiat currencies, priced from the BLAKE2b chain's own markets.
+
+
+  Coordinators today: Kilobot and marcanoTrades. Keep your robots' tokens: on
+  another device or browser, recover a robot with its token.
+
+
+  You need a Lightning wallet on the BLAKE2b chain to trade (Kilowallet,
+  Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
+  Lightning invoices).
+releaseNotes: >-
+  First version on Umbrel. Dark theme by default, Spamcoin in every currency
+  list, long invoices that wrap in the chat. The client reaches each
+  coordinator of the federation it ships with through Umbrel's Tor; new
+  coordinators come with new versions of the app.
+developer: Kilombino
+website: https://roblosats.kilombino.com
+dependencies: []
+repo: https://github.com/Kilombino/roblosats
+support: https://t.me/roblosats
+# Clear of the PaulsCode.Com store's tiles (7150-7156) and the other apps of this store.
+port: 7166
+requiresHttps: true
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-roblosats/icon.png
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store

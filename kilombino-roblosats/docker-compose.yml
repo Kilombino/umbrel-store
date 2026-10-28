@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-roblosats_web_1
+      APP_PORT: 12596
+
+  web:
+    image: ghcr.io/kilombino/roblosats-client:v0.8.7-rl14@sha256:24992f56f7115e01caf748b58ef7cfee547ee0bb2eecc9b4808b858b6a4e16f1
+    restart: on-failure
+    stop_grace_period: 1m
+    init: true
+    environment:
+      # Every coordinator of the federation is reached over Umbrel's Tor.
+      TOR_PROXY_IP: ${TOR_PROXY_IP}
+      TOR_PROXY_PORT: ${TOR_PROXY_PORT}
+      # umbrelOS protects browser connections with HTTPS and authentication: plain HTTP inside.
+      PLAIN_HTTP: "1"
