@@ -13,3 +13,9 @@ if [[ ! -f "$dest/chooser.json" ]]; then
   cp "$src" "$dest/chooser.json"
   chmod 600 "$dest/chooser.json"
 fi
+
+# The chooser runs as 1000:1000, like the other apps in this store.
+# Data saved by 0.1.4 and earlier was written as root, so hand it over.
+if [[ "$(id -u)" == "0" ]]; then
+  chown -R 1000:1000 "$dest"
+fi

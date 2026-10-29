@@ -20,4 +20,6 @@ RUN apt-get update \
 WORKDIR /opt/routehash
 COPY runtime/ /opt/routehash/
 
+USER 1000:1000
+
 CMD ["python3", "/opt/routehash/pool_balance_loop.py", "--data", "/data", "--ui", "7156"]
