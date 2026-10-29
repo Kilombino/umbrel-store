@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.8.7-rl15-1"
+version: "0.8.7-rl16"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,8 +34,9 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
-  Fixes the coordinators' limits, order book and robots, which did not load
-  on Umbrel: each coordinator is now asked by its own onion name.
+  Roblosats 0.8.7-rl16. Same client as 0.8.7-rl15-1, built from rl16 so the
+  version matches the Android app (whose built-in Tor moved to 0.4.9).
+  Federation: Kilobot, marcanoTrades and Rose Garden.
 developer: Kilombino
 website: https://roblosats.kilombino.com
 dependencies: []
