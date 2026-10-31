@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.7-rl15-6"
+version: "0.8.8-rl18"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,12 +50,13 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
-  For new coordinators: a Getting started checklist that ticks itself (wallet,
-  node, channels for your largest order, name and fees, Telegram, a first
-  trade, the federation request, listed), what robots see from your
-  coordinator now, a warning when saved settings wait for a restart, help to
-  set up Telegram, open disputes on the status page, and a Setup button on
-  every admin page.
+  Roblosats 0.8.8-rl18, based on RoboSats v0.8.8. Back up the app first: on
+  start the database is migrated (under a lock) and every order's log is
+  converted to the new JSON format, so going back to an older version needs
+  that backup. New: upstream fixes for order race conditions, the hold
+  invoice amount checked before accepting, escaped order logs, admin panel
+  fixes, and the devfund node read from DEVFUND_PUBKEY (empty: the Roblosats
+  maintainer's node, as before).
 
 
   Fix: the app's page (/setup/) now arrives on updates too. The app's own
