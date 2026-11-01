@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl22"
+version: "0.8.8-rl23"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,6 +50,12 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats 0.8.8-rl23: the web client served by your coordinator now
+  starts new coordinators at a 25M sats order limit instead of 250k sats,
+  so a young coordinator can take normal-sized orders (your own maximum
+  order size still applies). No database or server changes.
+
+
   Roblosats 0.8.8-rl22: a dispute panel in the admin. For each disputed
   order it shows who buys and who sells, both statements and the chat each
   party attached; you can write to the buyer, the seller or both (app
