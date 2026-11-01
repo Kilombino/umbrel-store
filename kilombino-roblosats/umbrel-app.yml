@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.8.8-rl18"
+version: "0.8.8-rl20"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,6 +34,10 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
+  Roblosats 0.8.8-rl20: the trade screen now redraws after an action, e.g.
+  after Confirm fiat sent it no longer keeps showing the button.
+
+
   Roblosats 0.8.8-rl18, based on RoboSats v0.8.8: garage key (one key for all
   your robots), coordinator fees in the order view, a better coordinator
   selector and two months of upstream fixes. Federation: Kilobot,
