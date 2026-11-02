@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl23"
+version: "0.8.8-rl24"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,6 +50,13 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats 0.8.8-rl24: in orders paid in Spamcoin, both sides now see the
+  same Spamcoin amount. Your coordinator keeps the BTC/Spamcoin rate with 8
+  decimals (with 4 it moved in ~2 % steps) and fixes the Spamcoin amount when
+  the taker's bond locks. Includes a small database migration that runs by
+  itself when the app starts; update with no order in progress.
+
+
   Roblosats 0.8.8-rl23: the web client served by your coordinator now
   starts new coordinators at a 25M sats order limit instead of 250k sats,
   so a young coordinator can take normal-sized orders (your own maximum
