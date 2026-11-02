@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl24"
+version: "0.8.8-rl25"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,6 +50,11 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats 0.8.8-rl25: your coordinator keeps a copy of every chat message
+  again when the robots use the Nostr chat (before, only the first one was
+  stored, so disputes had no chat). No database migration.
+
+
   Roblosats 0.8.8-rl24: in orders paid in Spamcoin, both sides now see the
   same Spamcoin amount. Your coordinator keeps the BTC/Spamcoin rate with 8
   decimals (with 4 it moved in ~2 % steps) and fixes the Spamcoin amount when
