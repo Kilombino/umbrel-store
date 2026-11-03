@@ -1,0 +1,70 @@
+# umbrelOS 1.3: the user picks which app answers the `bitcoin` dependency.
+manifestVersion: 1.3.0
+id: kilombino-mempool
+category: bitcoin
+name: Mempool Kilombino
+version: "3.2.1.1"
+tagline: Mempool explorer for the Bitcoin BLAKE2b chain, by Kilombino
+description: >-
+  The explorer that runs at mempool.kilombino.com, on your own Umbrel: blocks,
+  transactions, addresses, fees and the mempool of the Bitcoin BLAKE2b chain
+  (BTC), read from your own node. It adds what that chain needs: 164-byte
+  headers and 800,000 weight units per block, a mining dashboard that
+  recognizes its pools, BTC prices, and a world map of the nodes your node
+  finds on the network.
+
+
+  WHAT IT NEEDS
+
+
+  Knots (BLAKE2b) Companion and Electrs Pruned, both from the PaulsCode.Com
+  community store (https://github.com/paulscode/umbrel-store). When Umbrel asks
+  which Bitcoin node to use, pick Knots (BLAKE2b) Companion: on a node of the
+  SHA256 chain this explorer stops and says so in its log.
+
+
+  The node must keep the whole chain with the transaction index on: in Knots
+  (BLAKE2b) Companion's settings, turn pruning off and txindex on (it is pruned
+  by default, and turning pruning off downloads the full chain). This explorer
+  looks transactions up in the node itself; on a pruned node use Mempool
+  Pruned instead.
+
+
+  NODES MAP
+
+
+  Every hour the explorer contacts the nodes your node knows on this chain and
+  places them on a world map, shown on the dashboard and at /nodes-map/. The
+  locations come from DB-IP's free IP-to-city database, downloaded once a
+  month; no address is sent to any outside service. Onion nodes appear only
+  while they are connected to your node.
+
+
+  LIGHTNING
+
+
+  With Lightning Fork installed and its wallet created, the Lightning tab shows
+  the Lightning network of this chain. Restart this app after installing
+  Lightning Fork.
+
+
+  Installs alongside the official Mempool and Mempool Pruned.
+developer: Kilombino
+website: https://mempool.kilombino.com
+dependencies:
+  - bitcoin
+  - paulscode-electrs-pruned
+repo: https://github.com/Kilombino/mempool-bip110
+support: https://t.me/Kilombino
+# Clear of the PaulsCode.Com store's tiles (7150-7156), ThunderHub XBT (7160) and Kilowallet (7161).
+port: 7162
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-mempool/icon.png
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: >-
+  First release: the explorer of mempool.kilombino.com with the Bitcoin Nodes
+  World Map, on your own Knots (BLAKE2b) node and Electrs Pruned.
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store

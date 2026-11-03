@@ -1,0 +1,196 @@
+version: "3.7"
+
+# Images: built by build-images.sh in Kilombino/mempool-kilombino-umbrel from
+# Kilombino/mempool-bip110 (the explorer of mempool.kilombino.com). The same
+# images run in the StartOS package.
+#
+# Containers reach each other by their Umbrel container names
+# (kilombino-mempool_<service>_1), so this app shares no address with the
+# official Mempool or Mempool Pruned and installs beside them.
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-mempool_web_1
+      APP_PORT: 8080
+
+  web:
+    image: ghcr.io/kilombino/mempool-kilombino-frontend:v3.2.1-k1@sha256:d65fa398850a6ba96977fe524099b93b5990db9129e6e7c9def643901c1ab097
+    user: "1000:1000"
+    init: true
+    restart: on-failure
+    stop_grace_period: 1m
+    # The Lightning tab shows only when LIGHTNING is set; whether the api turned
+    # its Lightning pages on is decided at its start, so ask it once it answers.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ "$${LIGHTNING_FORK:-false}" = "true" ]; then
+          i=0
+          while [ "$$i" -lt 36 ]; do
+            info="$$(wget -qO- -T 5 "http://$${BACKEND_MAINNET_HTTP_HOST}:8999/api/v1/backend-info" 2>/dev/null || true)"
+            [ -n "$$info" ] && break
+            i=$$((i + 1)); sleep 5
+          done
+          case "$$info" in *'"lightning":true'*) export LIGHTNING=true ;; esac
+        fi
+        exec /patch/entrypoint.sh ./wait-for kilombino-mempool_db_1:3306 --timeout=720 -- nginx -g 'daemon off;'
+    environment:
+      LIGHTNING_FORK: $APP_KILOMBINO_MEMPOOL_LIGHTNING_FORK
+      FRONTEND_HTTP_PORT: "8080"
+      BACKEND_MAINNET_HTTP_HOST: kilombino-mempool_api_1
+      # The BLAKE2b chain's block weight (the frontend's default is 4M).
+      BLOCK_WEIGHT_UNITS: "800000"
+      MEMPOOL_BLOCKS_AMOUNT: "8"
+      # The accelerator is mempool.space's service for the SHA256 chain.
+      ACCELERATOR: "false"
+      ACCELERATOR_BUTTON: "false"
+      PUBLIC_ACCELERATIONS: "false"
+      # Bitcoin Nodes World Map (dashboard card and /nodes-map/).
+      NODES_MAP_UPSTREAM: http://kilombino-mempool_nodesmap_1:3110
+      # The Lightning directory's edit API belongs to mempool.kilombino.com.
+      LN_DIRECTORY_API: "off"
+    depends_on:
+      - api
+      - nodesmap
+
+  api:
+    image: ghcr.io/kilombino/mempool-kilombino-backend:v3.2.1-k1@sha256:30c6209d560f0951ea07a0c88bd4306928a49fa605f9403d00440e118fb5f799
+    user: "1000:1000"
+    init: true
+    restart: on-failure
+    stop_grace_period: 1m
+    # 1. RPC auth: the node's user/password when it exports them, else its cookie.
+    # 2. The node must be on the BLAKE2b chain (block 961640 is its first) and
+    #    have txindex; anything else is reported in the log. The wrong chain
+    #    stops the explorer instead of indexing the SHA256 chain.
+    # 3. Lightning Fork, when exports.sh found it, and only once it has a wallet.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        if [ -z "$${CORE_RPC_USERNAME:-}" ]; then
+          for C in /bitcoin/.cookie ""; do [ -r "$$C" ] && break; done
+          if [ -z "$$C" ]; then
+            echo "api: the selected Bitcoin node exports no RPC user and no readable .cookie was found. Is it running?" >&2
+            sleep 60; exit 1
+          fi
+          export CORE_RPC_COOKIE=true CORE_RPC_COOKIE_PATH="$$C"
+        fi
+        check="$$(node -e '
+          const http = require("http"), fs = require("fs"), e = process.env;
+          const auth = e.CORE_RPC_COOKIE === "true" ? fs.readFileSync(e.CORE_RPC_COOKIE_PATH, "utf8").trim() : e.CORE_RPC_USERNAME + ":" + e.CORE_RPC_PASSWORD;
+          const call = (method, params) => new Promise((ok) => {
+            const req = http.request({ host: e.CORE_RPC_HOST, port: e.CORE_RPC_PORT, method: "POST", auth, timeout: 15000,
+              headers: { "content-type": "application/json" } }, (res) => { let b = ""; res.on("data", (c) => b += c);
+              res.on("end", () => { try { ok(JSON.parse(b)); } catch (x) { ok(null); } }); });
+            req.on("timeout", () => req.destroy()); req.on("error", () => ok(null));
+            req.end(JSON.stringify({ jsonrpc: "1.0", id: "mk", method, params }));
+          });
+          (async () => {
+            const h = await call("getblockhash", [961640]);
+            if (!h) return console.log("unreachable");
+            if (h.error) return console.log("behind");
+            if (h.result !== "0000000000000050c1e5f69672f459293be14f46e5a494e7a8c8541396f18eeb") return console.log("other");
+            const i = await call("getindexinfo", ["txindex"]);
+            console.log(i && i.result && i.result.txindex ? "ok" : "notxindex");
+          })();
+        ' 2>/dev/null || true)"
+        case "$$check" in
+          ok) echo "api: node on the BLAKE2b chain with txindex" ;;
+          notxindex) echo "api: WARNING: the node has no txindex. Turn pruning off and txindex on in its settings, or transaction and address pages will fail." >&2 ;;
+          behind) echo "api: the node has not reached the BLAKE2b chain's first block (961640) yet; starting anyway" ;;
+          other)
+            echo "api: the selected Bitcoin node follows the SHA256 chain. Choose Knots (BLAKE2b) Companion for this app's Bitcoin dependency." >&2
+            sleep 600; exit 1 ;;
+          *) echo "api: could not ask the node which chain it is on; starting anyway" ;;
+        esac
+        if [ "$${LIGHTNING_ENABLED:-false}" = "true" ] && [ ! -r "$${LND_MACAROON_PATH}" ]; then
+          echo "api: Lightning Fork has no wallet yet; Lightning pages off until the next start"
+          export LIGHTNING_ENABLED=false
+        fi
+        exec ./wait-for-it.sh kilombino-mempool_db_1:3306 --timeout=720 --strict -- ./start.sh
+    environment:
+      CORE_RPC_HOST: $APP_BITCOIN_NODE_IP
+      CORE_RPC_PORT: $APP_BITCOIN_RPC_PORT
+      CORE_RPC_USERNAME: $APP_BITCOIN_RPC_USER
+      CORE_RPC_PASSWORD: $APP_BITCOIN_RPC_PASS
+      ELECTRUM_HOST: $APP_ELECTRS_PRUNED_SERVER_IP
+      ELECTRUM_PORT: $APP_ELECTRS_PRUNED_SERVER_PORT
+      ELECTRUM_TLS_ENABLED: "false"
+      MEMPOOL_BACKEND: "electrum"
+      MEMPOOL_NETWORK: "mainnet"
+      MEMPOOL_HTTP_PORT: "8999"
+      MEMPOOL_CACHE_DIR: "/backend/cache"
+      # The BLAKE2b chain's block weight, and the fork's mining-pool list (it
+      # tags this chain's miners), checked every hour.
+      MEMPOOL_BLOCK_WEIGHT_UNITS: "800000"
+      MEMPOOL_POOLS_JSON_URL: "https://raw.githubusercontent.com/Kilombino/mempool-bip110/main/pools-v2.json"
+      MEMPOOL_POOLS_JSON_TREE_URL: "https://api.github.com/repos/Kilombino/mempool-bip110/git/trees/main"
+      MEMPOOL_AUTOMATIC_POOLS_UPDATE: "true"
+      MEMPOOL_POOLS_UPDATE_DELAY: "3600"
+      MEMPOOL_PRICE_UPDATES_PER_HOUR: "12"
+      MEMPOOL_CLEAR_PROTECTION_MINUTES: "20"
+      MEMPOOL_INDEXING_BLOCKS_AMOUNT: "52560"
+      MEMPOOL_BLOCKS_AMOUNT: "8"
+      MEMPOOL_POLL_RATE_MS: "8000"
+      MEMPOOL_STDOUT_LOG_MIN_PRIORITY: "info"
+      MEMPOOL_RUST_GBT: "true"
+      MEMPOOL_ALLOW_UNREACHABLE: "true"
+      DATABASE_ENABLED: "true"
+      DATABASE_HOST: kilombino-mempool_db_1
+      DATABASE_PORT: "3306"
+      DATABASE_DATABASE: "mempool"
+      DATABASE_USERNAME: "mempool"
+      DATABASE_PASSWORD: "mempool"
+      STATISTICS_ENABLED: "true"
+      MAXMIND_ENABLED: "false"
+      LIGHTNING_ENABLED: $APP_KILOMBINO_MEMPOOL_LIGHTNING_FORK
+      LIGHTNING_BACKEND: "lnd"
+      LND_REST_API_URL: $APP_KILOMBINO_MEMPOOL_LND_REST_URL
+      LND_TLS_CERT_PATH: "/lnd/tls.cert"
+      LND_MACAROON_PATH: "/lnd/data/chain/bitcoin/mainnet/readonly.macaroon"
+      LND_TIMEOUT: "120000"
+      NODE_OPTIONS: "--max-old-space-size=2048"
+    volumes:
+      # Read-only, for the RPC cookie when the node exports no user.
+      - ${APP_BITCOIN_DATA_DIR}:/bitcoin:ro
+      # Lightning Fork's lnd directory when installed, else an empty one of ours.
+      - ${APP_KILOMBINO_MEMPOOL_LND_DIR}:/lnd:ro
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11.18@sha256:8020e05c4c498d06c87f0a1db010eb79bd6f8fb30e9b763d4690c34ce1e61008
+    restart: on-failure
+    stop_grace_period: 1m
+    environment:
+      MYSQL_DATABASE: "mempool"
+      MYSQL_USER: "mempool"
+      MYSQL_PASSWORD: "mempool"
+      MYSQL_ROOT_PASSWORD: "mempool-kilombino"
+    volumes:
+      - ${APP_DATA_DIR}/mysql/data:/var/lib/mysql
+
+  # Bitcoin Nodes World Map: page + hourly crawler of the node's known peers on
+  # this chain (clearnet only), with a DB-IP City Lite database it downloads.
+  nodesmap:
+    image: ghcr.io/kilombino/mempool-kilombino-nodes-map:v3.2.1-k1@sha256:8bdf4146a48e87414c2335681c3220fcd8dfe4f99cedf2ebb55739f20e325339
+    user: "1000:1000"
+    init: true
+    restart: on-failure
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$${BITCOIN_RPC_USER:-}" ]; then export BITCOIN_RPC_COOKIE=/bitcoin/.cookie; fi
+        exec node service.js
+    environment:
+      BITCOIN_RPC_URL: http://${APP_BITCOIN_NODE_IP}:${APP_BITCOIN_RPC_PORT}/
+      BITCOIN_RPC_USER: $APP_BITCOIN_RPC_USER
+      BITCOIN_RPC_PASSWORD: $APP_BITCOIN_RPC_PASS
+      NODES_MAP_DATA_DIR: /data
+      NODES_MAP_BIND: 0.0.0.0
+      TOR_PROXY: "none"
+    volumes:
+      - ${APP_DATA_DIR}/data/nodes-map:/data
+      - ${APP_BITCOIN_DATA_DIR}:/bitcoin:ro

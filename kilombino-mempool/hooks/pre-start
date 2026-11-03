@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The nodes map runs as 1000:1000 and keeps its GeoIP database and registry here.
+mkdir -p "${APP_DATA_DIR}/data/nodes-map"
+chown -R "1000:1000" "${APP_DATA_DIR}/data/nodes-map"
