@@ -3,7 +3,7 @@ manifestVersion: 1.3.0
 id: kilombino-mempool
 category: bitcoin
 name: Mempool Kilombino
-version: "3.2.1.1"
+version: "3.2.1.2"
 tagline: Mempool explorer for the Bitcoin BLAKE2b chain, by Kilombino
 description: >-
   The explorer that runs at mempool.kilombino.com, on your own Umbrel: blocks,
@@ -64,7 +64,12 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  First release: the explorer of mempool.kilombino.com with the Bitcoin Nodes
+  3.2.1.2: the app offers itself to Lightning Fork's dashboard as a source
+  of fee rates and transaction links (needs a Lightning Fork version that
+  reads the list of Mempool apps). Nothing else changes.
+
+
+  3.2.1.1, first release: the explorer of mempool.kilombino.com with the Bitcoin Nodes
   World Map, on your own Knots (BLAKE2b) node and Electrs Pruned.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
