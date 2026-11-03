@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl25"
+version: "0.8.8-rl26"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -50,6 +50,17 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats 0.8.8-rl26 (coordinator panel): every order, in progress or
+  finished, has a readable page like the dispute page (amounts, both parties,
+  bonds, escrow and payout, a timeline and your messages); open it from the
+  new "View" column. Telegram alerts are set up from the panel: paste your bot
+  token and chat id, pick the language and switch on what you want (order
+  published, taken, escrow locked, finished, cancelled or expired, dispute
+  opened, chat in a dispute, coordinator message sent), with a test button.
+  The panel's home and menu are in 9 languages. Includes a small database
+  migration that runs by itself when the app starts.
+
+
   Roblosats 0.8.8-rl25: your coordinator keeps a copy of every chat message
   again when the robots use the Nostr chat (before, only the first one was
   stored, so disputes had no chat). No database migration.
