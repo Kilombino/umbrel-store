@@ -199,6 +199,12 @@ services:
     network_mode: service:tor
     environment:
       TOR_PROXY: 127.0.0.1:9050
+    # The image's own check asks port 7777; here the relay listens on 127.0.0.1:7778.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:7778/"]
+      interval: 60s
+      timeout: 10s
+      retries: 2
     volumes:
       - ${APP_DATA_DIR}/app/strfry.conf:/etc/strfry.conf:ro
       - ${APP_DATA_DIR}/app/federation_urls.txt:/app/federation_urls.txt:ro

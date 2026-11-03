@@ -17,4 +17,4 @@ if [ ! -s "${S}" ]; then
 fi
 chmod 600 "${S}"
 # Tor wants its hidden service directory to itself (the image runs it as uid 100, group 1000).
-chmod 700 "${D}/tor"
+chmod 700 "${D}/tor" 2>/dev/null || true

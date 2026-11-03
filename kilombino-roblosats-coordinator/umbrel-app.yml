@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl27"
+version: "0.8.8-rl27-1"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -41,7 +41,9 @@ description: >-
   channels' inbound and outbound liquidity against your largest order; a
   Settings form (name, fees, order limits, on-chain payouts, Telegram
   alerts); and Join the federation, where your node signs the request and it
-  opens on GitHub filled in. Settings take effect when the app restarts:
+  opens on GitHub filled in. Robots can use your coordinator right away by
+  adding its onion; Roblosats apps and webs list it once a Roblosats release
+  includes you, and the page shows "Listed in the federation" then. Settings take effect when the app restarts:
   never restart it while an order is in progress (the page tells you).
 
 
@@ -50,6 +52,16 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats 0.8.8-rl27-1 (same server): Join the federation shows where
+  your request stands (not sent, waiting for the next Roblosats release, or
+  listed, checked against the published federation list by onion or Nostr
+  key), the public data you send (name, onion, Nostr key in hex and npub,
+  node id), and the request now carries the npub, how to check the node's
+  signature and a ready entry for federation.json; it also asks for an
+  avatar. The relay no longer shows as unhealthy (its check asked the
+  wrong port).
+
+
   Roblosats 0.8.8-rl27 (coordinator panel): the order page says who won a
   resolved dispute, what the coordinator earned, the payout's routing fee
   (or on-chain txid and mining fee), links to every payment, and how many

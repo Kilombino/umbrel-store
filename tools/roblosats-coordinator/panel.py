@@ -246,22 +246,58 @@ def pending_restart(s, live):
     return out
 
 
-_fed = {"at": 0, "onions": None}
+_fed = {"at": 0, "onions": None, "keys": None}
 
 
-def listed(on):
-    """Whether the federation published in Roblosats lists this onion (checked every 10 minutes)."""
-    if time.time() - _fed["at"] > 600:
+def listed(on, nhex="", force=False):
+    """Whether the federation published in Roblosats lists this coordinator, by its onion or its
+    Nostr key (checked every 10 minutes, or now with force). None when the list can't be read."""
+    if force or time.time() - _fed["at"] > 600:
         try:
             import requests
             d = requests.get(FEDERATION_URL, timeout=6).json()
             _fed["onions"] = {str(v.get("mainnet", {}).get("onion", "")).replace("http://", "").strip("/") for v in d.values()}
+            _fed["keys"] = {str(v.get("nostrHexPubkey", "")).lower() for v in d.values()}
         except Exception:
             pass
         _fed["at"] = time.time()
     if _fed["onions"] is None:
         return None
-    return on in _fed["onions"]
+    return bool(on and on in _fed["onions"]) or bool(nhex and nhex.lower() in _fed["keys"])
+
+
+def short_alias(alias):
+    a = re.sub(r"[^a-z0-9]", "", alias.lower())[:20]
+    return a if len(a) >= 2 else "mycoordinator"
+
+
+def federation_entry(s, on, nhex, npub, node, fed):
+    """This coordinator's entry as federation.json keeps it (roblosats-deploy tools/federation-template.json),
+    ready for tools/add_coordinator.py."""
+    c = fed.get("contact", "").strip()
+    contact = {"telegram": "", "nostr": npub, "simplex": "", "email": "", "website": ""}
+    if c.startswith("npub1"):
+        contact["nostr"] = c
+    elif "simplex" in c:
+        contact["simplex"] = c
+    elif c.startswith("@") or "t.me/" in c:
+        contact["telegram"] = c
+    elif re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", c):
+        contact["email"] = c
+    elif c:
+        contact["website"] = c
+    a = short_alias(s.get("COORDINATOR_ALIAS", ""))
+    return {a: {
+        "longAlias": s.get("COORDINATOR_ALIAS", ""), "shortAlias": a, "identifier": a,
+        "description": fed.get("description", ""), "motto": fed.get("motto", ""), "color": "#8b7cf6",
+        "established": time.strftime("%Y-%m-%d", time.gmtime(fed.get("signed_at") or time.time())),
+        "nostrHexPubkey": nhex, "contact": contact,
+        "badges": {"isFounder": False, "donatesToDevFund": int(round(float(s.get("DEVFUND", "0") or 0) * 100)),
+                   "hasGoodOpSec": True, "hasLargeLimits": False},
+        "policies": {"Privacy Policy": ""},
+        "mainnet": {"onion": "http://" + on, "clearnet": None, "i2p": None},
+        "testnet": {"onion": None, "clearnet": None, "i2p": None},
+        "mainnetNodesPubkeys": [node] if node else [], "testnetNodesPubkeys": [], "federated": True}}
 
 
 def restart_note(s=None, live=None):
@@ -348,7 +384,7 @@ def status_page():
     mx = int(s.get("MAX_ORDER_SIZE", "0") or 0)
     ln_ok = not ln.get("error")
     liq_ok = ln_ok and ln["active"] > 0 and min(ln["max_local"], ln["max_remote"]) >= mx
-    is_listed = listed(on) if on else False
+    is_listed = listed(on, nhex) if on else False
     steps = [
         (ln_ok, "Lightning Fork with a wallet", "Install Lightning Fork (PaulsCode.Com store) and create its wallet; then restart this app." if not ln_ok else "%s · %s" % (esc(ln["alias"] or "no alias"), "synced" if ln["synced"] else "syncing")),
         (not btc.get("error") and not btc.get("ibd"), "Bitcoin node synced", esc(btc.get("error") or ("syncing %.1f %%" % (btc["progress"] * 100) if btc.get("ibd") else "block %s" % btc.get("blocks")))),
@@ -357,7 +393,7 @@ def status_page():
         (bool(s.get("TELEGRAM_TOKEN")), "Telegram alerts (optional)", "A bot for your robots' order alerts and your dispute alerts: <a href=\"/setup/settings\">Settings</a>."),
         (bool(db.get("done")), "A first trade", "Open Roblosats with Tor Browser, add your onion under Coordinators, and buy and sell a small amount with two robots, paying from a wallet on another node." if not db.get("done") else "%s finished" % db["done"]),
         (bool(fed.get("signature")) and fed.get("onion") == on, "Request to join the federation", "Your node signs it on <a href=\"/setup/federation\">Join the federation</a>; send it on GitHub or Telegram."),
-        (bool(is_listed), "Listed in the federation", "Shown in every Roblosats app, web and relay once you are added." if is_listed is not None else "Could not check the published list right now."),
+        (bool(is_listed), "Listed in the federation", ("Listed in the federation ✓" if is_listed else ("Request signed: waiting to be added. Roblosats apps and webs won't list you until a Roblosats release includes you." if fed.get("signature") and fed.get("onion") == on else "Shown in every Roblosats app, web and relay once you are added.")) if is_listed is not None else "Could not check the published list right now."),
     ]
     done = sum(1 for d, _, _ in steps if d)
     items = "".join('<li><span class="i %s">%s</span><span class=t>%s<br><span class=d>%s</span></span></li>' % (
@@ -393,7 +429,7 @@ def status_page():
     ident = [row("Onion", copyable(on)),
              row("Nostr key (hex)", copyable(nhex)), row("Nostr key (npub)", copyable(npub)),
              row("Node id", copyable(ln.get("pubkey", "")))]
-    parts.append('<div class=card><h2>Identity</h2>%s<p class=help>Robots can reach your coordinator by its onion right away: in Roblosats, Coordinators → add one by its address. To be listed for everyone, join the federation. Your onion and Nostr key are your identity: Umbrel\'s backups of this app keep them.</p></div>' % "".join(ident))
+    parts.append('<div class=card><h2>Identity</h2>%s<p class=help>Robots can reach your coordinator by its onion right away: in Roblosats, Coordinators → add one by its address. To be listed for everyone, join the federation. Your onion and Nostr key are your coordinator\'s identity: they are kept in this app\'s data (and in Umbrel\'s backups of it). Its private key never leaves your Umbrel and is never shown here; if you lose it, you would have to join the federation again under a new key.</p></div>' % "".join(ident))
 
     if ln_ok:
         lim = min(ln["max_local"], ln["max_remote"])
@@ -492,22 +528,46 @@ def federation_page(sig="", msg="", cls="ok"):
     if s.get("COORDINATOR_ALIAS", "My coordinator") in ("", "My coordinator"):
         missing.append('your name (in <a href="/setup/settings">Settings</a>, then restart)')
     note = '<div class="note %s">%s</div>' % (cls, msg) if msg else ""
+    is_listed = listed(on, nhex, force=True) if on else False
+    signed = bool(fed.get("signature")) and fed.get("onion") == on
+    if is_listed:
+        where = '<div class="note ok"><b>Listed in the federation ✓</b> Every Roblosats app, web and relay shows your coordinator.</div>'
+    elif is_listed is None:
+        where = '<div class="note warn">Could not read the published federation list right now (%s); try again later.</div>' % esc(FEDERATION_URL)
+    elif signed:
+        where = ('<div class="note warn"><b>Waiting to be added to the federation.</b> Your request was signed on %s. '
+                 'Roblosats apps and webs won\'t list you until a Roblosats release includes you; this page checks the published list and turns green then. '
+                 'Meanwhile robots can still reach you by adding your onion under Coordinators.</div>') % time.strftime("%Y-%m-%d", time.gmtime(fed.get("signed_at") or 0))
+    else:
+        where = '<div class="note">Not in the federation yet: robots reach you only if they add your onion by hand.</div>'
+    ident = "".join([row("Name", esc(s.get("COORDINATOR_ALIAS", ""))), row("Onion", copyable(on)),
+                     row("Nostr public key (hex)", copyable(nhex)), row("Nostr public key (npub)", copyable(npub)),
+                     row("Lightning node id", copyable(ln.get("pubkey", "")))])
+    ident = ('<div class=card><h2>What you send</h2>%s<p class=help>Public data only. The Nostr key is your coordinator\'s identity: '
+             'it is kept in this app\'s data and in Umbrel\'s backups, its private key is never shown or sent, and losing it means '
+             'joining the federation again under a new key.</p></div>') % ident
     fields = "".join('<label>%s</label>%s<p class=help>%s</p>' % (
         esc(l), ('<textarea name="%s" rows=3>%s</textarea>' if n == "description" else '<input name="%s" value="%s">') % (n, esc(fed.get(n, ""))), esc(h))
         for n, l, h in FED_FIELDS)
     parts = [note, """<div class=card><h2>Join the federation</h2>
 <p>Coordinators in the federation appear in every Roblosats app, web and relay. To join, your node signs a message with your onion, and you send that with your details as an issue on GitHub; once it is checked, you are added in the next release.</p>
 <ol><li>Fill in the details below and press <b>Sign with my node</b>.</li><li>Press <b>Open the request on GitHub</b>: it opens with everything filled in; submit it (you need a GitHub account).</li>
-<li>No GitHub? Copy the request and send it on Telegram, <a href="https://t.me/roblosats" target=_blank rel=noopener>t.me/roblosats</a>.</li></ol></div>"""]
+<li>Attach your coordinator's avatar to the issue (a square image, 200×200 or larger).</li>
+<li>No GitHub? Copy the request and send it on Telegram, <a href="https://t.me/roblosats" target=_blank rel=noopener>t.me/roblosats</a>.</li>
+<li>Wait for the next Roblosats release that includes you: this page then shows <b>Listed in the federation ✓</b>.</li></ol></div>"""]
+    parts.insert(1, where)
+    parts.append(ident)
     if missing:
         parts.append('<div class="note warn">Not ready yet: %s.</div>' % "; ".join(missing))
     parts.append('<div class=card><form method=post action="/setup/federation"><input type=hidden name=csrf value="%s">%s'
                  '<p><button class="btn p"%s>Sign with my node</button></p></form></div>' % (CSRF, fields, " disabled" if missing else ""))
     if sig and on:
-        body = ("Alias: %s\nOnion: %s\nNostr public key (hex): %s\nNode id: %s\nContact: %s\nMotto: %s\nDescription: %s\n\n"
-                "Signed message: %s\nSignature: %s\n\nFee: %s · Orders: %s to %s sats\n") % (
-            s.get("COORDINATOR_ALIAS", ""), on, nhex, ln.get("pubkey", ""), fed.get("contact", ""), fed.get("motto", ""),
-            fed.get("description", ""), text, sig, s.get("FEE", ""), s.get("MIN_ORDER_SIZE", ""), s.get("MAX_ORDER_SIZE", ""))
+        entry = json.dumps(federation_entry(s, on, nhex, npub, ln.get("pubkey", ""), fed), indent=2, ensure_ascii=False)
+        body = ("Alias: %s\nOnion: %s\nNostr public key (hex): %s\nNostr public key (npub): %s\nNode id: %s\nContact: %s\nMotto: %s\nDescription: %s\n\n"
+                "Signed message: %s\nSignature: %s\n(check: lncli verifymessage --msg \"%s\" --sig %s)\n\nFee: %s · Orders: %s to %s sats\n\n"
+                "Entry for federation.json:\n```json\n%s\n```\n") % (
+            s.get("COORDINATOR_ALIAS", ""), on, nhex, npub, ln.get("pubkey", ""), fed.get("contact", ""), fed.get("motto", ""),
+            fed.get("description", ""), text, sig, text, sig, s.get("FEE", ""), s.get("MIN_ORDER_SIZE", ""), s.get("MAX_ORDER_SIZE", ""), entry)
         url = REPO + "/issues/new?" + urllib.parse.urlencode({"title": "Join the federation: %s" % s.get("COORDINATOR_ALIAS", ""), "body": body})
         parts.append('<div class=card><h2>Your request</h2><p><code style="white-space:pre-wrap">%s</code></p>'
                      '<p><a class="btn p" href="%s" target=_blank rel=noopener>Open the request on GitHub</a> '
