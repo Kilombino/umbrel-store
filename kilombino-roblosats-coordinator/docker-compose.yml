@@ -12,7 +12,7 @@ version: "3.7"
 # the onion), and Umbrel never overwrites what is already there.
 
 x-roblosats: &roblosats
-  image: ghcr.io/kilombino/roblosats-coordinator:0.8.8-rl26@sha256:2655a00a0a691598a5c983ef25fc68a65062765b202221ffa6ec7c828e64f576
+  image: ghcr.io/kilombino/roblosats-coordinator:0.8.8-rl27@sha256:a3412d892062f527614864fc5be2a67e830b6e2f04c3f495fffbaf99cd5ebeb2
   restart: on-failure
   network_mode: service:tor
   entrypoint: ["/umbrel/run.sh"]
