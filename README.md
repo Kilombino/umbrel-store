@@ -20,6 +20,7 @@ https://github.com/Kilombino/umbrel-store
 | [Roblosats Coordinator](kilombino-roblosats-coordinator) | Run your own Roblosats coordinator (beta): the Roblosats server, its database, Nostr relay and onion, on Lightning Fork and Knots (BLAKE2b) Companion |
 | [Kilowallet](kilombino-kilowallet) | The Kilowallet Bitcoin (BLAKE2b) wallet with a web app for the phone, on your BLAKE2b node: Knots (BLAKE2b) Companion or the Misc store's Bitcoin Knots, found by itself |
 | [Mempool Kilombino](kilombino-mempool) | The explorer of mempool.kilombino.com for the BLAKE2b chain, with the Bitcoin Nodes World Map, on Knots (BLAKE2b) Companion (unpruned, txindex on) and Electrs Pruned |
+| [Lightning Stream](kilombino-lightning-stream) | Lazarus's Lightning Stream, unchanged (same images and digests): buy and sell services over Lightning, and rent hashrate peer to peer. Install it from one store only |
 
 ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet and JoinMarket XBT (Jam) need a node on the BLAKE2b chain: **Knots (BLAKE2b) Companion** from the same store, or **Bitcoin Knots** from Léo Haf's Misc store (`https://github.com/Horizon-btc/Bitcoin-store`), and finds it by itself. Add the PaulsCode.Com store:
 

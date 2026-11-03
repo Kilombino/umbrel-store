@@ -1,0 +1,191 @@
+manifestVersion: 1.1
+id: kilombino-lightning-stream
+category: lightning
+name: Lightning Stream
+version: "0.2.9"
+tagline: Buy and sell any service over Lightning from this box, paid as you use it
+description: >-
+  Lightning Stream by Lazarus (github.com/AwokenLazarus/Lightning-Stream), offered unchanged in
+  Kilombino's store: the same images, pinned by the same digests, with only the app id changed.
+  Install it from one store only: this copy and the one in the Lazarus store use the same ports.
+  Problems with the app itself go to its project's issues.
+
+
+  One app for both sides. The wallet pays sellers with stream tickets under a policy you sign, and
+  agents connect to its MCP server. The connector, on this box only, asks the signer to pay for what
+  a service sends (a stream, a file, a reply) as it arrives. The sell side is the gateway: it stays idle until you add a service on the
+  Sell page, and it holds only the narrow macaroons the app makes for it. The signer is the only
+  service that can spend.
+
+
+  Setup takes a few minutes and no keys to copy. Create your Lightning wallet in Lightning Fork first;
+  Lightning Stream picks it up automatically, also when you make the wallet after installing it, with no
+  restart. A one-shot service asks the node to make the app's own narrow keys (it can pay only within
+  your spending rules, and the selling side can only ask for payments or vouch for its own link), each
+  revocable alone in the node's app. You open the app from your Umbrel dashboard and log in with the app password Umbrel
+  shows for it (its default credentials). Then make your approval
+  key in the browser (download its backup), confirm that the app pays with real money, and sign the
+  starter spending rules.
+
+
+  To sell, open Sell: name your shop and add each service you sell: a web app such as Jellyfin (each
+  buyer gets an account of their own), a folder of files from Umbrel's Downloads (read only), an AI
+  model, a VPN exit from your own connection, or your miners' hashrate. Buyers reach your shop by its key
+  over an encrypted link, with no domain or port forward; an https address (Cloudflare Tunnel or your own
+  proxy) is optional. To buy, add a seller on Services and allow it to be
+  paid with one signature. Agents on the LAN use port 33511, with the bearer token from the Agents page.
+
+
+  The keys stay in the signer, sealed on this box's disk. A separate anchor witness keeps a tamper
+  record of every signature. On mainnet this software moves real funds and has been tested there with small
+  amounts only: the app asks you to acknowledge that before it pays with real money.
+
+
+  Uninstalling removes the app's files, but the keys it made stay valid on your Lightning node
+  until you revoke them. Before you uninstall, note the root key ids on the app's Your node page
+  (under Details), then delete them in Lightning Fork (or with `lncli deletemacaroonid <id>`).
+
+
+  Needs Lightning Fork and an XBT (BLAKE2b) node.
+developer: Lazarus
+website: https://github.com/AwokenLazarus/Lightning-Stream
+repo: https://github.com/AwokenLazarus/Lightning-Stream
+support: https://github.com/AwokenLazarus/Lightning-Stream/issues
+port: 8482
+gallery:
+  - https://raw.githubusercontent.com/AwokenLazarus/Lightning-Stream/main/packaging/umbrel/lazarus-lightning-stream/1.png
+  - https://raw.githubusercontent.com/AwokenLazarus/Lightning-Stream/main/packaging/umbrel/lazarus-lightning-stream/2.png
+  - https://raw.githubusercontent.com/AwokenLazarus/Lightning-Stream/main/packaging/umbrel/lazarus-lightning-stream/3.png
+  - https://raw.githubusercontent.com/AwokenLazarus/Lightning-Stream/main/packaging/umbrel/lazarus-lightning-stream/4.png
+  - https://raw.githubusercontent.com/AwokenLazarus/Lightning-Stream/main/packaging/umbrel/lazarus-lightning-stream/5.png
+releaseNotes: >-
+  0.2.9: renting hashrate works with the published images (a build fix).
+  0.2.8: Stop says credit is shared; limits say a payment would pass them; player links give their
+  size to players; the publish-anyway box only where it applies.
+  0.2.7: Stop ends a visit completely; a visit buys tickets only as needed and says exactly what it
+  paid; long AI answers work; player links open in VLC and other players; plain names for limits; the
+  Stream Gateway is built on FlyTheElephant's datum_gateway.
+  0.2.6, the public testing release: your rules are checked before a ticket and a limit says plainly
+  where to raise it; starter rules fit a film; selling Jellyfin 10.11+ works; free page files for web
+  apps; exact paid amounts; agents can list what they may buy; plain words throughout.
+  0.2.5: web apps such as Jellyfin load faster and whole; Stop closes the shop's connection; a video visit
+  gets a limit for about ten minutes of 1080p, and Add raises it; shops can fix their link's UDP ports.
+  0.2.4: web apps such as Jellyfin open in seconds and sign-in no longer hangs; free parts of a shop are
+  not paid for; a disabled Rent says why; Home counts a shop allowed through its node.
+  0.2.3: the menu says Buy; signing the starter rules includes paying with real money; the demo shop
+  is added and allowed in one click; each payment shows one cost with its fee; credit with a shop is
+  shown; the VPN page can add exits found on Nostr; faster pages; a new look, dark by default.
+  0.2.2: sellers by name everywhere; editing who may be paid can no longer drop a seller's node; plain
+  words instead of blank pages when a payment can't happen, and a warning when your node can't send; a
+  visit shows what it used; the version shows; slow pages open at once.
+  0.2.1: on Browse, Found on Nostr, a shop reached by its key (such as the demo shop, Lightning
+  Stream Genesis) now offers Add this shop, in place of a check that failed with a name-lookup error.
+  A file cheaper than a shop's smallest ticket (546 sat) can be downloaded: its first call buys one
+  ticket and the rest stays as credit, and a refusal is a page in words, not raw JSON. A web-app visit
+  needs a limit of at least 559 sat; a smaller one is refused with the reason and set to 559.
+  0.2.0, a public test release: hashrate rentals with masked jobs, through the Stream Gateway
+  (DATUM-compatible) that now comes with the app, so rented miners can't see a winning block and can't
+  withhold it; solo, or on Lazarus Pool. Every rental is checked masked job by job or refused. Sell your
+  own web apps (for example Jellyfin's full interface, up to 4K) and a folder of files; the built-in
+  player is gone. Shops can be reached by their key alone over an encrypted link, through a relay where
+  needed, with no domain. VPN exits, paid by the GB as you use them. Your wallet pays a shop no more than
+  its listing shows, blocks one caught over-charging, and caps each shop per day. Fixes for slow routes,
+  channel drops and long downloads. Paid relays come in an update.
+  0.1.19: a session busy spending its credit stays open, so long films and rentals no longer strand
+  credit. New: a local AI address (Services, AI) any AI app can use, paid per token. Hashrate rentals
+  survive a short break in the link. A new, calmer look.
+  0.1.18: closing or pausing the player stops the paying, and a film is bought at most 4 MiB at a
+  time. With the starter rules you can play a film and then ask the AI of the same shop straight
+  away. Live connections show what a stream has used as it plays.
+  0.1.17: a wallet whose channel goes straight to a shop's node can pay it: when the shop's BOLT 12
+  offer can't be reached, the wallet pays the shop's ordinary invoice instead, once. If you added our
+  shop before 0.1.16, press Check for updates on it under Services, Sellers, before Allow.
+  0.1.16: a shop that moved to a new address is listed there whole: its items move with it, and a
+  wallet can allow it to be paid (before, "the seller asked for no payment at its address"). A
+  seller that charges a call more than its limit is stopped, and the wallet page says so with the
+  numbers. Plainer words: a rules change that waits for a restart says how to restart from your
+  Umbrel, and the Your node page says the app is tested on mainnet with small amounts only.
+  0.1.15: a new wallet on mainnet can pay right after setup. The wallet asks a seller for a ticket
+  small enough not to need your approval, and only refuses, with the numbers, when even the seller's
+  smallest ticket is too large. Setup now asks you to confirm paying with real money straight after
+  the spending rules, and the app no longer says ready before you do. If your node holds more than
+  your rules allow, the Lightning page says how much and raises the limit in one click. Credit left
+  with a seller is used first, after a restart and under any of the shop's addresses, instead of
+  buying a new ticket. A stream you stop early costs no more than the limit you set for it. Agents can
+  buy part of a file or film (a byte range).
+  0.1.14: your shop is published on Nostr as soon as it has an https address, on the app's relays,
+  with nothing to set by hand. The relays are now four: relay.lazarus-xbt.xyz, which takes only
+  Lightning Stream listings, then relay.kilombino.com, relay.damus.io and nos.lol. The suggested
+  seller is at its new address, https://stream.lazarus-xbt.xyz. When you change your shop's
+  address, the old one keeps working for buyers who saved it, hashrate included.
+  A new shop sells 900-sat tickets, so a buyer on the safe starter rules can pay it right away.
+  0.1.13: signing the safe starter rules on mainnet now lets the app pay: they set how much your
+  Lightning node may hold (twice what it holds now, at least 100,000 sats), which the wallet needs
+  before it pays through a mainnet node. If paying is on but that limit is missing, Spending rules
+  fills it in for you to sign. With paying off, Spending rules opens on the starter rules, and on
+  mainnet the form never offers the large built-in limits meant for test chains. Your node says why
+  it can't pay yet, in plain words. The key backup file says it is not your passphrase, and a wrong
+  passphrase leads to restoring the key from that file with a new one. Hashrate offers are
+  read and published on a third relay, relay.kilombino.com.
+  0.1.12: the two sides of hashrate renting have names: the hashmaker brings the miners and lists
+  them, the hashtaker rents them into its own DATUM Gateway. The hashrate pages use them, with a line
+  saying which one you are. Nothing else changes: your settings and rentals carry over.
+  0.1.11: signing the safe starter rules now turns paying on (before, a new install could not). The
+  first run speaks plainly: the rules review lists each change in a sentence with its unit, Home and
+  Your node agree on whether the node is connected, the approval key's backup step says up front what
+  it needs, and an app with nothing to sell yet shows as healthy. Your node lists the keys to revoke
+  on the node before an uninstall.
+  0.1.10: a spending limit is now a hard cap, routing fees included: when the next ticket would go
+  over it, nothing more is paid. Buyers can ask for smaller tickets (down to 546 sats) to fit their
+  limit, and your shop sells them. Listings keep working when sellers add new kinds of service: an
+  app shows the services it knows and leaves out the rest.
+  0.1.9: an update's changes to what your shop lists take effect when the app starts, without
+  pressing Save on Sell.
+  0.1.8: hashrate is listed beside your other services when you rent out your miners, and Browse has
+  a Hashrate category that leads to Rent hashrate. Sell, Hashrate explains how to give renters an
+  address (forward TCP port 23341 to the box), and a new address is published within a minute.
+  0.1.7: your hashrate offer goes on public listings only once you give the address renters use to reach
+  your miners (Sell, Hashrate; it needs a port forward or a tunnel), and is published again only when
+  what you offer changes, not with every wobble of the measured hashrate.
+  0.1.6: rent out this box's miners and rent other people's (Sell and Services, Hashrate): idle miners
+  hash for your own pool, each rental takes whole miners and pays per piece of work.
+  0.1.5: the app no longer skips its password for a peer named like the box's login proxy (umbrelOS
+  2.0 runs no such container, so another app could have taken the name); log in with the app password
+  Umbrel shows for this app.
+  0.1.4: no setup to connect your Lightning node (the app makes its own narrow keys through the node),
+  the app password shown on the app's page in the Umbrel dashboard, no codes to read from logs, an approval
+  key backup you can download, "Allow this seller" in one signature, services on this box offered on
+  the Sell page, help with an https address, a player that says why something does not play, and a
+  free preview of your own shop (a box cannot buy from itself).
+
+
+  0.1.3: a calmer river (near the pointer the streams brighten and ease aside; a click sends a pulse
+  along one), no flash between pages, a top bar the page scrolls under, and adding a seller that
+  prices each item separately works.
+
+
+  0.1.2: the Services page can read sellers' signed listings from two public Nostr relays (opt-in).
+
+
+  0.1.1: the app is laid out for any service (media, AI models, other web services), in plain words,
+  with five places (Services, Sell, Wallet, Apps & agents, Settings) and a new look. Selling and the
+  Services page are part of the main page; the separate sell page is gone.
+
+
+  0.1.0: the wallet, the connector and the gateway in one app. The connector image is a local build.
+  The gateway does not listen until its page is saved. Local package, regtest-tested only for the
+  two apps this one is built from.
+dependencies:
+  # the XBT node slot (Paul's paulscode-knots-blake2b, or this store's stand-in) and Lightning Fork,
+  # which is in its author's community store: umbrelOS resolves dependencies by installed app id
+  - bitcoin
+  - paulscode-lightning-fork
+# Files reads a folder the owner picks under Umbrel's shared Downloads, read-only
+permissions:
+  - STORAGE_DOWNLOADS
+path: ""
+defaultUsername: ""
+deterministicPassword: true
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store
+icon: https://raw.githubusercontent.com/AwokenLazarus/Lightning-Stream/main/packaging/umbrel/lazarus-lightning-stream/icon.svg
