@@ -17,3 +17,8 @@ else
 fi
 unset kilombino_mempool_lnd_dir
 export APP_KILOMBINO_MEMPOOL_LND_REST_URL="https://10.21.21.66:8180"
+
+# The web UI on umbrel_main_network, whose nginx serves /api/v1/fees/recommended
+# and /api/block-height/<n>: Lightning Fork's dashboard reads this line (with sed,
+# never sourcing this file) to offer this app for fee rates and transaction links.
+export APP_KILOMBINO_MEMPOOL_MEMPOOL_API="http://kilombino-mempool_web_1:8080"
