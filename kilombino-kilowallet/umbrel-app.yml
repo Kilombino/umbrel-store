@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.10.0"
+version: "0.10.1"
 tagline: The Bitcoin BLAKE2b (BTC) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -84,21 +84,16 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  As in Kilowallet 1.5.0. The web page is now the Kilowallet Android app,
-  screen by screen: the wallet at the top, the BTC, COINJOIN and ARK tabs, the
-  same cards, buttons, dialogs and settings, the app's colours and fonts, and
-  its languages (Spanish, English, Chinese, French, Italian, German, Catalan,
-  Portuguese; chosen in settings). A new wallet can be made from real dice
-  rolls, as in the app. Where the app asks for your fingerprint, the page asks
-  for the wallet's password. New coinjoin pools with asynchronous rounds
-  (Kilojoin v6): when opening a pool, tick Asynchronous rounds for people who
-  answer hours apart (up to an hour to answer, 30 minutes for the outputs and
-  two hours to sign, with an end time no round goes past); nobody is left out
-  without being asked again, and whoever holds every signature sends the
-  transaction. As the creator, this app runs the round: keep it running until
-  it is done. Once you signed, your coins stay held until the round confirms
-  or one of its coins is spent elsewhere. Only wallets that know Kilojoin v6
-  (Kilowallet 1.5.0, Kilojoin 0.10.0) see these pools; older pools work as
-  before.
+  As in Kilowallet 1.5.1. Coinjoin rounds are safer after you sign: the coins
+  of a round you signed stay held until its transaction confirms, or until a
+  coin of the round is spent elsewhere and that spend is 6 blocks deep (a
+  spend still in the mempool, or a block or two deep, no longer frees them). A
+  round shows confirmed only after 6 blocks (confirmed 2/6 meanwhile), and if
+  a reorganisation drops its transaction it is sent again. A failed broadcast
+  no longer cancels the round, and a transaction not seen for 12 hours is no
+  longer given up: it is sent again until the node takes it. This applies to
+  every pool. In asynchronous (v6) pools the server posts its signatures again
+  every day once it signed. Same protocol: works with Kilowallet 1.5.0,
+  Kilojoin 0.10.0 and other v6 wallets.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
