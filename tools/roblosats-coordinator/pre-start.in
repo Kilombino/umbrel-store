@@ -18,3 +18,42 @@ fi
 chmod 600 "${S}"
 # Tor wants its hidden service directory to itself (the image runs it as uid 100, group 1000).
 chmod 700 "${D}/tor" 2>/dev/null || true
+
+# 0.8.8-rl27-2: the recommended settings now live in app/defaults.env (the app's, replaced on every
+# update) and match Kilobot's. Before, they were in data/settings.env, which an update never
+# touches, and the Settings page saved every field, changed or not. Once, drop from both files
+# the values that are still the old defaults, so the new ones reach this install; keep anything
+# the user changed, and keep on-chain payouts as they were (turning them on would spend Lightning
+# Fork's on-chain funds without asking).
+M="${D}/panel/.defaults-0.8.8-rl27-2"
+if [ ! -e "${M}" ]; then
+  for f in "${D}/settings.env" "${D}/panel/settings.local.env"; do
+    [ -f "${f}" ] || continue
+    awk '
+      BEGIN {
+        split("COORDINATOR_ALIAS=My coordinator|NODE_ALIAS=My coordinator|FEE=0.002|MAKER_FEE_SPLIT=0.125|MIN_ORDER_SIZE=20000|MAX_ORDER_SIZE=1000000|MAX_PUBLIC_ORDERS=100|MIN_SWAP_AMOUNT=50000|MAX_SWAP_AMOUNT=1000000|DEVFUND=0.1|NOTICE_SEVERITY=none|NOTICE_MESSAGE=|TELEGRAM_TOKEN=|TELEGRAM_BOT_NAME=|TELEGRAM_COORDINATOR_CHAT_ID=|ADMIN_TIME_ZONE=UTC", a, "|")
+        for (i in a) old[a[i]] = 1
+      }
+      /^[[:space:]]*#/ || !/=/ { next }
+      {
+        k = $0; sub(/=.*/, "", k); gsub(/[[:space:]]/, "", k)
+        v = $0; sub(/^[^=]*=/, "", v); gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+        if (v ~ /^".*"$/ || v ~ /^\047.*\047$/) v = substr(v, 2, length(v) - 2)
+        if ((k "=" v) in old) next
+        print
+      }' "${f}" > "${f}.kept" || { rm -f "${f}.kept"; continue; }
+    if [ "${f}" = "${D}/settings.env" ]; then
+      { echo "# Your own settings for the coordinator, over the app's recommended ones (app/defaults.env)."
+        echo "# The app's page (Settings) is the easy way: it keeps what you change in panel/settings.local.env,"
+        echo "# read after this file. Restart the app to apply; never while an order is in progress."
+        cat "${f}.kept"; } > "${f}.new"
+    else
+      { echo "# Written by the app's Settings page; read by every service after settings.env."
+        cat "${f}.kept"; } > "${f}.new"
+    fi
+    chmod --reference="${f}" "${f}.new" 2>/dev/null || true
+    mv -f "${f}.new" "${f}"
+    rm -f "${f}.kept"
+  done
+  : > "${M}"
+fi

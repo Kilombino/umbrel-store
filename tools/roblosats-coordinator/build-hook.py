@@ -9,8 +9,11 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "..", "kilombino-roblosats-coordinator", "hooks", "pre-start")
-FILES = [("run.sh", "755"), ("panel.py", "644"), ("nginx.conf", "644"), ("torrc", "644"),
-         ("strfry.conf", "644"), ("federation_urls.txt", "644")]
+FILES = [("run.sh", "755"), ("panel.py", "644"), ("defaults.env", "644"), ("nginx.conf", "644"),
+         ("torrc", "644"), ("strfry.conf", "644"), ("federation_urls.txt", "644"),
+         ("external_urls.txt", "644"), ("relay-sync.sh", "755"), ("db-tool.sh", "755")]
+# Mounted from app/ by an older version, before it was written here (see the end of the hook).
+OLD_MOUNTED = ["run.sh", "panel.py", "nginx.conf", "torrc", "strfry.conf", "federation_urls.txt"]
 
 parts = [open(os.path.join(HERE, "pre-start.in")).read().rstrip("\n"), """
 # The app's own files, fresh on every start (see tools/roblosats-coordinator in the store's repo).
@@ -32,7 +35,7 @@ parts.append("""# rl15-3 to rl15-4 mounted these from the app's directory, where
 for f in %s; do
   [ -d "${APP_DATA_DIR}/${f}" ] && rmdir "${APP_DATA_DIR}/${f}" 2>/dev/null || true
 done
-""" % " ".join(names))
+""" % " ".join(OLD_MOUNTED))
 with open(OUT, "w") as f:
     f.write("\n".join(parts))
 os.chmod(OUT, 0o755)

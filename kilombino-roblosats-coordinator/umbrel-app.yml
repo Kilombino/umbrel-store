@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl27-1"
+version: "0.8.8-rl27-2"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -29,8 +29,8 @@ description: >-
   with small orders and raise the limits as your channels grow.
 
   - A Bitcoin node on the BLAKE2b chain, synced: Knots (BLAKE2b) Companion
-  (PaulsCode.Com store), or Bitcoin Knots 29.4.3 (Misc store). Pick the same
-  one Lightning Fork uses.
+  (PaulsCode.Com store), or Bitcoin Knots 29.4.3 (Horizon BTC store). Pick
+  the same one Lightning Fork uses.
 
 
   EVERYTHING FROM THE TILE
@@ -40,7 +40,9 @@ description: >-
   node and the server are running; your onion, Nostr key and node id; your
   channels' inbound and outbound liquidity against your largest order; a
   Settings form (name, fees, order limits, on-chain payouts, Telegram
-  alerts); and Join the federation, where your node signs the request and it
+  alerts), starting from the values Kilobot runs with; Backup, one
+  encrypted file with the coordinator's onion, Nostr key, settings and
+  database, to export and to restore on a new install; and Join the federation, where your node signs the request and it
   opens on GitHub filled in. Robots can use your coordinator right away by
   adding its onion; Roblosats apps and webs list it once a Roblosats release
   includes you, and the page shows "Listed in the federation" then. Settings take effect when the app restarts:
@@ -52,6 +54,23 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.8.8-rl27-2 (same server). Settings as Kilobot
+  runs them: fee 0.19 % (maker 10.5 %), orders from 101,000 to 100,000,000
+  sats (also the cap on any single payout to a buyer), on-chain payouts
+  from 101,000 to 6,000,000 sats and on for new installs. Values you never
+  changed move to these on this update; what you changed stays, and
+  on-chain payouts stay as they were. Settings shows the recommended value
+  next to each field, saves only what you change, and has a button to use
+  the recommended values.
+
+
+  New Backup page: export one file, encrypted with your passphrase, with
+  the onion's keys, the Nostr key, the secrets, your settings and the
+  database; import it onto a new install (Umbrel or StartOS) to bring the
+  coordinator back with the same onion, Nostr key, orders and robots. The
+  relay also publishes your orders to relay.kilombino.com, as Kilobot does.
+
+
   Roblosats 0.8.8-rl27-1 (same server): Join the federation shows where
   your request stands (not sent, waiting for the next Roblosats release, or
   listed, checked against the published federation list by onion or Nostr

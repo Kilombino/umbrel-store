@@ -1,8 +1,15 @@
 #!/bin/sh
 # Every Roblosats service starts through this: it waits for the coordinator's onion and for
 # Lightning Fork's credentials, works out what depends on them, then runs the image's entrypoint
-# with the service's command. Mounted read-only; secrets.env and settings.env come as env_file.
+# with the service's command. Mounted read-only; the settings (app/defaults.env, data/settings.env,
+# data/panel/settings.local.env) and secrets.env come as env_file.
 set -e
+
+if [ -z "${FEE:-}" ] || [ -z "${MAX_ORDER_SIZE:-}" ]; then
+  echo "no settings (app/defaults.env is written by the app's start hook): restart the app"; exit 1
+fi
+# No single buyer payout above the largest order, as on Kilobot.
+export PAYOUT_MAX_SATS="${PAYOUT_MAX_SATS:-$MAX_ORDER_SIZE}"
 
 onion_file=/tor/coordinator/hostname
 until [ -s "$onion_file" ]; do echo "waiting for the coordinator's onion"; sleep 3; done
@@ -40,7 +47,7 @@ fi
 
 # The superuser the escrow and the admin panel use, with Umbrel's app password, once.
 if [ "${ROBLOSATS_ROLE:-}" = main ]; then
-  python3 manage.py migrate --noinput
+  python3 manage.py migrate_locked
   DJANGO_SUPERUSER_USERNAME="${ESCROW_USERNAME:-admin}" DJANGO_SUPERUSER_PASSWORD="$ADMIN_PASSWORD" DJANGO_SUPERUSER_EMAIL=admin@localhost \
     python3 manage.py createsuperuser --noinput 2>/dev/null && echo "admin user created" || true
 else

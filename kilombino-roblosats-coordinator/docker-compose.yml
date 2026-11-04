@@ -6,10 +6,10 @@ version: "3.7"
 # Lightning: Lightning Fork (PaulsCode.Com store), read-only credentials. Chain: the node picked
 # for the "bitcoin" dependency (on the BLAKE2b chain), for addresses of on-chain payouts.
 
-# The app's own files (run.sh, panel.py, nginx.conf, torrc, strfry.conf, federation_urls.txt) are
-# written to app/ by hooks/pre-start on every start: on an update, Umbrel brings this file,
-# umbrel-app.yml and hooks/, but no other file. data/ is yours (settings, secrets, the database,
-# the onion), and Umbrel never overwrites what is already there.
+# The app's own files (run.sh, panel.py, defaults.env, nginx.conf, torrc, strfry.conf, the relay's
+# sync and lists, db-tool.sh) are written to app/ by hooks/pre-start on every start: on an update,
+# Umbrel brings this file, umbrel-app.yml and hooks/, but no other file. data/ is yours (your
+# settings, secrets, the database, the onion), and Umbrel never overwrites what is already there.
 
 x-roblosats: &roblosats
   image: ghcr.io/kilombino/roblosats-coordinator:0.8.8-rl27@sha256:a3412d892062f527614864fc5be2a67e830b6e2f04c3f495fffbaf99cd5ebeb2
@@ -19,7 +19,12 @@ x-roblosats: &roblosats
   # secrets.env is made by hooks/pre-start, which Umbrel runs after pulling the images: optional
   # here so the pull does not stop on it.
   env_file:
-    - ${APP_DATA_DIR}/data/settings.env
+    # The recommended settings (Kilobot's), the app's own: replaced on every update.
+    - path: ${APP_DATA_DIR}/app/defaults.env
+      required: false
+    # The user's own file, over them (older installs kept their settings here).
+    - path: ${APP_DATA_DIR}/data/settings.env
+      required: false
     - path: ${APP_DATA_DIR}/data/secrets.env
       required: false
     # What the app's Settings page saves (panel.py), over settings.env.
@@ -172,18 +177,37 @@ services:
     <<: *roblosats
     command: ["celery", "-A", "robosats", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
 
-  # The app's own page on the tile (/setup/): status, identity, liquidity, settings, and the
-  # request to join the federation, signed by the node. Never on the onion.
+  # The app's own page on the tile (/setup/): status, identity, liquidity, settings, backup, and
+  # the request to join the federation, signed by the node. Never on the onion. It writes in
+  # data/: the page's settings, and on a backup import the onion's keys, secrets.env and settings.
   panel:
     <<: *roblosats
     entrypoint: ["python3", "/umbrel/panel.py"]
     command: []
+    environment:
+      <<: *env
+      PANEL_PLATFORM: umbrel
+      APP_VERSION: "0.8.8-rl27-2"
+      # The admin login that a restored database is given (the password Umbrel shows).
+      ADMIN_PASSWORD: "${APP_PASSWORD}"
     volumes:
       - ${APP_DATA_DIR}/app/panel.py:/umbrel/panel.py:ro
-      - ${APP_DATA_DIR}/data/settings.env:/umbrel/settings.env:ro
-      - ${APP_DATA_DIR}/data/panel:/umbrel/panel
-      - ${APP_DATA_DIR}/data/tor:/tor:ro
+      - ${APP_DATA_DIR}/app/defaults.env:/umbrel/defaults.env:ro
+      - ${APP_DATA_DIR}/data:/umbrel/data
       - ${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}:/lnd:ro
+
+  # The database side of the page's backups: pg_dump and psql, which the Roblosats image lacks.
+  db-tool:
+    image: postgres:14.2-alpine@sha256:20e49432a20e1a63bb985977c32ec8f110bc609b93de35ad4f19c5486abcefaa
+    restart: on-failure
+    network_mode: service:tor
+    entrypoint: ["/bin/sh", "/db-tool.sh"]
+    env_file:
+      - path: ${APP_DATA_DIR}/data/secrets.env
+        required: false
+    volumes:
+      - ${APP_DATA_DIR}/app/db-tool.sh:/db-tool.sh:ro
+      - ${APP_DATA_DIR}/data/panel:/work
 
   nginx:
     image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
@@ -208,4 +232,7 @@ services:
     volumes:
       - ${APP_DATA_DIR}/app/strfry.conf:/etc/strfry.conf:ro
       - ${APP_DATA_DIR}/app/federation_urls.txt:/app/federation_urls.txt:ro
+      # The image's sync, plus publishing the orders to public relays, as Kilobot does.
+      - ${APP_DATA_DIR}/app/relay-sync.sh:/app/sync.sh:ro
+      - ${APP_DATA_DIR}/app/external_urls.txt:/app/external_urls.txt:ro
       - ${APP_DATA_DIR}/data/relay:/app/strfry-db
