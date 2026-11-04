@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.10.1"
+version: "0.10.2"
 tagline: The Bitcoin BLAKE2b (BTC) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -84,16 +84,10 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  As in Kilowallet 1.5.1. Coinjoin rounds are safer after you sign: the coins
-  of a round you signed stay held until its transaction confirms, or until a
-  coin of the round is spent elsewhere and that spend is 6 blocks deep (a
-  spend still in the mempool, or a block or two deep, no longer frees them). A
-  round shows confirmed only after 6 blocks (confirmed 2/6 meanwhile), and if
-  a reorganisation drops its transaction it is sent again. A failed broadcast
-  no longer cancels the round, and a transaction not seen for 12 hours is no
-  longer given up: it is sent again until the node takes it. This applies to
-  every pool. In asynchronous (v6) pools the server posts its signatures again
-  every day once it signed. Same protocol: works with Kilowallet 1.5.0,
-  Kilojoin 0.10.0 and other v6 wallets.
+  As in Kilowallet 1.5.2: a member of an asynchronous (v6) pool no longer
+  leaves with "the pool expired" while the pool can still reopen a vote before
+  its final time; after a vote that timed out, the server waits for the
+  creator's new vote until the pool's final time, as the protocol says. Same
+  messages: works with Kilowallet 1.5.1, Kilojoin 0.10.1 and other v6 wallets.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
