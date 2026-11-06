@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Two things before Lightning Fork starts.
+#
+# First, forget the previous run's verdict on the Bitcoin node. It is written
+# again once the wallet is unlocked; until then the tile must show the
+# dashboard, not a refusal of a node the user may just have switched away
+# from (or a confirmation of one they switched to but that has not been
+# checked yet).
+rm -f "${APP_DATA_DIR:-${UMBREL_ROOT}/app-data/${APP_ID}}/data/status/chain-identity.json" 2>/dev/null || true
+
+# Second, delay booting until the gRPC and REST Tor hidden services are
+# ready, exactly as the official Lightning Node app does.
+
+HIDDEN_SERVICE_FILE="${TOR_DATA_DIR}/app-${APP_ID}-grpc/hostname"
+
+if [[ -f "${HIDDEN_SERVICE_FILE}" ]]; then
+	exit
+fi
+
+"${UMBREL_ROOT}/scripts/app" compose "${APP_ID}" up --detach lnd
+"${UMBREL_ROOT}/scripts/app" compose "${APP_ID}" up --detach tor
+
+echo "App: ${APP_ID} - Generating Tor Hidden Service..."
+
+for attempt in $(seq 1 100); do
+	if [[ -f "${HIDDEN_SERVICE_FILE}" ]]; then
+		echo "App: ${APP_ID} - Hidden service file created successfully!"
+		break
+	fi
+	sleep 0.1
+done
+
+if [[ ! -f "${HIDDEN_SERVICE_FILE}" ]]; then
+	echo "App: ${APP_ID} - Hidden service file wasn't created"
+fi

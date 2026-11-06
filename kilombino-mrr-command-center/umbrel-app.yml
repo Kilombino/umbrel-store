@@ -1,0 +1,68 @@
+manifestVersion: 1.1
+id: kilombino-mrr-command-center
+category: bitcoin
+name: MRR Command Center
+version: "1.0.0"
+tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
+description: >-
+  A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
+  your own DATUM CONVOY gateway, and for checking that what you pay for is what
+  arrives.
+
+
+  WHAT IT SHOWS
+
+
+  Your MRR balance and rentals, the Blake2B market with the price per TH and
+  day, each rig's last 24 hours and its performance index, and, from your DATUM
+  gateway, the hashrate each rental actually delivers, measured from the shares
+  it sends. Each rental gets a worker of its own, so the dashboard can tell
+  them apart and give a verdict per rental: paid, what MRR says, and what
+  reached the gateway. Finished rentals are kept for 7 days, and a rig that
+  delivered becomes a favourite.
+
+
+  RENTING BY HAND ONLY
+
+
+  It rents and extends rigs only when you press the button and confirm. There
+  is no bot here: nothing is spent on its own.
+
+
+  SETTING IT UP
+
+
+  Open the app and sign in with its password (right-click the app icon,
+  Show default credentials). It then asks for an MRR API key and tells you
+  how to create one: Withdraw No or Read (a key that can withdraw is refused),
+  Rent Yes to rent from here or Read to only look, Rigs No. The key is checked
+  with MRR before it is kept, and stays on this Umbrel only. You can unlink it,
+  or link another, at any time. Then choose the MRR pool profile your rentals
+  start on: it must point at your DATUM CONVOY's stratum as the internet sees
+  it (your public IP or domain, with port 23338 forwarded on your router).
+
+
+  CREDITS
+
+
+  Built on MarcanoFilms' mrr-blake2b-bot, with the audit, the manual renting
+  and this packaging by Kilombino (github.com/Kilombino/mrr-command-center).
+developer: Kilombino (from MarcanoFilms' mrr-blake2b-bot)
+website: https://github.com/Kilombino/mrr-command-center
+dependencies:
+  - kilombino-datum-convoy
+repo: https://github.com/Kilombino/mrr-command-center
+support: https://t.me/Kilombino
+# Tile port, clear of this store's other tiles.
+port: 7175
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-mrr-command-center/icon.png
+gallery: []
+path: ""
+defaultUsername: ""
+deterministicPassword: true
+releaseNotes: >-
+  First release: the MRR API key is linked, checked and unlinked from the
+  dashboard, and the DATUM gateway is DATUM CONVOY's, read from its own
+  settings.
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store

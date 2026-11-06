@@ -1,0 +1,318 @@
+manifestVersion: 1.1
+id: kilombino-lightning-xbt
+category: bitcoin
+name: Lightning XBT
+version: "0.21.6-beta-blake2b.23.1"
+tagline: A Lightning Network node for the Bitcoin BLAKE2b chain
+description: >-
+  Lightning XBT is Paul Lamb's Lightning Fork (github.com/paulscode/lightning-fork),
+  packaged by Kilombino for this store with all the credit to Paul. It is the
+  same Lightning node, plus the dashboard changes Kilombino has proposed to Paul
+  and that are not in his release yet: the payments list shows your newest
+  payments instead of LND's first 100, and the dashboard can take fee rates and
+  transaction links from Mempool Kilombino or from any Mempool app that offers
+  itself. It installs beside Paul's Lightning Fork, on ports of its own.
+
+
+  Lightning Fork is LND with the changes needed to follow the Bitcoin BLAKE2b
+  chain: the Bitcoin Knots hard fork that replaced SHA256d proof of work with
+  BLAKE2b at block 961640 on 30 August 2026. It opens and closes channels,
+  routes payments, and sends and receives over the Lightning Network on that
+  chain, behind a dashboard forked from the official Lightning Node app's.
+
+
+  WHICH NODE IT NEEDS
+
+
+  A Bitcoin node on the BLAKE2b chain, chosen in this app's node selector. Two
+  qualify: Knots (BLAKE2b) Companion from this store, and Bitcoin Knots once it
+  is on 29.4.1 or later. Bitcoin Core, and any Knots below 29.4.1, are on the
+  other chain. Lightning Fork checks the node once the wallet is unlocked, and
+  again every five minutes, and refuses one it cannot confirm; this app's page
+  then says so in words rather than spinning.
+
+
+  HOW IT STAYS AWAY FROM THE SHA256 CHAIN'S LIGHTNING NETWORK
+
+
+  The two chains share their history, addresses and keys, so a Lightning node
+  cannot tell them apart by any ordinary check. Lightning Fork marks its peer
+  handshakes, invoices and offers with a required feature bit that a Lightning
+  node or wallet on the SHA256 chain following the specification refuses, and refuses
+  any invoice or offer without it. It cannot connect to, pay, or be paid from the SHA256 chain's Lightning
+  network by accident.
+
+
+  REAL MONEY ON A YOUNG CHAIN
+
+
+  Coins that existed before block 961640 exist on both chains. Lightning Fork
+  signs with the chain's replay-protected signature type, but prefer funding
+  channels with coins received after that block, and keep amounts modest. Back
+  up after every channel open or close.
+
+
+  CHANNEL BACKUPS
+
+
+  The official app sends channel backups to Umbrel's backup server, which does
+  not accept them from this app. Lightning Fork copies channel.backup instead
+  to a place you control, chosen under Channel backups in the dashboard's
+  menu: an SFTP server, a Nextcloud, Dropbox or Google Drive. The copy is
+  made whenever your channels change, and Recover channels fetches it back
+  from the same place. Until a target is set, the file lives only on this
+  Umbrel.
+
+
+  Runs beside the official Lightning Node app and beside Lightning Fork: it
+  uses ports 9738, 10011 and 8181 where the official app uses 9735, 10009 and
+  8080 (and Lightning Fork 9737, 10010 and 8180), plus 7168 for the Lightning
+  Fork mobile app and 9914 for the watchtower server when it is turned on. The
+  dashboard is the official app's, forked by Paul Lamb: styled after this
+  icon, its transaction links pointed at mempool.guide, which follows the
+  BLAKE2b chain, rather than mempool.space. With Mempool Kilombino, Mempool
+  Pruned or Mempool installed, the dashboard can take its fee rates and
+  transaction links from it instead, once it has checked that the app follows
+  the BLAKE2b chain: a Mempool app connected to a node on the other chain is
+  shown as such and not used.
+developer: Paul Lamb (Lightning Fork), packaged by Kilombino
+website: https://github.com/paulscode/lightning-fork
+dependencies:
+  - bitcoin
+repo: https://github.com/Kilombino/umbrel-lightning-fork/tree/lightning-xbt
+support: https://t.me/Kilombino
+# Tile port, clear of Lightning Fork (7156) and of this store's other tiles.
+port: 7169
+# Community stores must supply full URLs for icon and gallery; Umbrel's resolver
+# only auto-prefixes them for the official store.
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-lightning-xbt/icon.png
+gallery:
+  - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-lightning-xbt/gallery/1.png
+path: ""
+defaultPassword: ""
+releaseNotes: >-
+  Lightning XBT 0.21.6-beta-blake2b.23.1: Lightning Fork 0.21.6-beta-blake2b.23
+  by Paul Lamb, with dashboard 1.3.2-blake2b.22-xbt1 (Paul's 1.3.2-blake2b.22
+  plus Kilombino's umbrel-lightning-fork #1 and #2 and umbrel-store #2).
+
+
+  Lightning Fork's own notes follow.
+
+
+  - The bridge: a swap whose hold invoice the node deleted (with the
+  gc-canceled-invoices options on) now ends instead of retrying forever,
+  once the bridge has checked it is reading the node that issued the
+  invoice; on any other node it stops and is listed as needing the
+  operator. A swap already stuck this way ends after the update.
+
+  - With a pruned Bitcoin node, blocks it has pruned are fetched only from
+  peers that advertise the BLAKE2b service bit, which Bitcoin Knots 29.4.3
+  requires before it serves blocks past the fork.
+
+
+  From 0.21.6-beta-blake2b.22.0, if you are updating from an earlier
+  version: Lightning Fork on LND 0.21.6.
+
+
+  - Splices: after an aborted splice attempt, the channel's reserves now
+  change at the next connection, as the spec says. If your channel's peer
+  runs Lightning Fork 0.21.4-beta-blake2b.19 to .21.3, upgrade both, or
+  reconnect after each splice locks: otherwise a later aborted attempt can
+  leave the two sides disagreeing about reserves until they reconnect, which
+  at worst force closes the channel.
+
+  - LND no longer proposes or accepts a commitment fee rate below 253
+  sat/kw. A node on an older release with a maximum commitment fee rate of 1
+  sat/vB cannot open a channel to yours until it raises that setting or
+  upgrades.
+
+  - The bridge copes with a SHA256 node slow to answer, which a busy or
+  pruned SHA256 Bitcoin node causes: it says the node is slow and why, waits
+  up to 5 minutes before calling it unreachable, and no longer reports a slow
+  wallet unlock as a wrong password. Quotes whose payout has no usable route
+  are refused instead of funded and refunded.
+
+  - BOLT 12: a paid invoice is kept as the payment's request.
+
+  - Dashboard 1.3.2-blake2b.22: whole numbers where LND reads whole numbers,
+  the watchtower sweep fee rate, no trust in the certificate roots behind the
+  compromised eMudhra keys, and the coinbase maturity of Bitcoin Knots 29.4.3
+  in the wallet.
+
+
+  From 0.21.4-beta-blake2b.21.3.0, if you are updating from an earlier
+  version: coinbase maturity under Bitcoin Knots 29.4.3: bitcoins mined in block 979919
+  or later need 25920 confirmations (about 180 days) before a spend of them is
+  accepted, until RDTS expires in September 2027, while bitcoins mined before
+  keep 6480 (about 45 days). The wallet now offers and counts each mined output
+  by the rule its block falls under, and a channel funded by your own mined
+  output waits as long. Earlier versions would have offered an output from
+  block 979919 after 6480 confirmations, which upgraded nodes refuse to relay;
+  that could first happen at block 986399, so nothing has gone wrong yet. This
+  only concerns a wallet paid directly by mining. Nothing else changes.
+
+
+  From 0.21.4-beta-blake2b.21.2.0, if you are updating from an earlier
+  version: Fixes:
+
+
+  - Recover channels in the dashboard works. In every earlier release LND
+  refused every backup restored there as one from another chain.
+
+  - Apps that follow channel events (SubscribeChannelEvents) no longer have
+  their stream cut with "internal server error" at the first payment on a
+  channel, which started in 0.21.4-beta-blake2b.19.
+
+  - The bridge's SHA256 node no longer stops answering while it learns the
+  SHA256 Lightning network. It checked every public channel against the
+  SHA256 Bitcoin node one block at a time, which on a pruned node took hours,
+  and the bridge timed out waiting. It now takes channel announcements as
+  given, as phone wallets do, so a payment may occasionally try a channel
+  that has since closed and then route around it. Its own channels are
+  watched on chain as before.
+
+  - The SHA256 node runs LND 0.21.6, and Lightning Fork's own LND now turns
+  off Multipath TCP listeners itself (CVE-2026-98432), as the app already
+  did for both.
+
+
+  From 0.21.4-beta-blake2b.21.1.1, if you are updating from an earlier
+  version: Security: Lightning Fork's nodes now listen on plain TCP instead of
+  Multipath TCP. A serious Linux kernel bug, CVE-2026-98432, has a published
+  attack that takes over a server through a Multipath TCP listener, and Go
+  programs such as LND listen that way by default. This closes that route. It
+  does not fix the kernel bug, which needs an umbrelOS update with a patched
+  kernel; until then, if your node accepts peer connections from the internet
+  rather than only through Tor, consider turning that off.
+
+
+  Also Tor 0.4.9.14, a security release of Tor.
+
+
+  From 0.21.4-beta-blake2b.21.1.0, if you are updating from an earlier
+  version: Lightning Fork is built with Go 1.27.3, which stops
+  trusting a set of compromised certificate authority intermediates
+  (CVE-2026-111943). Earlier builds still trusted them for the node's
+  outbound HTTPS: fee estimates from a fee URL and, if you run the bridge,
+  its price sources. Nothing else changes.
+
+
+  From 0.21.4-beta-blake2b.21.0, if you are updating from an earlier version:
+  pay short-lived SHA256 invoices through a bridge. Shops often issue
+  invoices that live about a minute; the bridge refused anything with less
+  than 15 minutes left and now quotes an invoice while it has at least 20
+  seconds. The phone app (0.2.3) gets a firm price as soon as an invoice is
+  scanned, shows its countdown, and pays in one tap. Both the bridge and the
+  paying node need this version. If a payout can't arrive in time, the payer
+  is refunded within seconds.
+
+
+  Channel backups: a warning before Google ends a Drive sign-in (a Google
+  Cloud app still in Testing ends it after 7 days), and a refused sign-in
+  explained, with the sign-in link offered again. Bridge hold invoices carry
+  the destination invoice's payment metadata.
+
+
+  From 0.21.4-beta-blake2b.20.0, if you are updating from an earlier version:
+  a hardened bridge after a private security review by cguida (thank you),
+  bridge pricing from two exchanges, and no bridge outage after a difficulty
+  retarget. From 0.21.4-beta-blake2b.19.0: resize channels without closing
+  them, off until you turn it on in Advanced Settings, Channels, Resize
+  Channels (Splicing); turning it on upgrades the channel database, and the
+  app can't go back to an older version of Lightning Fork after that.
+
+
+  Lightning Fork 0.21.6-beta-blake2b.23, dashboard 1.3.2-blake2b.22.
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store
+widgets:
+  - id: "bitcoin-wallet"
+    type: "text-with-buttons"
+    refresh: "5s"
+    endpoint: "app:3006/v1/lnd/widgets/bitcoin-wallet"
+    link: ""
+    example:
+      type: "text-with-buttons"
+      link: ""
+      title: "Bitcoin Wallet"
+      text: "1,845,894"
+      subtext: "sats"
+      buttons:
+        - text: "Withdraw"
+          icon: "arrow-up-right"
+          link: "?action=send-bitcoin"
+        - text: "Deposit"
+          icon: "arrow-down-right"
+          link: "?action=receive-bitcoin"
+  - id: "lightning-wallet"
+    type: "text-with-buttons"
+    refresh: "2s"
+    endpoint: "app:3006/v1/lnd/widgets/lightning-wallet"
+    link: ""
+    example:
+      type: "text-with-buttons"
+      link: ""
+      title: "Lightning Wallet"
+      text: "762,248"
+      subtext: "sats"
+      buttons:
+        - text: "Send"
+          icon: "arrow-up-right"
+          link: "?action=send-lightning"
+        - text: "Receive"
+          icon: "arrow-down-right"
+          link: "?action=receive-lightning"
+  - id: "lightning-stats"
+    type: "four-stats"
+    refresh: "5s"
+    endpoint: "app:3006/v1/lnd/widgets/lightning-stats"
+    link: ""
+    example:
+      type: "four-stats"
+      link: ""
+      items:
+        - title: "Connections"
+          text: "5"
+          subtext: "peers"
+        - title: "Active channels"
+          text: "3"
+          subtext: "channels"
+        - title: "Max send"
+          text: "90K"
+          subtext: "sats"
+        - title: "Max receive"
+          text: "45K"
+          subtext: "sats"
+backupIgnore:
+  - data/lnd/data/graph/mainnet/channel.db
+  - data/status
+  # The bridge's SHA256 node: like this node, its channel database must
+  # never come back from the past. Its wallet and macaroons go too, so that
+  # on a restore Lightning Fork creates its wallet again from the derived
+  # seed and restores its channels from the channel.backup kept beside them.
+  # Files listed one by one, not by pattern.
+  - data/lnd/sha256-node/data/graph/mainnet/channel.db
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/wallet.db
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/macaroons.db
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/admin.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/readonly.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/invoice.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/invoices.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/chainnotifier.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/router.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/signer.macaroon
+  - data/lnd/sha256-node/data/chain/bitcoin/mainnet/walletkit.macaroon
+  - data/lnd/data/chain/bitcoin/mainnet/bridge/sha256/bridge.macaroon
+  - data/lnd/data/chain/bitcoin/mainnet/bridge/sha256/bridge.macaroon.perms
+  - data/lnd/data/chain/bitcoin/mainnet/bridge/sha256/operator.macaroon
+  - data/lnd/data/chain/bitcoin/mainnet/bridge/sha256/operator.macaroon.perms
+  # Its channel backup agent's state, and above all its record of having
+  # kept the copy a target already held: left out, so that after a restore
+  # it keeps that copy again before its first one.
+  - data/lnd/.channel-backup-sha256-state.json
+  - data/lnd/.channel-backup-sha256-state.json.kept
+  - data/lnd/.channel-backup-sha256.lock
+  # Which node on the SHA256 chain it reads, with that node's credentials:
+  # written again by the dashboard from what is installed where it is
+  # restored.
+  - data/lnd/bridge-sha256.conf

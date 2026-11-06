@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: kilombino-mrr-command-center_web_1
+      APP_PORT: 7160
+
+  web:
+    image: ghcr.io/kilombino/mrr-command-center:1.0.0@sha256:34bf6926c699ff82ccbf85d921bbd5b7e879fd5dbef190a861729a676507bae9
+    user: "1000:1000"
+    restart: on-failure
+    stop_grace_period: 20s
+    volumes:
+      # config.json (with the MRR API key once linked), state and the audit database
+      - ${APP_DATA_DIR}/data:/data
+      # DATUM CONVOY's settings, read only: the gateway's API port and admin password
+      - ${APP_DATUM_CONVOY_SETTINGS_DIR}:/datum:ro
+    environment:
+      MRR_PORT: "7160"
+      MRR_DASHBOARD_PASSWORD: "$APP_PASSWORD"
+      MRR_PASSWORD_HINT: "La contraseña está en umbrelOS: clic derecho en el icono de la app, Mostrar credenciales."
+      MRR_DATUM_CONFIG: "/datum/datum_gateway_config.json"
+      MRR_GATEWAY_HOST: "$APP_DATUM_CONVOY_GATEWAY_IP"

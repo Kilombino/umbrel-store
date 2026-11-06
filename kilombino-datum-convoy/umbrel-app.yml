@@ -1,0 +1,185 @@
+manifestVersion: 1.1
+id: kilombino-datum-convoy
+category: bitcoin
+name: DATUM CONVOY
+version: "0.5.0.1"
+tagline: Mine the BLAKE2b chain with a Sia-style ASIC you already own
+description: >-
+  ⚙️ Please read the important setup instructions at the bottom of this page.
+
+
+  DATUM CONVOY is CONVOY's DATUM Gateway v0.5.0beta
+  (github.com/CONVOYMining/datum_gateway), the gateway CONVOY and Lazarus pools
+  speak on this chain, built by Kilombino with four CONVOY pull requests not
+  released yet: #7 names the miner that found a block, #4 logs the node's error
+  reply, #38 makes the template RPC timeout configurable (15 seconds by default)
+  and #40 replaces the current job as soon as a new template or split arrives.
+  It is the same build Kilombino mines with. The app is Paul Lamb's Datum
+  (BLAKE2b) Companion, with all the credit to Paul, CONVOY and OCEAN; it runs
+  CONVOY's gateway as it is rather than Paul's build of it.
+
+
+  Solo mine the BLAKE2b chain with a Sia-style ASIC. Bitcoin's mainnet split on
+  30 August 2026, and from block 961640 one of the two chains uses BLAKE2b for
+  proof of work instead of SHA256d. BLAKE2b is the algorithm Sia mines, so the
+  ASICs built for Sia can mine that chain. This app lets you point yours at it.
+
+
+  It runs the DATUM Gateway built against the BLAKE2b branch. It takes block
+  templates from your **Bitcoin Knots** node on the BLAKE2b chain, turns them into
+  Stratum work in the dialect Sia miners speak, and hands that out on your LAN.
+
+
+  Both sides of the 2026 split claim to be Bitcoin. Which one you mine is your
+  decision, and pointing hashrate at this makes it.
+
+
+  🛠️ SET-UP INSTRUCTIONS
+
+
+  ### Bitcoin node
+
+
+  This app uses the Bitcoin node you choose for it on install. Choose Bitcoin
+  Knots from this store, or another node on the BLAKE2b chain (Knots 29.4.1 or
+  later); Bitcoin Core and older Knots are on the other chain. A pruned node
+  is fine for mining. The gateway checks the node for new blocks on its own.
+
+
+  ### Configuring the gateway
+
+
+  Open this app and set your Bitcoin address under the **Config** tab. That is
+  the address your mining rewards are paid to, and nothing is mined until it is
+  set. It should be an address whose keys you hold: solo mining means a block you
+  find pays its whole subsidy there.
+
+
+  The credentials for changing settings are on your umbrelOS home screen:
+  right-click the app icon and choose "Show default credentials". The username is
+  `admin`.
+
+
+  ### Mining solo or to a pool
+
+
+  Out of the box this mines solo: a block you find pays its whole subsidy to your
+  address, and nothing is shared.
+
+
+  MINED COINS CANNOT BE SPENT STRAIGHT AWAY
+
+
+  A block's subsidy is locked before it can be moved. This is a network rule, not
+  a setting, and it applies wherever you send the payout. The wait used to be 100
+  blocks, about 16 hours; the chain has deployed a temporary longer one of 6480
+  blocks, roughly 45 days at a ten minute block target. It applies to coins
+  already mined as well as new ones. Nothing is lost, but plan for it: if you mine
+  a block today, expect to wait about six weeks before you can spend it. Use a
+  wallet that knows the rule, or it may offer the coins and then fail when you try
+  to send them.
+
+
+  To mine to a pool instead, open the **Config** tab and change **Collaborative
+  reward sharing** from "never" to "prefer" or "require". The Host, Port and
+  Pubkey boxes under **Pool** stay greyed out until you do, because DATUM's
+  dashboard disables them while reward sharing is off. That is the step people
+  miss.
+
+
+  Then fill in **Host**, **Port** and **Pubkey** from the pool's own website.
+  Lazarus and Convoy both run DATUM pools on this chain:
+
+    - Lazarus: Host `datum.lazarus-xbt.xyz`, Port `28915`
+
+    - Convoy: Host `datum-beta1.mine.convoy.xyz`, Port `28915`
+
+
+  **Pubkey** is filled in with Convoy's, so for Convoy a host and a port are all
+  you need to add. For any other pool, paste the key that pool publishes. Either
+  way, check it against the pool's website rather than taking it from here, and
+  if the pool ever changes it, paste the new one into that box. It is always 128 hex characters, a signing
+  key and an encryption key one after the other, and a key of any other length
+  stops the gateway from starting.
+
+
+  Before you change any of this, the Host box shows
+  `datum-beta1.mine.ocean.xyz`. That is DATUM's own built-in default, shown
+  whenever no pool is set, and it belongs to a pool on the chain that kept
+  SHA256d. This app never contacts it. The logs say so on every start: "DATUM
+  pool host is blank. NON-POOLED MINING!".
+
+
+  ### Connecting your miner
+
+
+  In your miner's own web interface, set the pool to your server's IP address on
+  port 23338:
+
+    - Stratum URL: `stratum+tcp://192.168.1.50:23338`
+
+    - Username/Worker: mining solo, anything readable, so you can tell miners
+    apart; it is not used for payment. Mining at a pool, use
+    `youraddress.workername`: the part before the first `.` is the address the
+    pool pays.
+
+    - Password: leave blank, or use `d=1024` to ask for a starting share
+    difficulty if you are renting hashrate.
+
+
+  **Use your server's IP address, not a `.local` name.** Most ASIC firmware has
+  no mDNS resolver, so a `.local` address fails silently and the miner just
+  reports that the pool is not ready.
+
+
+  ### Which miners work
+
+
+  Sia-style BLAKE2b ASICs and rented hashrate, as on Kilombino's own gateway.
+  Paul Lamb verified his build on Goldshell HS-Box, SC5 Pro, SC Box II, Bitmain
+  Antminer A3 and Innosilicon S11; this one is CONVOY's code without Paul's own
+  changes, so prefer his Datum (BLAKE2b) Companion if a miner of yours only
+  works with it.
+
+
+  Port 23338 is used rather than the official Datum app's 23334 and Paul's
+  Datum (BLAKE2b) Companion's 23336, so all of them can be installed on one
+  server.
+developer: CONVOY (gateway); app by Paul Lamb, packaged by Kilombino
+website: https://github.com/CONVOYMining/datum_gateway
+dependencies:
+  - bitcoin
+repo: https://github.com/Kilombino/datum_gateway/tree/convoy-v0.5.0-kilombino
+support: https://t.me/Kilombino
+# Tile port, clear of Paul's Datum (7153) and of this store's other tiles.
+port: 7174
+# Community stores must supply full URLs for icon and gallery — Umbrel's resolver
+# only auto-prefixes URLs for the official umbrel-app-store.
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-datum-convoy/icon.png
+gallery:
+  - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-datum-convoy/gallery/1.png
+path: ""
+defaultUsername: "admin"
+deterministicPassword: true
+releaseNotes: >-
+  First release in Kilombino's store: CONVOY's DATUM Gateway v0.5.0beta with
+  CONVOY #7, #4, #38 and #40, using the Bitcoin node you choose.
+
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store
+widgets:
+  - id: "stats"
+    type: "three-stats"
+    refresh: "30s"
+    endpoint: "gateway:7152/umbrel-api"
+    link: ""
+    example:
+      type: "three-stats"
+      link: ""
+      items:
+        - title: "Connections"
+          text: "2"
+          subtext: "Worker"
+        - title: "Hashrate"
+          text: "1.8"
+          subtext: "TH/s"

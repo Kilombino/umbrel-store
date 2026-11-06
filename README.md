@@ -21,6 +21,10 @@ https://github.com/Kilombino/umbrel-store
 | [Kilowallet](kilombino-kilowallet) | The Kilowallet Bitcoin (BLAKE2b) wallet with a web app for the phone, on your BLAKE2b node: Knots (BLAKE2b) Companion or the Misc store's Bitcoin Knots, found by itself |
 | [Mempool Kilombino](kilombino-mempool) | The explorer of mempool.kilombino.com for the BLAKE2b chain, with the Bitcoin Nodes World Map, on Knots (BLAKE2b) Companion (unpruned, txindex on) and Electrs Pruned |
 | [Lightning Stream](kilombino-lightning-stream) | Lazarus's Lightning Stream, unchanged (same images and digests): buy and sell services over Lightning, and rent hashrate peer to peer. Install it from one store only |
+| [Lightning XBT](kilombino-lightning-xbt) | Paul Lamb's Lightning Fork (LND for the BLAKE2b chain), with the dashboard changes Kilombino proposed to Paul that are not released yet (newest payments first, Mempool Kilombino and any Mempool app). Installs beside Lightning Fork, on ports of its own |
+| [Bitcoin Knots](kilombino-bitcoin-knots) | Bitcoin Knots 29.4.3, a full node on the BLAKE2b chain: Horizon BTC and Léo Haf's Bitcoin Knots app, same images, on ports of its own (P2P 18454, RPC 18453) so it installs beside any other node app |
+| [DATUM CONVOY](kilombino-datum-convoy) | CONVOY's DATUM Gateway v0.5.0beta with CONVOY #7, #4, #38 and #40 (Kilombino's own build), on the Bitcoin node you choose; stratum on 23338 |
+| [MRR Command Center](kilombino-mrr-command-center) | Rent BLAKE2b hashrate on MiningRigRentals by hand and check what each rental delivers to your DATUM CONVOY. Asks for your MRR API key after you sign in |
 
 ThunderHub XBT needs **Lightning Fork** (LND for the BLAKE2b chain) from the PaulsCode.Com store, which in turn needs a Bitcoin node on the BLAKE2b chain. Kilowallet and JoinMarket XBT (Jam) need a node on the BLAKE2b chain: **Knots (BLAKE2b) Companion** from the same store, or **Bitcoin Knots** from Léo Haf's Misc store (`https://github.com/Horizon-btc/Bitcoin-store`), and finds it by itself. Add the PaulsCode.Com store:
 

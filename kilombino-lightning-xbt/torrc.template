@@ -1,0 +1,11 @@
+# Lightning Fork REST Hidden Service
+HiddenServiceDir /data/app-$APP_ID-rest
+HiddenServicePort $APP_LIGHTNING_XBT_NODE_REST_PORT $APP_LIGHTNING_XBT_NODE_IP:$APP_LIGHTNING_XBT_NODE_REST_PORT
+
+# Lightning Fork gRPC Hidden Service
+HiddenServiceDir /data/app-$APP_ID-grpc
+HiddenServicePort $APP_LIGHTNING_XBT_NODE_GRPC_PORT $APP_LIGHTNING_XBT_NODE_IP:$APP_LIGHTNING_XBT_NODE_GRPC_PORT
+
+# Lightning Fork mobile API Hidden Service (the dashboard's own TLS port)
+HiddenServiceDir /data/app-$APP_ID-mobile
+HiddenServicePort 443 $APP_LIGHTNING_XBT_IP:3443
