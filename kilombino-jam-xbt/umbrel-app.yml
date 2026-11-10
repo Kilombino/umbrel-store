@@ -3,12 +3,12 @@
 manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
-name: JoinMarket XBT (Jam)
+name: JoinBlaket
 version: "0.43.0-xbt1"
-tagline: CoinJoin on Bitcoin BLAKE2b (BTC) with the Jam wallet
+tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
-  JoinMarket-NG built for the Bitcoin BLAKE2b chain (BTC), with the Jam web
-  wallet. Mix your coins with other people's in CoinJoins, or offer them to
+  JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
+  Jam web wallet. Mix your coins with other people's in CoinJoins, or offer them to
   others and earn; your coins never leave your wallet. Nothing to configure.
 
 
@@ -22,7 +22,7 @@ description: >-
 
   Jam keeps a watch-only wallet in your BLAKE2b node and checks that the node
   follows the BLAKE2b chain: on any other node it does not start. It talks to
-  the BLAKE2b JoinMarket directory over its own Tor, with verified nick
+  the JoinBlaket directory over its own Tor, with verified nick
   authentication, and only to JoinMarket peers on the BLAKE2b chain. It mixes only with makers
   that hold a fidelity bond; to earn you need one too (created in Jam, it
   locks the coins in it until the date you choose). Every signature uses the
@@ -54,7 +54,7 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  JoinBlaket 0.43.0-xbt1: based on JoinMarket-NG 0.43.0, with its denial-of-service
+  The app is now called JoinBlaket (same app, same data). JoinBlaket 0.43.0-xbt1: based on JoinMarket-NG 0.43.0, with its denial-of-service
   and wallet daemon fixes. The BLAKE2b protections stay the same (unified sighash
   0x21, "xbt" network, only makers with a fidelity bond, fees from your own node).
   Security fix: the wallet daemon used by Jam now also refuses the Neutrino
