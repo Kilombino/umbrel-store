@@ -7,8 +7,8 @@ services:
       APP_PORT: 28183
 
   web:
-    # Reproducible build of joinmarket-ng v0.41.0-xbt3 + jam v2.0.0-beta.4-xbt3 (amd64 + arm64).
-    image: ghcr.io/kilombino/jam-xbt:0.41.0-xbt3@sha256:e16139b50d14068d32d14af1c0d2b20358b16359786224ac62e252cfda87b69a
+    # Reproducible build of joinblaket v0.43.0-xbt1 + jam v2.0.0-beta.4-xbt3 (amd64 + arm64).
+    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt1@sha256:4b08cd111b37c2181d193ef8a2e6ec764da059a81b81fb40ab247e942bd760ef
     user: "1000:1000"
     restart: on-failure
     # A CoinJoin in progress may be signing when stopped.

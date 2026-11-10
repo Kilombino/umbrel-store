@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinMarket XBT (Jam)
-version: "0.41.0-xbt3"
+version: "0.43.0-xbt1"
 tagline: CoinJoin on Bitcoin BLAKE2b (BTC) with the Jam wallet
 description: >-
   JoinMarket-NG built for the Bitcoin BLAKE2b chain (BTC), with the Jam web
@@ -40,11 +40,11 @@ description: >-
   store (https://github.com/Horizon-btc/Bitcoin-store) on the BLAKE2b chain.
   Jam picks it by itself. Needs umbrelOS 1.3 or later.
 developer: Kilombino
-website: https://github.com/Kilombino/joinmarket-ng
+website: https://github.com/Kilombino/joinblaket
 dependencies:
   - bitcoin
-repo: https://github.com/Kilombino/joinmarket-ng
-support: https://github.com/Kilombino/joinmarket-ng/issues
+repo: https://github.com/Kilombino/joinblaket
+support: https://github.com/Kilombino/joinblaket/issues
 # Clear of the PaulsCode.Com store's tiles (7150-7156), ThunderHub XBT (7160)
 # and Kilowallet (7161).
 port: 7165
@@ -54,9 +54,10 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  View in Kilowallet now also carries the wallet's master key fingerprint, so a
-  hardware signer such as SeedSigner can recognise its keys when you spend a
-  fidelity bond from Kilowallet. Scan it again in Kilowallet to add it.
-  JoinMarket-NG 0.41.0, Jam v2.0.0-beta.4, XBT build xbt3.
+  JoinBlaket 0.43.0-xbt1: based on JoinMarket-NG 0.43.0, with its denial-of-service
+  and wallet daemon fixes. The BLAKE2b protections stay the same (unified sighash
+  0x21, "xbt" network, only makers with a fidelity bond, fees from your own node).
+  Security fix: the wallet daemon used by Jam now also refuses the Neutrino
+  backend. Your wallets are kept. Jam v2.0.0-beta.4-xbt3.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
