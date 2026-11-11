@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.10.3"
+version: "0.10.4"
 tagline: The Bitcoin BLAKE2b (BTC) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -84,8 +84,8 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  Mined coins that are still maturing now show separately under your balance,
-  with the block each one unlocks at and an estimated date. As before, they
-  cannot be spent until they mature.
+  As in Kilowallet 1.5.6: a movement's details follow its live state while
+  open (a confirmation shows at once and speed-up/cancel disappear), and a
+  relay error on the coinjoin tab no longer covers a join or round message.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
