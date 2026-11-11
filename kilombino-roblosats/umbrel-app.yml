@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.8.8-rl25"
+version: "0.8.8-rl30"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,6 +34,11 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
+  Roblosats 0.8.8-rl30: when the lightning payment to you as buyer fails, the
+  "payment failed" screen has an Onchain tab to get paid onchain instead (on
+  coordinators that offer onchain payouts).
+
+
   Roblosats 0.8.8-rl25: with the chat in Nostr mode, every message reaches the
   coordinator again (before, only the first one did, so a peer on the API
   connection missed messages and disputes had no chat).
