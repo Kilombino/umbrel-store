@@ -7,7 +7,7 @@ services:
       APP_PORT: 8080
 
   web:
-    image: ghcr.io/kilombino/kilowallet-server:0.10.4@sha256:814f770b1338eb0f746e6ba6ab08c1e3c43e83cbdd95b2a4dfc09a8bb2e01920
+    image: ghcr.io/kilombino/kilowallet-server:0.10.5@sha256:96246868bb323c2e634f68adfb8eb4ac6cdbe385a112a4976479f51da433b58a
     user: "1000:1000"
     restart: on-failure
     # A coinjoin round or the Ark engine may be writing its state when stopped.
