@@ -44,7 +44,7 @@ else:
         "restart": "restart the app in Umbrel (right-click its icon → Restart)",
         "restart_short": "Umbrel → this app → Restart",
         "password": "the password Umbrel shows for this app",
-        "lightning": "Install Lightning Fork (PaulsCode.Com store) and create its wallet; then restart this app.",
+        "lightning": "Install Lightning XBT (this store) or Lightning Fork (PaulsCode.Com store), pick it for this app and create its wallet; then restart this app.",
         "no_node": "No Bitcoin node: pick one for this app in Umbrel.",
         "own_backup": "Umbrel's own backups, if you use them, copy this app's data folder too. Keep this file as well: its database copy is taken consistently by PostgreSQL itself, it holds only this coordinator, and it restores on a new Umbrel or on StartOS.",
     }

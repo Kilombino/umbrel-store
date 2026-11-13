@@ -3,7 +3,10 @@ version: "3.7"
 # A Roblosats coordinator on Umbrel: the Roblosats server (Django, Daphne, Celery and the order
 # and invoice loops), PostgreSQL, Redis, nginx, a Nostr relay and its own Tor onion, all in the
 # network namespace of the tor service (they talk on 127.0.0.1, as in the upstream deployment).
-# Lightning: Lightning Fork (PaulsCode.Com store), read-only credentials. Chain: the node picked
+# Lightning: the app picked for the "paulscode-lightning-fork" dependency, read-only credentials:
+# Paul's Lightning Fork (PaulsCode.Com store), or Lightning XBT from this store, which implements
+# it. Only the picked app's exports are sourced, so Lightning XBT's names (APP_LIGHTNING_XBT_*) are
+# read first and Lightning Fork's (which Lightning XBT fills too) after them. Chain: the node picked
 # for the "bitcoin" dependency (on the BLAKE2b chain), for addresses of on-chain payouts.
 
 # The app's own files (run.sh, panel.py, defaults.env, nginx.conf, torrc, strfry.conf, the relay's
@@ -34,12 +37,12 @@ x-roblosats: &roblosats
     - ${APP_DATA_DIR}/app/run.sh:/umbrel/run.sh:ro
     - ${APP_DATA_DIR}/data/tor:/tor:ro
     - ${APP_DATA_DIR}/data/static:/usr/src/static
-    # Until Lightning Fork is installed, an empty directory: run.sh waits for its credentials.
-    - ${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}:/lnd:ro
+    # Until Lightning Fork or Lightning XBT is installed, an empty directory: run.sh waits for its credentials.
+    - ${APP_LIGHTNING_XBT_NODE_DATA_DIR:-${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}}:/lnd:ro
   environment: &env
     SKIP_COLLECT_STATIC: "true"
     LNVENDOR: LND
-    LND_GRPC_HOST: "${APP_LIGHTNING_FORK_NODE_IP:-127.0.0.1}:${APP_LIGHTNING_FORK_NODE_GRPC_PORT:-10010}"
+    LND_GRPC_HOST: "${APP_LIGHTNING_XBT_NODE_IP:-${APP_LIGHTNING_FORK_NODE_IP:-127.0.0.1}}:${APP_LIGHTNING_XBT_NODE_GRPC_PORT:-${APP_LIGHTNING_FORK_NODE_GRPC_PORT:-10010}}"
     # The node is whichever app the user picked for the "bitcoin" dependency, as Lightning Fork
     # does (Knots (BLAKE2b) Companion, or Bitcoin Knots 29.4.1 or later): run.sh takes the first
     # set with an address and a port.
@@ -194,7 +197,7 @@ services:
       - ${APP_DATA_DIR}/app/panel.py:/umbrel/panel.py:ro
       - ${APP_DATA_DIR}/app/defaults.env:/umbrel/defaults.env:ro
       - ${APP_DATA_DIR}/data:/umbrel/data
-      - ${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}:/lnd:ro
+      - ${APP_LIGHTNING_XBT_NODE_DATA_DIR:-${APP_LIGHTNING_FORK_NODE_DATA_DIR:-${APP_DATA_DIR}/data/no-lightning-fork}}:/lnd:ro
 
   # The database side of the page's backups: pg_dump and psql, which the Roblosats image lacks.
   db-tool:

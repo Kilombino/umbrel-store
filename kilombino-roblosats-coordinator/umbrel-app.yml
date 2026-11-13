@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl30"
+version: "0.8.8-rl30-1"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -24,7 +24,8 @@ description: >-
   WHAT IT NEEDS
 
 
-  - Lightning Fork (PaulsCode.Com store), with a wallet and channels: inbound
+  - Lightning XBT (this store) or Lightning Fork (PaulsCode.Com store), with
+  a wallet and channels: inbound
   liquidity to receive the bonds and escrows, outbound to pay buyers. Start
   with small orders and raise the limits as your channels grow.
 
@@ -54,6 +55,12 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.8.8-rl30-1 (same server). Runs on Lightning XBT from
+  this store as well as on Paul's Lightning Fork: pick either in the app's
+  node selector (Lightning XBT must be installed first). Nothing changes if you
+  already use Lightning Fork.
+
+
   Roblosats Coordinator 0.8.8-rl30. When the lightning payout to a buyer
   fails, the buyer can switch to an onchain address from the "payment failed"
   screen (only if you offer onchain payouts; same swap fee and limits). Before
@@ -177,6 +184,8 @@ releaseNotes: >-
   settled bonds, payout limits, the BLAKE2b price oracle and timelocks).
 developer: Kilombino
 website: https://roblosats.kilombino.com
+# Paul's Lightning Fork, or Lightning XBT from this store, which declares
+# `implements: [paulscode-lightning-fork]`: umbrelOS offers whichever is installed.
 dependencies:
   - paulscode-lightning-fork
   - bitcoin
