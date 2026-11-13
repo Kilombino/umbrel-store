@@ -12,14 +12,21 @@ services:
     restart: on-failure
     stop_grace_period: 1m
     volumes:
-      # Lightning Fork's LND directory: tls.cert and the admin macaroon, read only.
-      - ${APP_LIGHTNING_FORK_NODE_DATA_DIR}:/lnd:ro
+      # The Lightning node's LND directory: tls.cert and the admin macaroon, read only.
+      # The node is whichever app the user picked for the paulscode-lightning-fork
+      # dependency: Paul's Lightning Fork, or Lightning XBT from this store, which
+      # implements it. Only the picked app's exports are sourced, so its own names
+      # come first; Lightning XBT's names (APP_LIGHTNING_XBT_*), then Lightning
+      # Fork's (which Lightning XBT also fills). Both keep tls.cert and
+      # data/chain/bitcoin/mainnet/admin.macaroon in that directory.
+      - ${APP_LIGHTNING_XBT_NODE_DATA_DIR:-${APP_LIGHTNING_FORK_NODE_DATA_DIR}}:/lnd:ro
       # accounts file and the channel notes database
       - ${APP_DATA_DIR}/data:/data
     environment:
       MASTER_PASSWORD_OVERRIDE: "$APP_PASSWORD"
       NO_VERSION_CHECK: "true"
       ACCOUNT_CONFIG_PATH: "/data/thubConfig.yaml"
-      # Lightning Fork's gRPC, on its own port (10010) beside the official Lightning Node app's
-      YML_ENV_1: "$APP_LIGHTNING_FORK_NODE_IP:$APP_LIGHTNING_FORK_NODE_GRPC_PORT"
+      # The node's gRPC, on its own port beside the official Lightning Node app's
+      # (Lightning Fork 10010, Lightning XBT 10011)
+      YML_ENV_1: "${APP_LIGHTNING_XBT_NODE_IP:-${APP_LIGHTNING_FORK_NODE_IP}}:${APP_LIGHTNING_XBT_NODE_GRPC_PORT:-${APP_LIGHTNING_FORK_NODE_GRPC_PORT}}"
       TOR_PROXY_SERVER: "socks://$TOR_PROXY_IP:$TOR_PROXY_PORT"

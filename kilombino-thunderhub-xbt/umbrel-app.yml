@@ -1,8 +1,8 @@
 manifestVersion: 1.1
 id: kilombino-thunderhub-xbt
-category: bitcoin
+category: lightning
 name: ThunderHub XBT
-version: "0.19.0-xbt.3"
+version: "0.19.0-xbt.3.1"
 tagline: ThunderHub for Lightning on the Bitcoin BLAKE2b chain
 description: >-
   ThunderHub XBT is ThunderHub, the LND node manager, forked for the Bitcoin
@@ -26,12 +26,18 @@ description: >-
   WHICH NODE IT NEEDS
 
 
-  Lightning Fork, LND for the BLAKE2b chain, from the PaulsCode.Com community
-  store (https://github.com/paulscode/umbrel-store). The official Lightning
-  Node app follows the SHA-256 chain and is not used. ThunderHub XBT can be
-  installed beside the official ThunderHub.
+  A Lightning node on the BLAKE2b chain: Lightning XBT from this store, or
+  Paul's Lightning Fork from the PaulsCode.Com community store
+  (https://github.com/paulscode/umbrel-store). Lightning XBT is Lightning Fork
+  packaged for this store, and stands in for it: install it first and it is
+  offered in this app's node selector. The official Lightning Node app follows
+  the SHA-256 chain and is not used. ThunderHub XBT can be installed beside
+  the official ThunderHub.
 developer: Kilombino
 website: https://github.com/Kilombino/thunderhub/tree/xbt
+# Paul's Lightning Fork, or Lightning XBT from this store, which declares
+# `implements: [paulscode-lightning-fork]`: umbrelOS offers whichever of the two
+# is installed, and docker-compose.yml reads the picked one's variables.
 dependencies:
   - paulscode-lightning-fork
 repo: https://github.com/Kilombino/thunderhub
@@ -44,7 +50,13 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
-  Pay Lightning Addresses: in Lightning → Send, paste a Lightning Address
+  Works with Lightning XBT from this store as well as with Paul's Lightning
+  Fork: pick either in the app's node selector (Lightning XBT must be installed
+  first). Nothing changes if you already use Lightning Fork. The app now sits in
+  the Lightning category of the App Store.
+
+
+  From 0.19.0-xbt.3: pay Lightning Addresses: in Lightning → Send, paste a Lightning Address
   (user@domain, e.g. zap@kilombino.com) in the invoice box, choose the amount
   (and a comment if the service allows it) and the max fee, then pay, same as
   BOLT 12 offers. The invoice must be for exactly the amount you chose or
