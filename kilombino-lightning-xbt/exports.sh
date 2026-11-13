@@ -261,3 +261,30 @@ if [[ ! -e "${mobile_hidden_service_dir}" ]] && [[ -d "${EXPORTS_TOR_DATA_DIR:-/
 	chown 1000:1000 "${mobile_hidden_service_dir}" 2>/dev/null || true
 fi
 unset mobile_hidden_service_dir mobile_hidden_service_file
+
+# ---------------------------------------------------------------------------
+# This app implements paulscode-lightning-fork (umbrel-app.yml), so an app
+# that depends on Paul's Lightning Fork can be pointed at this node instead,
+# and umbreld then sources this file for it, not Lightning Fork's. Such an app
+# reads APP_LIGHTNING_FORK_*, so those names get this node's values. `:=`, not
+# plain assignment: should Lightning Fork's own exports have been sourced in
+# the same shell, its values are the ones that count, and these fill only
+# what is still unset. Every name Lightning Fork exports is mirrored, so
+# nothing reading one finds it empty. Indirect expansion of a set name cannot
+# fail (see the top of this file).
+for lightning_fork_var in \
+	IP NODE_IP STATUS_IP SHA256_IP \
+	NODE_PORT NODE_GRPC_PORT NODE_REST_PORT WATCHTOWER_PORT MOBILE_PORT \
+	LAN_IP NODE_DATA_DIR STATUS_DIR \
+	MEMPOOL_PRUNED_API MEMPOOL_PRUNED_UI_PORT MEMPOOL_PRUNED_HIDDEN_SERVICE \
+	MEMPOOL_API MEMPOOL_UI_PORT MEMPOOL_HIDDEN_SERVICE \
+	SHA256_NODES BLOCK_SOURCE COMMAND \
+	REST_HIDDEN_SERVICE GRPC_HIDDEN_SERVICE MOBILE_HIDDEN_SERVICE
+do
+	lightning_fork_xbt_var="APP_LIGHTNING_XBT_${lightning_fork_var}"
+	lightning_fork_fork_var="APP_LIGHTNING_FORK_${lightning_fork_var}"
+	if [[ -n "${!lightning_fork_xbt_var+x}" ]]; then
+		export "${lightning_fork_fork_var}"="${!lightning_fork_fork_var:=${!lightning_fork_xbt_var}}" || true
+	fi
+done
+unset lightning_fork_var lightning_fork_xbt_var lightning_fork_fork_var
