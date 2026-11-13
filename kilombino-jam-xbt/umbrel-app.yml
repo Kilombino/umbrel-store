@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinBlaket
-version: "0.43.0-xbt1"
+version: "0.43.0-xbt2"
 tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
   JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
@@ -54,10 +54,14 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  The app is now called JoinBlaket (same app, same data). JoinBlaket 0.43.0-xbt1: based on JoinMarket-NG 0.43.0, with its denial-of-service
-  and wallet daemon fixes. The BLAKE2b protections stay the same (unified sighash
-  0x21, "xbt" network, only makers with a fidelity bond, fees from your own node).
-  Security fix: the wallet daemon used by Jam now also refuses the Neutrino
-  backend. Your wallets are kept. Jam v2.0.0-beta.4-xbt3.
+  JoinBlaket 0.43.0-xbt2. Telegram notices for makers, set from Jam without a
+  console: Settings › Telegram notices (bot token and chat id, a test button,
+  turn off). You hear when someone takes your offer, when a CoinJoin is done and
+  if the directories are lost. The token stays on your Umbrel and is never shown
+  again. A CoinJoin now needs at least 1 maker (it was 4), and if there are fewer
+  makers than you ask for it goes on with those there are, so the first CoinJoins
+  can happen while the market is small; with a single maker, that maker can link
+  your input to your output. Makers still need a fidelity bond. Your wallets are
+  kept. Jam v2.0.0-beta.4-xbt4.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
