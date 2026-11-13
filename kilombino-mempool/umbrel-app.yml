@@ -3,7 +3,7 @@ manifestVersion: 1.3.0
 id: kilombino-mempool
 category: bitcoin
 name: Mempool Kilombino
-version: "3.2.1.2"
+version: "3.2.1.3"
 tagline: Mempool explorer for the Bitcoin BLAKE2b chain, by Kilombino
 description: >-
   The explorer that runs at mempool.kilombino.com, on your own Umbrel: blocks,
@@ -17,15 +17,17 @@ description: >-
   WHAT IT NEEDS
 
 
-  Knots (BLAKE2b) Companion and Electrs Pruned, both from the PaulsCode.Com
-  community store (https://github.com/paulscode/umbrel-store). When Umbrel asks
-  which Bitcoin node to use, pick Knots (BLAKE2b) Companion: on a node of the
+  A Bitcoin node on the BLAKE2b chain and an Electrum server, both found in
+  this store: Bitcoin Knots and Electrs Pruned (Kilombino). Install them first
+  and pick them when Umbrel asks. Knots (BLAKE2b) Companion and Paul's Electrs
+  Pruned from the PaulsCode.Com community store
+  (https://github.com/paulscode/umbrel-store) work as well. On a node of the
   SHA256 chain this explorer stops and says so in its log.
 
 
-  The node must keep the whole chain with the transaction index on: in Knots
-  (BLAKE2b) Companion's settings, turn pruning off and txindex on (it is pruned
-  by default, and turning pruning off downloads the full chain). This explorer
+  The node must keep the whole chain with the transaction index on (Knots
+  (BLAKE2b) Companion is pruned by default: in its settings, turn pruning off
+  and txindex on; turning pruning off downloads the full chain). This explorer
   looks transactions up in the node itself; on a pruned node use Mempool
   Pruned instead.
 
@@ -43,14 +45,16 @@ description: >-
   LIGHTNING
 
 
-  With Lightning Fork installed and its wallet created, the Lightning tab shows
-  the Lightning network of this chain. Restart this app after installing
-  Lightning Fork.
+  With Lightning XBT (this store) or Lightning Fork installed and its wallet
+  created, the Lightning tab shows the Lightning network of this chain. Restart
+  this app after installing it.
 
 
   Installs alongside the official Mempool and Mempool Pruned.
 developer: Kilombino
 website: https://mempool.kilombino.com
+# paulscode-electrs-pruned: Paul's Electrs Pruned, or Electrs Pruned (Kilombino)
+# from this store, which declares `implements: [paulscode-electrs-pruned]`.
 dependencies:
   - bitcoin
   - paulscode-electrs-pruned
@@ -64,6 +68,14 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
+  3.2.1.3: up to date with mempool.kilombino.com (images v3.2.1-k2): the
+  mining pools list with the latest BLAKE2b miners, the YSH (Your Security
+  Hashrate) texts and the header names. Everything it needs is now in this
+  store: Electrs Pruned (Kilombino) can stand in for Paul's Electrs Pruned
+  (install it first and pick it when asked), and the Lightning tab also works
+  with Lightning XBT. Nothing changes if you already use Paul's apps.
+
+
   3.2.1.2: the app offers itself to Lightning Fork's dashboard as a source
   of fee rates and transaction links (needs a Lightning Fork version that
   reads the list of Mempool apps). Nothing else changes.
