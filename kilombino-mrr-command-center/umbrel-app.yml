@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.0.0"
+version: "1.1.0"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -61,7 +61,13 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
-  First release: the MRR API key is linked, checked and unlinked from the
+  1.1.0: your MRR balance as a pill in the header, always visible; minutes
+  when less than an hour of a rental is left; a star under each rental's face
+  to keep its rig as a favourite; market columns RPI, Perf 24 h and Perf 30
+  min coloured like the sparkline, with the best buy always in the table.
+
+
+  1.0.0:   First release: the MRR API key is linked, checked and unlinked from the
   dashboard, and the DATUM gateway is DATUM CONVOY's, read from its own
   settings.
 submitter: Kilombino
