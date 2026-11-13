@@ -4,11 +4,11 @@ category: bitcoin
 name: Bitcoin Knots
 implements:
   - bitcoin
-version: "1.2.21.1"
+version: "1.2.22.1"
 tagline: Run your personal node powered by Bitcoin Knots
 icon: https://raw.githubusercontent.com/getumbrel/umbrel-apps-gallery/refs/heads/master/bitcoin-knots/icon.svg
 description: >-
-  Bitcoin Knots 29.4.3, a full node on the BLAKE2b chain: the Bitcoin Knots app
+  Bitcoin Knots 29.5, a full node on the BLAKE2b chain: the Bitcoin Knots app
   that Horizon BTC and Léo Haf publish in their Misc store
   (github.com/Horizon-btc/Bitcoin-store), with the same images and digests,
   offered here so Kilombino's apps (Lightning XBT, DATUM CONVOY, Kilowallet)
@@ -49,7 +49,8 @@ gallery:
 path: ""
 defaultPassword: ""
 releaseNotes: >-
-  Bitcoin Knots v29.4.3knots20260508, Horizon's 1.2.21 in Kilombino's store.
+  Bitcoin Knots v29.5.knots20260508 and the world map fixed: Horizon's 1.2.22
+  in Kilombino's store.
 widgets:
   - id: "stats"
     type: "four-stats"
