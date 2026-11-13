@@ -1,0 +1,346 @@
+version: "3.7"
+
+# Electrs Pruned by Paul Lamb (github.com/paulscode/umbrel-store, MIT, see LICENSE
+# beside this file), copied unchanged for Kilombino's store but for its app id,
+# its variable names (APP_KILOMBINO_ELECTRS_PRUNED_*), its IP addresses and its
+# Electrum port on the host (50601), so it installs beside Paul's app. The images
+# and their digests are his.
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: $APP_KILOMBINO_ELECTRS_PRUNED_WEB_IP
+      APP_PORT: 80
+
+  # Small static page shown by the app's "Open" button: how to connect a wallet.
+  web:
+    image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+    restart: on-failure
+    volumes:
+      # The page itself, mounted read-only over the image's own index.html. Just
+      # the one file, not a directory, so the poller can still write status.json
+      # beside it in the image's writable layer.
+      #
+      # It comes from `index.html.template`, and it lives at the app root rather
+      # than in a `web/` directory, because of what umbreld copies on an update.
+      # `copy_app_files` takes only `docker-compose.yml *.template exports.sh
+      # torrc hooks`, so a page under `web/` reaches a fresh install and is never
+      # seen again: an update would bring this compose file and leave the page it
+      # refers to at whatever version was first installed. That is exactly what
+      # happened with 0.11.6, where the poller shipped and the page that reads it
+      # did not. `template_app` also globs only the app root, so the `.template`
+      # cannot be nested either. The page contains no `$`, so `envsubst` passes
+      # it through unchanged.
+      - ${APP_DATA_DIR}/index.html:/usr/share/nginx/html/index.html:ro
+      # Read-only, and only for the cookie, when the chosen node authenticates
+      # that way. Needed because the indexing percentage is measured against the
+      # node's own height, which means asking the node.
+      - ${APP_BITCOIN_DATA_DIR}:/bitcoin:ro
+    environment:
+      NODE_RPC: http://${APP_BITCOIN_NODE_IP}:${APP_BITCOIN_RPC_PORT}/
+      # Empty when the node authenticates by cookie, which is the signal to probe
+      # for one. Same split as the proxy and the electrs entrypoint.
+      NODE_USER: ${APP_BITCOIN_RPC_USER}
+      NODE_PASS: ${APP_BITCOIN_RPC_PASS}
+      ELECTRS_METRICS: http://${APP_KILOMBINO_ELECTRS_PRUNED_SERVER_IP}:4224/metrics
+    # Two sources, because neither alone is a percentage: electrs publishes how
+    # far it has indexed, and only the node knows how far there is to go.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        STATUS=/usr/share/nginx/html/status.json
+        printf '{"node":null,"indexed":null,"at":0}' > "$$STATUS"
+        (
+          while true; do
+            AUTH=""
+            if [ -n "$${NODE_USER:-}" ]; then
+              AUTH=$$(printf '%s:%s' "$$NODE_USER" "$$NODE_PASS" | base64 | tr -d '\n')
+            else
+              for sub in regtest testnet4 testnet signet ""; do
+                if [ -n "$$sub" ]; then C="/bitcoin/$$sub/.cookie"; else C="/bitcoin/.cookie"; fi
+                # Re-read every poll, so a node restart that rewrites it is picked up.
+                if [ -r "$$C" ]; then AUTH=$$(tr -d '\r\n' < "$$C" | base64 | tr -d '\n'); break; fi
+              done
+            fi
+            NODE=null
+            if [ -n "$$AUTH" ]; then
+              R=$$(wget -q -O - -T 10 \
+                    --header "Authorization: Basic $$AUTH" \
+                    --header "Content-Type: text/plain" \
+                    --post-data '{"jsonrpc":"1.0","id":"s","method":"getblockchaininfo","params":[]}' \
+                    "$$NODE_RPC" 2>/dev/null) || R=""
+              case "$$R" in '{'*) NODE="$$R" ;; esac
+            fi
+            # electrs sets this gauge for each block as it indexes it, so it moves
+            # during the build rather than only at the end.
+            IDX=$$(wget -q -O - -T 10 "$$ELECTRS_METRICS" 2>/dev/null \
+                   | awk '$$1 == "electrs_index_height{type=\"tip\"}" {print $$2}' | tail -1) || IDX=""
+            case "$$IDX" in ''|*[!0-9.eE+-]*) IDX=null ;; esac
+            printf '{"node":%s,"indexed":%s,"at":%s}\n' "$$NODE" "$$IDX" "$$(date +%s)" > "$$STATUS.tmp"
+            mv "$$STATUS.tmp" "$$STATUS"
+            sleep 10
+          done
+        ) &
+        exec nginx -g 'daemon off;'
+    networks:
+      default:
+        ipv4_address: $APP_KILOMBINO_ELECTRS_PRUNED_WEB_IP
+
+  # btc-rpc-proxy sits between electrs and the Bitcoin Node, and is the whole
+  # reason this app can index a pruned node. electrs asks for blocks below the
+  # prune height with `getblock <hash> 0`; bitcoind no longer has them, and the
+  # proxy fetches them from the p2p network and verifies them against the node.
+  #
+  # On StartOS the bitcoind package runs this itself whenever pruning is enabled,
+  # so its dependents get it transparently. Umbrel has no equivalent, so the app
+  # brings its own.
+  #
+  # The image expects a config at a fixed path and has no environment interface,
+  # so the config is written at start from the variables Umbrel injects. umask
+  # 077 because it carries the RPC password, and the image's own entrypoint
+  # chmods 600 for the same reason.
+  #
+  # The proxy accepts exactly what the node accepts: the `rpcauth=` lines the
+  # node is configured with, and the cookie it writes. Both, whenever both
+  # exist, because electrs picks between them on its own. That way electrs
+  # authenticates the same whether it is pointed at the node or at the proxy,
+  # and no second secret is generated, stored or shared by this app.
+  proxy:
+    # Our build of upstream v0.8.2, which answers JSON-RPC 2.0 requests in kind
+    # and keeps a batch's replies in request order, with three changes of ours on
+    # top. The witness-commitment check and the read-once passthrough cookie
+    # (PR #34) that the v0.8.0 line carried are upstream since 0.8.1.
+    #
+    # BLAKE2b header support, still open upstream as PR #33. Without it the proxy
+    # cannot parse a 164-byte header, and it parses the block for any request it
+    # intercepts, so every verbose `getblock` and every intercepted
+    # `getrawtransaction` above block 961640 came back "IO error: failed to fill
+    # whole buffer". That is Mempool Pruned's entire block path and this app's own
+    # verbose transaction lookups. Not a pruning problem: it failed on blocks the
+    # node still had.
+    #
+    # A `difficulty` field that may be absent, first shipped as blake2b.2. Bitcoin
+    # Knots 29.4.2.knots20260508 (knots#420) stopped reporting `difficulty` for
+    # header-v2 blocks and reports `difficulty_blake2b` instead; the proxy declared
+    # the old field required, in a struct that `getblock` flattens, so it could not
+    # read a single block header on this chain. It matters doubly here because the
+    # proxy re-serializes that struct when it rebuilds a verbose `getblock` for a
+    # pruned block, so a field it does not name is dropped on the way back to the
+    # caller rather than merely unread.
+    #
+    # A single flight for peer fetches, so concurrent requests for the same pruned
+    # block share one fetch rather than each going to the network.
+    #
+    # The NODE_BLAKE2B service bit in its handshake with peers, whenever the node
+    # advertises it. Knots 29.4.3 silently ignores a peer without it for every
+    # block past the chain split, so v0.8.2-blake2b.1, which advertised nothing,
+    # could not fetch one pruned post-split block and indexing stopped.
+    #
+    # This is the same image the StartOS package runs; the two lines were split
+    # and are now one. Swap back to ghcr.io/start9labs/btc-rpc-proxy once #33 is
+    # merged.
+    image: paulscode/btc-rpc-proxy:v0.8.2-blake2b.2@sha256:1ca61fbc93ae6218af026712b63cfd257c9a3b838adb14e57b571be8fc0fc3f2
+    restart: on-failure
+    environment:
+      BITCOIND_HOST: ${APP_BITCOIN_NODE_IP}
+      BITCOIND_PORT: ${APP_BITCOIN_RPC_PORT}
+      BITCOIND_USER: ${APP_BITCOIN_RPC_USER}
+      BITCOIND_PASS: ${APP_BITCOIN_RPC_PASS}
+    volumes:
+      - ${APP_BITCOIN_DATA_DIR}:/bitcoin:ro
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -eu
+        umask 077
+        # The user and password come from the Bitcoin Node app and are not ours
+        # to constrain, so escape them for a TOML basic string rather than
+        # assume they are alphanumeric. An unescaped quote in the password ends
+        # the string early and the proxy reads a config that is not the one
+        # meant. Compose substitutes $VAR from the host, so container variables
+        # are written $$VAR to survive to the shell.
+        esc() { printf '%s' "$$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
+        H=$$(esc "$${BITCOIND_HOST}")
+        U=$$(esc "$${BITCOIND_USER}")
+        P=$$(esc "$${BITCOIND_PASS}")
+        # The cookie is located by probing the chain subdirectories bitcoind uses
+        # for anything but mainnet, exactly as the electrs entrypoint does. It is
+        # looked for whether or not a user and password were exported, because it
+        # is needed for more than one thing below.
+        #
+        # Waited for, not just probed. The server below always authenticates with
+        # this cookie, whatever the node exports, so a proxy that starts before
+        # the node has written it never accepts it: the proxy loads its
+        # passthrough users once, at startup, and does not look again. That is a
+        # 401 loop for electrs which no electrs restart clears, and it is what a
+        # reboot produces whenever this container wins the race against the
+        # node. Seen on a test server: the proxy started at 21:23:06.95 and the
+        # node wrote its cookie at 21:23:07, and electrs crash-looped for twelve
+        # days. Bounded like the electrs entrypoint's own wait, then exit so
+        # `restart: on-failure` tries again rather than running without it.
+        COOKIE=""
+        waited=0
+        while [ "$$waited" -lt 300 ]; do
+          for sub in regtest testnet4 testnet signet ""; do
+            if [ -n "$$sub" ]; then C="/bitcoin/$$sub/.cookie"; else C="/bitcoin/.cookie"; fi
+            if [ -r "$$C" ]; then COOKIE="$$C"; break; fi
+          done
+          [ -n "$$COOKIE" ] && break
+          [ "$$waited" -eq 0 ] && echo "proxy: no .cookie under /bitcoin yet; waiting for the node" >&2
+          sleep 1
+          waited=$$((waited + 1))
+        done
+        if [ -z "$$COOKIE" ]; then
+          echo "proxy: no readable .cookie under /bitcoin after $${waited}s; is the chosen node running?" >&2
+          exit 1
+        fi
+
+        # Every rpcauth= line the node actually uses, which is not necessarily in
+        # the file it names. bitcoin.conf is allowed to be a stub that pulls the
+        # real settings in with includeconf=, and that is exactly what the BLAKE2b
+        # companion does: its bitcoin.conf holds one includeconf line and the
+        # rpcauth lives in umbrel-bitcoin.conf beside it.
+        #
+        # Pointing passthrough_rpcauth straight at bitcoin.conf then loads no
+        # users at all, and the proxy answers every caller 401 while the node
+        # itself accepts those very credentials. That is not a visible
+        # misconfiguration: it looks like electrs has the wrong password.
+        #
+        # bitcoind honours includeconf only in the top-level file, so one level is
+        # the whole of it.
+        : > /tmp/rpcauth.conf
+        if [ -r /bitcoin/bitcoin.conf ]; then
+          grep -h '^[[:space:]]*rpcauth=' /bitcoin/bitcoin.conf >> /tmp/rpcauth.conf 2>/dev/null || true
+          sed -n 's/^[[:space:]]*includeconf=//p' /bitcoin/bitcoin.conf 2>/dev/null | while IFS= read -r inc; do
+            [ -n "$$inc" ] || continue
+            case "$$inc" in /*) F="$$inc" ;; *) F="/bitcoin/$$inc" ;; esac
+            [ -r "$$F" ] && grep -h '^[[:space:]]*rpcauth=' "$$F" >> /tmp/rpcauth.conf 2>/dev/null || true
+          done
+        fi
+
+        # How the proxy authenticates TO the node. The official Bitcoin Node
+        # exports a user and password; the BLAKE2b companion historically
+        # exported neither, and an empty user is still the signal to use its
+        # cookie instead.
+        if [ -n "$${BITCOIND_USER}" ]; then
+          AUTH=$$(printf 'bitcoind_user = "%s"\nbitcoind_password = "%s"' "$$U" "$$P")
+        else
+          echo "proxy: authenticating to the node with $$COOKIE"
+          AUTH=$$(printf 'cookie_file = "%s"' "$$COOKIE")
+        fi
+
+        # Which credentials the proxy ACCEPTS. Both are offered whenever both
+        # exist, rather than picking one to match how the proxy talks to the
+        # node. Those are separate questions: electrs chooses for itself, and it
+        # follows the same "user and password if exported, cookie otherwise" rule
+        # against variables that can change under it on an app update. Accepting
+        # only one of the two turns that into a 401 loop.
+        if [ -s /tmp/rpcauth.conf ]; then
+          echo "proxy: accepting the node's rpcauth credentials"
+          AUTH=$$(printf '%s\npassthrough_rpcauth = "/tmp/rpcauth.conf"' "$$AUTH")
+        fi
+        echo "proxy: accepting the node's cookie at $$COOKIE"
+        AUTH=$$(printf '%s\npassthrough_rpccookie = "%s"' "$$AUTH" "$$COOKIE")
+        cat > /tmp/btc_rpc_proxy.toml <<EOF
+        bitcoind_address = "$$H"
+        bitcoind_port = $${BITCOIND_PORT}
+        $$AUTH
+        bind_address = "0.0.0.0"
+        bind_port = 8332
+        # Users derived from passthrough carry no fetch_blocks of their own, so
+        # this global switch is what grants them on-demand fetching of pruned
+        # blocks. Without it the proxy forwards every getblock straight to
+        # bitcoind and a pruned block still fails.
+        default_fetch_blocks = true
+        # Unset, the proxy asks every eligible peer for the same block at once
+        # and keeps the first valid answer, which is N copies of every fetch.
+        max_peer_concurrency = 3
+        # A verbose transaction lookup fetches the same block twice by itself,
+        # so the repeat should not go back to the network.
+        block_cache_size_mib = 64
+        EOF
+        exec /usr/bin/btc_rpc_proxy --conf /tmp/btc_rpc_proxy.toml
+    networks:
+      default:
+        ipv4_address: $APP_KILOMBINO_ELECTRS_PRUNED_PROXY_IP
+
+  # electrs, patched to index from a pruned node and to follow a chain whose
+  # block headers are not all 80 bytes. Same image as the StartOS package; the
+  # entrypoint builds electrs.toml from these variables because Umbrel has no
+  # settings form.
+  #
+  # daemon_rpc_addr points at the proxy, not the node, so pruned blocks resolve.
+  # daemon_p2p_addr points at the node directly, because that path only carries
+  # blocks the node still has and gains nothing from the detour.
+  server:
+    image: paulscode/electrs-pruned:0.11.7@sha256:2b8565ad0d0db8a375b3e9e7d8d7e03e17ca201db4ecc8509f60138a58d4f9f5
+    restart: always
+    stop_grace_period: 5m
+    depends_on:
+      - proxy
+    environment:
+      ELECTRS_CONFIG_FROM_ENV: "1"
+      BITCOIN_RPC_HOST: ${APP_KILOMBINO_ELECTRS_PRUNED_PROXY_IP}
+      BITCOIN_RPC_PORT: "8332"
+      BITCOIN_P2P_HOST: ${APP_BITCOIN_NODE_IP}
+      BITCOIN_P2P_PORT: ${APP_KILOMBINO_ELECTRS_PRUNED_BACKEND_P2P_PORT}
+      BITCOIN_RPC_USER: ${APP_BITCOIN_RPC_USER}
+      BITCOIN_RPC_PASS: ${APP_BITCOIN_RPC_PASS}
+      # Empty above when the chosen node authenticates with a cookie instead; the
+      # entrypoint then falls through to this directory, probing it for the cookie and
+      # taking the chain from where it finds it.
+      BITCOIN_COOKIE_DIR: /backend
+      ELECTRS_NETWORK: ${APP_BITCOIN_NETWORK_ELECTRS:-bitcoin}
+      ELECTRS_LOG_FILTERS: INFO
+
+      # Prometheus metrics, which is where the connect page reads indexing
+      # progress from. electrs binds this to 127.0.0.1 by default, which is
+      # container-local and so unreachable from the page's container.
+      #
+      # Read by electrs itself rather than by the entrypoint: electrs uses
+      # configure_me with env_prefix "ELECTRS", so every setting has an
+      # ELECTRS_-prefixed variable and this one needs no config file entry.
+      # Internal to the app's network and never published to the host.
+      ELECTRS_MONITORING_ADDR: 0.0.0.0:4224
+
+      # An archival node to read pruned blocks from, when one is installed.
+      #
+      # Every block below the 2026 chain split is identical on both sides, so a full node of
+      # either chain already holds almost everything a pruned node has discarded. Reading those
+      # from its disk is far cheaper than fetching them from the network one at a time, which
+      # is what this app otherwise does for the whole history below the prune height.
+      #
+      # Knots (BLAKE2b) Companion is the candidate, being the second node this store expects
+      # alongside the official one. It is not a dependency: uninstalled, these expand to
+      # nothing and no helper is configured, which is the ordinary single-node case.
+      #
+      # Installed is not sufficient. It also has to be archival and synced far enough, which
+      # electrs checks against the node itself and reports in its log if it declines. That app
+      # keeps only recent blocks by default, so it must be set to keep the whole chain first.
+      #
+      # Harmless when that app is also the node being indexed: electrs finds the helper is the
+      # same pruned node it is already asking, declines it for being pruned, and carries on.
+      HELPER_RPC_HOST: ${APP_KNOTS_BLAKE2B_NODE_IP:-}
+      HELPER_RPC_PORT: ${APP_KNOTS_BLAKE2B_RPC_PORT:-}
+      HELPER_COOKIE_DIR: /helper
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+      - ${APP_BITCOIN_DATA_DIR}:/backend:ro
+      # Read-only, and only for the cookie. Absent when that app is not installed, in which
+      # case the cookie probe finds nothing and the helper is skipped.
+      - ${UMBREL_ROOT}/app-data/paulscode-knots-blake2b/data:/helper:ro
+    ports:
+      # Published on 50601 in this copy (Kilombino's store), so it installs beside
+      # Paul's Electrs Pruned (50201) as well as the official Electrs (50001).
+      # Paul's original comment follows.
+      #
+      # Published on 50201, not 50001. This app is built to run *alongside* the
+      # official Electrs app, not instead of it: the intended setup is one
+      # archival node with the official Electrs on 50001 and one pruned node
+      # with this on 50201, so both chains are reachable from one server.
+      # electrs-liquid in this store took 50101 for the same reason.
+      - "50601:50001"
+    networks:
+      default:
+        ipv4_address: $APP_KILOMBINO_ELECTRS_PRUNED_SERVER_IP

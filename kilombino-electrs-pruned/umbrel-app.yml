@@ -1,0 +1,158 @@
+manifestVersion: 1.1
+id: kilombino-electrs-pruned
+# Satisfies any app that depends on Paul's Electrs Pruned (Mempool Kilombino from
+# this store among them): umbrelOS offers an installed app that implements a
+# dependency, and exports.sh fills Electrs Pruned's variable names with this
+# app's values.
+implements:
+  - paulscode-electrs-pruned
+category: bitcoin
+name: Electrs Pruned (Kilombino)
+version: "0.11.1.18"
+tagline: A second Electrum server, for your pruned node
+description: >-
+  Paul Lamb's Electrs Pruned (github.com/paulscode/umbrel-store), copied for
+  Kilombino's store with all the credit to Paul, unchanged but for the ports:
+  wallets connect on port 50601, so it installs beside Paul's app. Same images,
+  same digests, MIT license. Apps from this store that need an Electrum server,
+  such as Mempool Kilombino, can use it or Paul's, whichever is installed.
+
+
+  Runs alongside the official Electrs app rather than replacing it. The intended
+  setup is two nodes on one server: an archival node with the official Electrs on
+  port 50001, and a pruned node with this on port 50201. Both chains stay
+  reachable from your own hardware without paying for the disk to hold two full
+  blockchains.
+
+
+  The official Electrs app requires an archival node with transaction indexing,
+  which means keeping the whole chain. This one does not: it indexes from a
+  pruned node and fetches the blocks your node has dropped from the peer-to-peer
+  network, verifying each one against your node before using it.
+
+
+  Your wallets query balances, transaction history and broadcast transactions
+  through your own node instead of somebody else's server.
+
+
+  HOW IT WORKS
+
+
+  The app runs two containers. The indexer is electrs, patched to route requests
+  for old blocks past the point where your node stopped keeping them. Alongside
+  it runs btc-rpc-proxy, which fetches those blocks over peer-to-peer and checks
+  them against your node, so nothing is trusted that your node has not confirmed.
+
+
+  Nothing is changed on your Bitcoin Node, and an archival node works too: the
+  routing only engages below the prune height, so if there is no prune height it
+  never engages.
+
+
+  WHAT TO EXPECT
+
+
+  A pruned node saves disk on blocks, but the address index is separate and still
+  has to be built and stored. Expect roughly 60 to 80 GB for the index on mainnet
+  and a first sync measured in hours. Fetching a dropped block costs a network
+  round trip, so a wallet asking about very old transactions is slower than it
+  would be against an archival node. Recent history is unaffected.
+
+
+  PRIVACY
+
+
+  Blocks your node has dropped are fetched from the Bitcoin network, and a peer
+  that serves you a block learns you wanted it. During the first index that only
+  shows you are syncing. Afterwards a few requests can still reach for a block on
+  demand, such as the full details of an old transaction, and those follow from
+  something you asked for.
+
+
+  Ordinary wallet use does not fetch anything: balances, history and unspent
+  outputs come from the index this app builds, so your addresses never go to a
+  peer. If your Bitcoin Node runs over Tor, these fetches do too, which is slower
+  but does not reveal where the request came from.
+
+
+  An archival node with the official Electrs stores the whole chain and so never
+  fetches at all. That is the more private option, and it is the right one if this
+  tradeoff is not one you want.
+
+
+  CONNECTING
+
+
+  - Other Umbrel apps: depend on paulscode-electrs-pruned (this app implements
+    it) and read APP_ELECTRS_PRUNED_SERVER_IP and APP_ELECTRS_PRUNED_SERVER_PORT
+    (internal Electrum port 50001), or depend on this app and read
+    APP_KILOMBINO_ELECTRS_PRUNED_SERVER_IP and _SERVER_PORT.
+
+  - Wallets on your LAN: point an Electrum-compatible wallet at your Umbrel's
+    address on port 50601. The official Electrs app keeps 50001 and Paul's
+    Electrs Pruned 50201, so all of them can be installed and connected to at
+    once.
+developer: Paul Lamb (Electrs Pruned), packaged by Kilombino
+website: https://github.com/paulscode/electrs-pruned
+dependencies:
+  - bitcoin
+repo: https://github.com/paulscode/electrs-pruned-startos
+support: https://github.com/paulscode/electrs-pruned-startos/issues
+# Tile port, clear of Paul's Electrs Pruned (3034) and of this store's other tiles.
+port: 7176
+# Community stores must supply full URLs for icon and gallery — Umbrel's resolver
+# only auto-prefixes URLs for the official umbrel-app-store.
+icon: https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-electrs-pruned/icon.png
+gallery:
+  - https://raw.githubusercontent.com/Kilombino/umbrel-store/master/kilombino-electrs-pruned/gallery/1.png
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: >-
+  First version in Kilombino's store: Paul Lamb's Electrs Pruned 0.11.1.18,
+  on port 50601. Paul's notes for that version follow.
+
+
+  Fixes indexing that stops a few hundred blocks after the BLAKE2b chain split
+  and never moves on, on a pruned Knots (BLAKE2b) node. Blocks your node has
+  already dropped are fetched from its peers by the proxy that runs inside this
+  app, and peers on Bitcoin Knots 29.4.3 ignore those requests from a client
+  that does not say it follows the BLAKE2b chain. The proxy did not say so. It
+  now does whenever your node does. An index that stopped resumes from where it
+  was after this update, with no reindex.
+
+
+  The version number changes form: 0.11.1.18 is electrs 0.11.1, release 18 of
+  this app. It follows 0.11.17.
+
+
+  FROM 0.11.17:
+
+
+  Keeps indexing the BLAKE2b chain when Knots (BLAKE2b) moves to Bitcoin Knots
+  29.4.3. That release stops serving blocks past the chain split to any peer
+  that does not say it follows the BLAKE2b chain. This server did not say so, so
+  it stopped at the last block it had while still answering wallets. It now says
+  so whenever its node does. Update this app before updating Knots (BLAKE2b).
+
+
+  IF YOU ARE UPDATING FROM 0.11.15 OR EARLIER, 0.11.16 also applies:
+
+
+  Fixes a server that stays at "Starting up" and never indexes, with
+  "unexpected HTTP code: 401" in its log, when it starts at the same time as
+  the Bitcoin node, as on a reboot or an update.
+
+
+  The proxy in front of Bitcoin decides at startup which credentials to accept.
+  If it started before the node had written its login cookie, it never accepted
+  that cookie, and the server, which logs in with it, was refused on every
+  attempt until the proxy itself was restarted. The proxy now waits for the
+  cookie before starting.
+
+
+  If your server is in that state, this update fixes it. Nothing changes for an
+  existing index.
+
+submitter: Kilombino
+submission: https://github.com/Kilombino/umbrel-store
