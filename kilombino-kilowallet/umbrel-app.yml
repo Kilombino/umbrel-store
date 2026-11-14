@@ -5,7 +5,7 @@ manifestVersion: 1.3.0
 id: kilombino-kilowallet
 category: bitcoin
 name: Kilowallet
-version: "0.10.5"
+version: "0.11.0"
 tagline: The Bitcoin BLAKE2b (BTC) wallet, on your own node
 description: >-
   Kilowallet is the wallet of the Kilowallet Android app for the Bitcoin
@@ -49,6 +49,16 @@ description: >-
   when activating Ark. Both are for hot wallets only.
 
 
+  PAY THROUGH JOINBLAKET
+
+
+  A payment to one bc1q address can go out as the CoinJoin output of a
+  JoinMarket CoinJoin on the BTC chain (JoinBlaket), with makers that hold a
+  fidelity bond, as in the Kilowallet app. SEND shows the market; you confirm
+  each maker's fee and the mining fee before anything about your coins leaves
+  your Umbrel. It reaches the JoinBlaket directory through umbrelOS's own Tor.
+
+
   WHICH NODE IT NEEDS
 
 
@@ -84,8 +94,13 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  "Show the addresses" (when a pool sends its mixed outputs to another
-  wallet, and on a round's card) lists the addresses again instead of
-  "[object HTMLDivElement]".
+  PAY THROUGH JOINBLAKET, as in Kilowallet 1.6.0: a payment to one bc1q
+  address can go out as the CoinJoin output of a JoinMarket CoinJoin on the
+  BTC chain, with makers that hold a fidelity bond. SEND shows the market
+  (makers, minimum, maximum and the cost for the amount); you confirm each
+  maker's fee and the mining fee before anything about your coins leaves your
+  Umbrel, then follow the progress and get the txid with a link to the
+  explorer. It goes through umbrelOS's own Tor (the JoinBlaket directory is an
+  onion).
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
