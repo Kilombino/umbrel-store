@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinBlaket
-version: "0.43.0-xbt4"
+version: "0.43.0-xbt5"
 tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
   JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
@@ -54,11 +54,12 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  JoinBlaket 0.43.0-xbt4. Your fee limits (Settings › Adjust fee limits) are
-  kept after a restart. When creating a fidelity bond you can set its mining fee
-  in sat/vB (empty: your node's estimate). The Telegram bot saved in Jam is
-  turned on again at every start. From 0.43.0-xbt3: a bond can be funded with
-  any unfrozen coin, with a warning; Settings › Community opens the BIP110
-  Telegram group and Discord. Your wallets are kept. Jam v2.0.0-beta.4-xbt6.
+  JoinBlaket 0.43.0-xbt5. A CoinJoin with only 1 maker now works: Jam let you
+  pick 1 collaborator but the wallet refused it ("counterparties: Input should
+  be greater than or equal to 2"). This matters when only one maker's limits
+  cover your amount. With a single maker, that maker can link your input to
+  your output: privacy is only against outside observers. From 0.43.0-xbt4: fee
+  limits kept after a restart, mining fee for the fidelity bond, Telegram bot
+  turned on at every start. Your wallets are kept. Jam v2.0.0-beta.4-xbt6.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store

@@ -7,8 +7,8 @@ services:
       APP_PORT: 28183
 
   web:
-    # Reproducible build of joinblaket v0.43.0-xbt4 + jam v2.0.0-beta.4-xbt6 (amd64 + arm64).
-    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt4@sha256:bd22015d12b7c30eaabe3b2cb49bc4643ca1346eeb126b075c2089e128f44aca
+    # Reproducible build of joinblaket v0.43.0-xbt5 + jam v2.0.0-beta.4-xbt6 (amd64 + arm64).
+    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt5@sha256:794aae68d9245f7d486817faace10b543dd30b9152506f6f645ea73488db1d5e
     user: "1000:1000"
     restart: on-failure
     # A CoinJoin in progress may be signing when stopped.
