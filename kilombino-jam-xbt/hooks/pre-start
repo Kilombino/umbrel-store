@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Jam runs as 1000:1000 (the image refuses root). Make sure its data directory
+# Jam and its RPC filter run as 1000:1000. Make sure its data directory
 # exists and is writable by that user before the container starts.
 JAM_DATA_DIR="${APP_DATA_DIR}/data"
 
@@ -9,6 +9,13 @@ mkdir -p "${JAM_DATA_DIR}"
 
 chown -R "1000:1000" "${JAM_DATA_DIR}"
 chmod 700 "${JAM_DATA_DIR}"
+
+# JoinBlaket's RPC filter keeps its own credentials for Jam here (Jam mounts it
+# read-only). Never the node's credentials: those reach the filter only.
+FILTER_DIR="${APP_DATA_DIR}/rpc-filter"
+mkdir -p "${FILTER_DIR}"
+chown -R "1000:1000" "${FILTER_DIR}"
+chmod 700 "${FILTER_DIR}"
 
 # Pick the BLAKE2b node by itself.
 #

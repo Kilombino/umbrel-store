@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinBlaket
-version: "0.43.0-xbt5"
+version: "0.43.0-xbt6"
 tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
   JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
@@ -21,7 +21,9 @@ description: >-
 
 
   Jam keeps a watch-only wallet in your BLAKE2b node and checks that the node
-  follows the BLAKE2b chain: on any other node it does not start. It talks to
+  follows the BLAKE2b chain: on any other node it does not start. It reaches the
+  node only through its own RPC filter, which allows just the calls JoinBlaket
+  needs, on its own wallets. It talks to
   the JoinBlaket directory over its own Tor, with verified nick
   authentication, and only to JoinMarket peers on the BLAKE2b chain. It mixes only with makers
   that hold a fidelity bond; to earn you need one too (created in Jam, it
@@ -54,12 +56,13 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  JoinBlaket 0.43.0-xbt5. A CoinJoin with only 1 maker now works: Jam let you
-  pick 1 collaborator but the wallet refused it ("counterparties: Input should
-  be greater than or equal to 2"). This matters when only one maker's limits
-  cover your amount. With a single maker, that maker can link your input to
-  your output: privacy is only against outside observers. From 0.43.0-xbt4: fee
-  limits kept after a restart, mining fee for the fidelity bond, Telegram bot
-  turned on at every start. Your wallets are kept. Jam v2.0.0-beta.4-xbt6.
+  JoinBlaket 0.43.0-xbt6. Jam no longer holds your node's RPC password: a small
+  RPC filter, in its own container and the only one that gets the node's
+  credentials, passes on just the 26 calls JoinBlaket uses, and only on
+  JoinBlaket's own wallets (other apps' wallets on the node are out of reach).
+  Jam and everything that talks to the network get the filter's own
+  credentials. If the filter is down, Jam shows the node as unreachable. From
+  0.43.0-xbt5: a CoinJoin with only 1 maker works. Your wallets are kept. Jam
+  v2.0.0-beta.4-xbt6.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
