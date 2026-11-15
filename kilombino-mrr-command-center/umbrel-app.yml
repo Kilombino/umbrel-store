@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.1.0"
+version: "1.2.0"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -20,6 +20,17 @@ description: >-
   them apart and give a verdict per rental: paid, what MRR says, and what
   reached the gateway. Finished rentals are kept for 7 days, and a rig that
   delivered becomes a favourite.
+
+
+  PYBLØCK TOO
+
+
+  Next to the MRR market it shows PyBLØCK's hashrate packages with their price
+  per TH and day against MRR's, and orders them by hand: you confirm, PyBLØCK
+  returns an invoice and you pay it from your own wallet (the app pays
+  nothing). Each PyBLØCK rental gets the same face, star and verdict as an MRR
+  one, from what really reaches your gateway. Every rental shows the price per
+  TH and day you paid and what renewing it costs now.
 
 
   RENTING BY HAND ONLY
@@ -40,6 +51,8 @@ description: >-
   or link another, at any time. Then choose the MRR pool profile your rentals
   start on: it must point at your DATUM CONVOY's stratum as the internet sees
   it (your public IP or domain, with port 23338 forwarded on your router).
+  For PyBLØCK, enter that same host:port (and, if you like, a payout address)
+  in the PyBLØCK row of the same card.
 
 
   CREDITS
@@ -61,6 +74,14 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.2.0: PyBLØCK rentals next to MRR (packages, manual orders with an invoice
+  you pay from your own wallet, status, and what each rental really delivers
+  to your gateway next to what PyBLØCK says); the price per TH/day you paid
+  and the renewal price on every rental; faces, stars and verdicts for
+  PyBLØCK rentals too. Set your DATUM CONVOY stratum as the internet sees it
+  (host:port) in the PyBLØCK row of the MRR API key card.
+
+
   1.1.0: your MRR balance as a pill in the header, always visible; minutes
   when less than an hour of a rental is left; a star under each rental's face
   to keep its rig as a favourite; market columns RPI, Perf 24 h and Perf 30
