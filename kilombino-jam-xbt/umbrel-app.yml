@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinBlaket
-version: "0.43.0-xbt6"
+version: "0.43.0-xbt7"
 tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
   JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
@@ -56,13 +56,15 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  JoinBlaket 0.43.0-xbt6. Jam no longer holds your node's RPC password: a small
-  RPC filter, in its own container and the only one that gets the node's
-  credentials, passes on just the 26 calls JoinBlaket uses, and only on
-  JoinBlaket's own wallets (other apps' wallets on the node are out of reach).
-  Jam and everything that talks to the network get the filter's own
-  credentials. If the filter is down, Jam shows the node as unreachable. From
-  0.43.0-xbt5: a CoinJoin with only 1 maker works. Your wallets are kept. Jam
-  v2.0.0-beta.4-xbt6.
+  JoinBlaket 0.43.0-xbt7. When a collaborative send (CoinJoin) fails, Jam now
+  says why on screen, in your language, instead of only "the collaborative flow
+  has stopped". The send form shows the most one CoinJoin can send from the
+  chosen jar: jar 0 does not combine coins that did not come from a CoinJoin
+  (for your privacy), so one CoinJoin can spend at most your largest single
+  coin, minus fees. Larger amounts are blocked with the way out (send less, or
+  consolidate first by sending the coins to yourself without CoinJoin). The
+  "wait for 5 confirmations" advice now appears only when waiting actually
+  helps. From 0.43.0-xbt6: RPC filter, Jam never gets your node's RPC password.
+  Your wallets are kept. Jam v2.0.0-beta.4-xbt7.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
