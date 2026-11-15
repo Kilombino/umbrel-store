@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.2.0"
+version: "1.3.0"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -30,7 +30,8 @@ description: >-
   returns an invoice and you pay it from your own wallet (the app pays
   nothing). Each PyBLØCK rental gets the same face, star and verdict as an MRR
   one, from what really reaches your gateway. Every rental shows the price per
-  TH and day you paid and what renewing it costs now.
+  TH and day you paid and what renewing it costs now. Orders you made on
+  PyBLØCK's own web or app can be added by pasting their id.
 
 
   RENTING BY HAND ONLY
@@ -74,6 +75,15 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.3.0: add PyBLØCK orders made outside the panel (PyBLØCK's web or app, any
+  payment method) by pasting the order id or its tracking link, and follow
+  them like the others (measured on their worker if you give it, otherwise by
+  payout address as an estimate); unpaid PyBLØCK invoices are shown as such
+  instead of as an expired rental; extending an MRR rental no longer fails
+  with "too soon" (the cost is estimated from the rig's current price) and
+  MRR's refusal message is shown.
+
+
   1.2.0: PyBLØCK rentals next to MRR (packages, manual orders with an invoice
   you pay from your own wallet, status, and what each rental really delivers
   to your gateway next to what PyBLØCK says); the price per TH/day you paid
