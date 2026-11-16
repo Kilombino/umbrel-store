@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinBlaket
-version: "0.43.0-xbt7"
+version: "0.43.0-xbt8"
 tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
   JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
@@ -56,15 +56,14 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  JoinBlaket 0.43.0-xbt7. When a collaborative send (CoinJoin) fails, Jam now
-  says why on screen, in your language, instead of only "the collaborative flow
-  has stopped". The send form shows the most one CoinJoin can send from the
-  chosen jar: jar 0 does not combine coins that did not come from a CoinJoin
-  (for your privacy), so one CoinJoin can spend at most your largest single
-  coin, minus fees. Larger amounts are blocked with the way out (send less, or
-  consolidate first by sending the coins to yourself without CoinJoin). The
-  "wait for 5 confirmations" advice now appears only when waiting actually
-  helps. From 0.43.0-xbt6: RPC filter, Jam never gets your node's RPC password.
-  Your wallets are kept. Jam v2.0.0-beta.4-xbt7.
+  JoinBlaket 0.43.0-xbt8. You can now create another fidelity bond while you
+  already have one (Earn › Create Fidelity Bond), for example a bigger one or
+  one locked until a later date, before the first expires. Bonds do not add up:
+  your offer advertises only the one with the highest value, so a new bond only
+  helps if it is worth more. The button works only with Earn stopped and no
+  CoinJoin running; the wizard does not offer the month of a bond you already
+  have, and existing bonds are never spent to create the new one. From
+  0.43.0-xbt7: Jam says why a CoinJoin failed and the most one CoinJoin can send
+  from a jar. Your wallets are kept. Jam v2.0.0-beta.4-xbt8.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
