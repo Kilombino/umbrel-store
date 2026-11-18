@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.2"
+version: "0.9.3"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,13 +34,14 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
-  Roblosats 0.9.2: clearer "丰 sat" orders. In the book a 丰 sat order shows
-  its sats in Amount and what is paid in exchange next to its payment methods
-  ("2,100 Spamsats", or "≈ 2,100 Spamsats" while it follows the market price);
-  "Sats now" shows "—" for them and explains the column in a tooltip. The
-  order page reads "Paid with: 2,100 Spamsats via <methods>". The leftover
-  RoboSats "Swap In/Out" options are gone from the book filter and the Search
-  dialog.
+  Roblosats 0.9.3: onchain takes and deposits that do not get stuck. Taking
+  an onchain order again after a cancelled Lightning take shows the onchain
+  bond (it showed an empty hold invoice), and a 丰 sat order no longer reads
+  "Amount: 0". Your app signs the onchain steps by itself while the order is
+  open: the payment screens now say to keep the order open after paying, the
+  waiting screens say whose signature is missing, the screen stays on while a
+  signature is pending, and a confirmed payment shows "Payment confirmed,
+  building the deposit".
 
 
   Roblosats 0.8.8-rl30: when the lightning payment to you as buyer fails, the
