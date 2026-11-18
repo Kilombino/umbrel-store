@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.4"
+version: "0.9.5"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,13 +34,13 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
-  Roblosats 0.9.4: every step of your order tells you. A notice for each step
-  where you must act or something important happened (taken, pay or fund
-  within X, payment seen and confirmed, chat open, payment sent, release,
-  finished, cancel, dispute, expiry, rewards, sats to take back), by Telegram,
-  Nostr and webhook in your language, and reminders 30 and 10 minutes before
-  every deadline. On the order page a banner says what to do now, with sound
-  and vibration, and the tab title flashes "Action needed".
+  Roblosats 0.9.5: the onchain release in one signature. When the seller
+  confirms the payment, the seller's app signs the release alone and the
+  coordinator broadcasts it; the buyer signs nothing and nobody has to open
+  the order again. Releases started with older apps can be finished the same
+  way. In mixed orders where the buyer took with Lightning, the buyer signs
+  nothing onchain. The app no longer says it signed when it only sent its
+  first part.
 
 
   Roblosats 0.8.8-rl30: when the lightning payment to you as buyer fails, the
