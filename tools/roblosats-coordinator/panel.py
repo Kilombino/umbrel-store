@@ -68,8 +68,10 @@ BACKUP_FORMAT = 1
 TOR_FILES = ("hs_ed25519_secret_key", "hs_ed25519_public_key", "hostname")
 # Secrets that travel in a backup; on import the coordinator's identity (SECRET_KEY, NOSTR_NSEC)
 # comes back, while the database password and the admin password stay this install's.
-SECRET_KEYS = ("SECRET_KEY", "NOSTR_NSEC", "POSTGRES_PASSWORD", "ADMIN_PASSWORD")
-RESTORE_SECRETS = ("SECRET_KEY", "NOSTR_NSEC")
+# ESCROW_SECRET (made when on-chain escrow is first switched on) derives the coordinator's keys of
+# every on-chain escrow and bond: without it the coordinator can no longer co-sign them.
+SECRET_KEYS = ("SECRET_KEY", "NOSTR_NSEC", "POSTGRES_PASSWORD", "ADMIN_PASSWORD", "ESCROW_SECRET")
+RESTORE_SECRETS = ("SECRET_KEY", "NOSTR_NSEC", "ESCROW_SECRET")
 MAX_UPLOAD = 512 * 1024 * 1024
 
 # name, label, kind, help
@@ -91,6 +93,18 @@ FIELDS = [
     ("TELEGRAM_COORDINATOR_CHAT_ID", "Your Telegram chat id", "text", "Where the bot tells you about disputes: send any message to @userinfobot and copy the number it answers (your Id). After restarting, send /start to your own bot once."),
     ("ADMIN_TIME_ZONE", "Time zone of the admin panel", "text", "For example UTC or Europe/Madrid."),
 ]
+# The optional on-chain escrow (Roblosats 0.9.0): its own card in Settings. Off by default; the
+# coordinator stays Lightning-only until it is switched on with an address of the operator's own.
+ESCROW_FIELDS = [
+    ("ONCHAIN_ESCROW", "On-chain escrow", "toggle", "Non-custodial on-chain orders: the trade sits in a 2-of-3 Taproot output (seller, buyer, you) on the BLAKE2b chain and the bonds are on-chain too. Off: your coordinator is Lightning-only and the apps hide every on-chain option for it."),
+    ("ESCROW_COORDINATOR_ADDRESS", "Your fee and penalty address", "address", "An address of your own wallet on the BLAKE2b chain (bc1q… or bc1p…). Your on-chain fees and the bonds of robots that break the rules are paid to it. Required to switch on."),
+    ("ESCROW_MIN_SATS", "Smallest on-chain order (sats)", "int", ""),
+    ("ESCROW_MAX_SATS", "Largest on-chain order (sats)", "int", "Start small: Kilobot opened on-chain orders with 20,000 to 101,000 sats."),
+    ("ESCROW_ALLOWED_ROBOTS", "Robots allowed (empty = everyone)", "robots", "Empty: every robot sees and takes your on-chain orders. A comma list of robot nicknames, hash ids or Nostr keys keeps them private to those robots (out of the public book and Nostr): test with two robots of your own first."),
+    ("ESCROW_RESCUE_CSV", "Rescue timelock (blocks)", "int", "Blocks after the deposit confirms before the rescue both traders pre-signed becomes valid, so their funds never depend on you staying online. 2016 ≈ 2 weeks."),
+]
+ESCROW_HINTED = ("ESCROW_MIN_SATS", "ESCROW_MAX_SATS", "ESCROW_RESCUE_CSV")
+ALL_FIELDS = FIELDS + ESCROW_FIELDS
 # What "Use the recommended values" puts back: the trade terms, not the name, notice or Telegram.
 TERMS = ("FEE", "MAKER_FEE_SPLIT", "MIN_ORDER_SIZE", "MAX_ORDER_SIZE", "MAX_PUBLIC_ORDERS", "DISABLE_ONCHAIN",
          "MIN_SWAP_AMOUNT", "MAX_SWAP_AMOUNT", "DEVFUND")
@@ -307,6 +321,10 @@ def pending_restart(s, live):
         out.append("name")
     if live.get("notice_message", "") != s.get("NOTICE_MESSAGE", ""):
         out.append("notice")
+    # With a robots list the coordinator does not announce on-chain in /api/info (it stays private).
+    if not s.get("ESCROW_ALLOWED_ROBOTS", "").strip() and bool(live.get("onchain_escrow")) != (
+            truthy(s.get("ONCHAIN_ESCROW")) and bool(s.get("ESCROW_COORDINATOR_ADDRESS"))):
+        out.append("on-chain escrow")
     return out
 
 
@@ -433,6 +451,197 @@ def copyable(text):
     return '<code>%s</code><button class="btn copy" data-copy="%s">Copy</button>' % (esc(text), esc(text))
 
 
+# ---- On-chain escrow (optional, Roblosats 0.9.0) ----
+
+WATCH_WALLET = os.environ.get("ESCROW_WATCH_WALLET", "roblosats-coordinator-escrow")
+B32 = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+
+
+def truthy(v):
+    return str(v or "").strip().lower() in ("true", "1", "yes", "on")
+
+
+def _polymod(values):
+    gen = (0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3)
+    chk = 1
+    for v in values:
+        b = chk >> 25
+        chk = (chk & 0x1ffffff) << 5 ^ v
+        for i in range(5):
+            chk ^= gen[i] if ((b >> i) & 1) else 0
+    return chk
+
+
+def valid_address(addr):
+    """A segwit v0 (bech32) or taproot v1 (bech32m) address of this network: what the server takes
+    for the coordinator's output (it asks the node's validateaddress for iswitness)."""
+    hrp_want = {"mainnet": "bc", "testnet": "tb", "regtest": "bcrt"}.get(os.environ.get("NETWORK", "mainnet"), "bc")
+    if addr.lower() != addr and addr.upper() != addr:
+        return False
+    a = addr.lower()
+    pos = a.rfind("1")
+    if pos < 1 or pos + 7 > len(a) or len(a) > 90 or a[:pos] != hrp_want:
+        return False
+    try:
+        data = [B32.index(c) for c in a[pos + 1:]]
+    except ValueError:
+        return False
+    hrp = a[:pos]
+    const = _polymod([ord(c) >> 5 for c in hrp] + [0] + [ord(c) & 31 for c in hrp] + data)
+    ver = data[0]
+    if ver > 1 or const != (1 if ver == 0 else 0x2bc830a3):
+        return False
+    acc, bits, prog = 0, 0, []
+    for v in data[1:-6]:
+        acc = (acc << 5) | v
+        bits += 5
+        while bits >= 8:
+            bits -= 8
+            prog.append((acc >> bits) & 0xff)
+    if bits >= 5 or (acc << (8 - bits)) & 0xff:
+        return False
+    return len(prog) in (20, 32) if ver == 0 else len(prog) == 32
+
+
+def node_rpc(method, params=None, wallet=None, timeout=10):
+    """A call to the Bitcoin node the coordinator uses (the same one and credentials as run.sh)."""
+    import requests
+    for p in ("KNOTS_BLAKE2B", "BITCOIN_KNOTS", "BITCOIN"):
+        ip, port = os.environ.get("NODE_%s_IP" % p), os.environ.get("NODE_%s_PORT" % p)
+        if ip and port:
+            url = "http://%s:%s" % (ip, port) + ("/wallet/%s" % urllib.parse.quote(wallet) if wallet else "")
+            r = requests.post(url, timeout=timeout, auth=(os.environ.get("NODE_%s_USER" % p, ""), os.environ.get("NODE_%s_PASS" % p, "")),
+                              json={"jsonrpc": "1.0", "id": "panel", "method": method, "params": params or []})
+            try:
+                d = r.json()
+            except ValueError:
+                raise RuntimeError("HTTP %s from the node" % r.status_code)
+            if d.get("error"):
+                raise RuntimeError(d["error"].get("message") or str(d["error"]))
+            return d["result"]
+    raise RuntimeError(P["no_node"])
+
+
+def ensure_watch_wallet():
+    """The watch-only descriptor wallet the server follows bond and deposit addresses with: made
+    (or loaded) on the node now, as the server would on first use, so a problem shows here."""
+    try:
+        if WATCH_WALLET not in node_rpc("listwallets"):
+            try:
+                node_rpc("loadwallet", [WATCH_WALLET], timeout=60)
+            except RuntimeError:
+                node_rpc("createwallet", [WATCH_WALLET, True, True, "", False, True, True], timeout=60)
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)[:200]}
+
+
+def watch_wallet_status():
+    try:
+        if WATCH_WALLET not in node_rpc("listwallets", timeout=5):
+            return {"error": "not loaded on the node yet"}
+        w = node_rpc("getwalletinfo", wallet=WATCH_WALLET, timeout=5)
+        if w.get("private_keys_enabled"):
+            return {"error": "a wallet with this name exists on the node but holds private keys: rename it"}
+        return {"ok": True, "descriptors": w.get("descriptors")}
+    except Exception as e:
+        return {"error": str(e)[:200]}
+
+
+def escrow_secret_set():
+    return bool(re.fullmatch(r"[0-9a-f]{64}", read_env(SECRETS).get("ESCROW_SECRET", "")))
+
+
+def ensure_escrow_secret():
+    """Make ESCROW_SECRET once, the first time on-chain escrow is switched on. Kept in secrets.env
+    (and so in this page's backups and the platform's), never shown or logged. True if made now."""
+    if escrow_secret_set():
+        return False
+    update_secrets({"ESCROW_SECRET": secrets.token_hex(32)})
+    return True
+
+
+def open_onchain():
+    """On-chain escrows and bonds that still need the coordinator's signature (None if unknown)."""
+    try:
+        c = pg()
+    except Exception:
+        return None
+    try:
+        cur = c.cursor()
+        cur.execute("SELECT to_regclass('api_onchainescrow'), to_regclass('api_onchainbond')")
+        e, b = cur.fetchone()
+        if e is None or b is None:
+            return 0
+        cur.execute("SELECT (SELECT count(*) FROM api_onchainescrow WHERE status IN (0,1,2,3,4))"
+                    " + (SELECT count(*) FROM api_onchainbond WHERE status IN (0,1,2,3,5))")
+        return cur.fetchone()[0]
+    except Exception:
+        return None
+    finally:
+        c.close()
+
+
+def check_escrow(new, old):
+    """The on-chain settings, and what must not change under an open on-chain order."""
+    on = truthy(new.get("ONCHAIN_ESCROW"))
+    if on and not new.get("ESCROW_COORDINATOR_ADDRESS"):
+        return "On-chain escrow needs your fee and penalty address."
+    try:
+        lo, hi = int(new.get("ESCROW_MIN_SATS") or 0), int(new.get("ESCROW_MAX_SATS") or 0)
+        csv = int(new.get("ESCROW_RESCUE_CSV") or 0)
+    except ValueError:
+        return "On-chain order limits and the rescue timelock are whole numbers."
+    if on and (lo < 10000 or hi < lo):
+        return "On-chain orders: the smallest is at least 10,000 sats and not bigger than the largest."
+    if on and not 144 <= csv <= 65535:
+        return "Rescue timelock: between 144 and 65,535 blocks."
+    changed_alias = new.get("COORDINATOR_ALIAS", "").lower() != old.get("COORDINATOR_ALIAS", "").lower()
+    switched_off = truthy(old.get("ONCHAIN_ESCROW")) and not on
+    if (changed_alias and escrow_secret_set()) or switched_off or str(new.get("ESCROW_RESCUE_CSV")) != str(old.get("ESCROW_RESCUE_CSV")):
+        n = open_onchain()
+        if n:
+            what = "the name (your escrow keys are derived from it)" if changed_alias else (
+                "on-chain escrow off" if switched_off else "the rescue timelock")
+            return "%s on-chain escrows or bonds are still open: wait until they finish before changing %s." % (n, what)
+    return ""
+
+
+def escrow_settings_card(s, rec):
+    fields = "".join(field_html(n, l, k, h, s.get(n, ""), rec.get(n)) for n, l, k, h in ESCROW_FIELDS)
+    return ('<h2 style="margin-top:22px">On-chain escrow (optional)</h2>'
+            '<p class=help>Lightning only unless you switch this on. When you do, the app makes an <b>escrow secret</b> '
+            '(kept in secrets.env, never shown) from which, with your coordinator name, the keys of every on-chain escrow and bond '
+            'are derived: <b>losing it means you can no longer co-sign open escrows</b> (the traders would have to wait for their '
+            'rescue). It travels in the encrypted backup of the Backup page and in %s\'s backups: export a new backup after switching '
+            'on. Never change the name while an on-chain order is open. The coordinator also keeps a watch-only wallet '
+            '(<code>%s</code>, no private keys) on your Bitcoin node to follow the deposits and bonds.</p>%s') % (
+        P["name"], esc(WATCH_WALLET), fields)
+
+
+def escrow_status_card(s):
+    if not truthy(s.get("ONCHAIN_ESCROW")):
+        return ""
+    rows = [row("Fee and penalty address", copyable(s.get("ESCROW_COORDINATOR_ADDRESS", "")) if s.get("ESCROW_COORDINATOR_ADDRESS") else '<span class=bad>missing</span>'),
+            row("On-chain orders", "%s to %s sats" % (sats(s.get("ESCROW_MIN_SATS") or 0), sats(s.get("ESCROW_MAX_SATS") or 0))),
+            row("Who can use them", esc(s.get("ESCROW_ALLOWED_ROBOTS")) if s.get("ESCROW_ALLOWED_ROBOTS", "").strip() else "every robot"),
+            row("Rescue timelock", "%s blocks" % sats(s.get("ESCROW_RESCUE_CSV") or 0))]
+    has = escrow_secret_set()
+    rows.append(row(('<span class=ok>●</span> ' if has else '<span class=bad>●</span> ') + "Escrow secret",
+                    "set · in your backups" if has else "missing: save Settings again", "" if has else "bad"))
+    w = watch_wallet_status()
+    rows.append(row(('<span class=ok>●</span> ' if w.get("ok") else '<span class=bad>●</span> ') + "Watch-only wallet",
+                    "%s on the node" % esc(WATCH_WALLET) if w.get("ok") else esc(w["error"]), "" if w.get("ok") else "warn"))
+    n = open_onchain()
+    if n:
+        rows.append(row("Open on-chain escrows and bonds", "%s (don't change the name, the secret or the timelock now)" % n, "warn"))
+    last = read_json(LAST_BACKUP).get("at", 0)
+    tip = ""
+    if has and not last:
+        tip = '<p class="help warn">No backup yet: <a href="/setup/backup">export one</a> now. Without the escrow secret open on-chain escrows can no longer be co-signed.</p>'
+    return '<div class=card><h2>On-chain escrow</h2>%s%s<p class=help>Manage on-chain orders in the <a href="/coordinator/api/order/">admin panel</a> (Escrow column, summary and attention list).</p></div>' % ("".join(rows), tip)
+
+
 def status_page():
     on, (nhex, npub), ln, btc, db, srv, s = onion(), nostr_keys(), lnd_status(), bitcoin_status(), db_status(), server_status(), settings()
     live = live_info() if not srv.get("error") else {}
@@ -489,10 +698,13 @@ def status_page():
                row("Trade fee", "%.2f %% (maker %.3f %% · taker %.3f %%)" % (fee * 100, float(live.get("maker_fee", 0)) * 100, float(live.get("taker_fee", 0)) * 100)),
                row("Orders", "%s to %s sats" % (sats(live.get("min_order_size", 0)), sats(live.get("max_order_size", 0)))),
                row("On-chain payouts", "up to %s sats" % sats(live.get("max_swap", 0)) if live.get("swap_enabled") else "off"),
+               row("On-chain escrow", "on" if live.get("onchain_escrow") else ("private to your robots list" if truthy(s.get("ONCHAIN_ESCROW")) and s.get("ESCROW_ALLOWED_ROBOTS", "").strip() and not srv.get("error") else "off (Lightning only)")),
                row("Donation to Roblosats", "%g %% of fees" % float(live.get("devfund", 0))),
                row("Version", "Roblosats %s.%s.%s · LND %s" % (live.get("version", {}).get("major", "?"), live.get("version", {}).get("minor", "?"),
                                                           live.get("version", {}).get("patch", "?"), esc(live.get("lnd_version", ""))))]
         parts.append('<div class=card><h2>What robots see</h2>%s<p class=help>Read from your coordinator just now. If it differs from Settings, restart the app.</p></div>' % "".join(pub))
+
+    parts.append(escrow_status_card(s))
 
     ident = [row("Onion", copyable(on)),
              row("Nostr key (hex)", copyable(nhex)), row("Nostr key (npub)", copyable(npub)),
@@ -520,6 +732,8 @@ def status_page():
 
 
 def shown(name, kind, val):
+    if kind == "toggle":
+        return "on" if truthy(val) else "off"
     if kind == "onchain":
         return "on" if str(val).lower() == "false" else "off"
     if kind == "int":
@@ -534,6 +748,12 @@ def field_html(name, label, kind, help_, val, rec):
     if kind == "onchain":
         ctl = '<select name="%s"><option value="True"%s>Off</option><option value="False"%s>On</option></select>' % (
             name, " selected" if val.lower() != "false" else "", " selected" if val.lower() == "false" else "")
+    elif kind == "toggle":
+        on = truthy(val)
+        ctl = '<select name="%s"><option value="False"%s>Off</option><option value="True"%s>On</option></select>' % (
+            name, "" if on else " selected", " selected" if on else "")
+    elif kind == "address":
+        ctl = '<input name="%s" value="%s" autocomplete=off spellcheck=false placeholder="bc1…">' % (name, esc(val))
     elif kind == "severity":
         ctl = '<select name="%s">%s</select>' % (name, "".join(
             '<option%s>%s</option>' % (" selected" if val == o else "", o) for o in ("none", "info", "warning", "error", "success")))
@@ -542,7 +762,7 @@ def field_html(name, label, kind, help_, val, rec):
     else:
         ctl = '<input name="%s" value="%s"%s>' % (name, esc(val), ' inputmode=decimal' if kind in ("int", "num") else "")
     hint = esc(help_)
-    if name in TERMS and rec is not None:
+    if (name in TERMS or name in ESCROW_HINTED) and rec is not None:
         r = esc(shown(name, kind, rec))
         if str(val) == str(rec):
             hint += (" " if hint else "") + '<span class=ok>Recommended (%s).</span>' % r
@@ -555,6 +775,7 @@ def settings_page(msg="", cls="ok"):
     s, rec = settings(), recommended()
     db = db_status()
     form = "".join(field_html(n, l, k, h, s.get(n, ""), rec.get(n)) for n, l, k, h in FIELDS)
+    form += escrow_settings_card(s, rec)
     note = '<div class="note %s">%s</div>' % (cls, msg) if msg else ""
     busy = ('<div class="note warn">%s orders are in progress: restart only when they finish.</div>' % db["busy"]) if db.get("busy") else ""
     busy += restart_note(s)
@@ -591,18 +812,24 @@ def save_settings(form):
     local = read_env(LOCAL)
     new = dict(base)
     new.update(local)
-    for name, label, kind, _ in FIELDS:
+    for name, label, kind, _ in ALL_FIELDS:
         if name not in form:
             continue
         v = form[name].strip()
         if kind == "secret" and v == "":
             continue
-        if "\n" in v or "'" in v or len(v) > 300:
+        if "\n" in v or "'" in v or len(v) > (2000 if kind == "robots" else 300):
             return "%s: no quotes or line breaks, please." % esc(label), "bad"
         if kind in VALID and v and not VALID[kind].match(v):
             return "%s: that is not a number." % esc(label), "bad"
-        if kind == "onchain" and v not in ("True", "False"):
+        if kind in ("onchain", "toggle") and v not in ("True", "False"):
             return "%s: pick one." % esc(label), "bad"
+        if kind == "address" and v and not valid_address(v):
+            return "%s: not a valid segwit (bc1q…) or taproot (bc1p…) address of this chain." % esc(label), "bad"
+        if kind == "robots":
+            v = ",".join(x.strip() for x in v.split(",") if x.strip())
+            if not re.fullmatch(r"[A-Za-z0-9,]*", v):
+                return "%s: robot nicknames, hash ids or Nostr keys, separated by commas." % esc(label), "bad"
         new[name] = v
     if not re.match(r"^[A-Za-z0-9 ._-]{1,40}$", new.get("COORDINATOR_ALIAS", "")):
         return "Coordinator name: letters, digits, spaces, dots, dashes; up to 40.", "bad"
@@ -612,13 +839,24 @@ def save_settings(form):
             return "The smallest order is bigger than the largest.", "bad"
     except ValueError:
         pass
+    err = check_escrow(new, settings())
+    if err:
+        return err, "bad"
+    escrow_note = ""
+    if truthy(new.get("ONCHAIN_ESCROW")):
+        made = ensure_escrow_secret()
+        w = ensure_watch_wallet()
+        escrow_note = (" On-chain escrow: a new escrow secret was made and kept in secrets.env; it is in every backup from now on: "
+                       "<b>export a new backup</b> (Backup) after restarting." if made else "")
+        if w.get("error"):
+            escrow_note += ' <span class=warn>The watch-only wallet could not be set up on the Bitcoin node yet (%s); the coordinator tries again by itself, but on-chain orders need it.</span>' % esc(w["error"])
     # Keep only what differs from the app's settings, so that better defaults in an update
     # still reach what the user never changed.
-    names = {n for n, _, _, _ in FIELDS} | {"NODE_ALIAS"}
+    names = {n for n, _, _, _ in ALL_FIELDS} | {"NODE_ALIAS"}
     out = {k: v for k, v in local.items() if k not in names}
     out.update({k: new[k] for k in names if k in new and str(new[k]) != str(base.get(k, ""))})
     write_local(out)
-    return "Saved. To apply it, %s." % P["restart"], "ok"
+    return "Saved. To apply it, %s.%s" % (P["restart"], escrow_note), "ok"
 
 
 def use_recommended():
@@ -930,6 +1168,8 @@ def import_backup(data, pw, confirm, replace):
     sec = parse_env(files.get("secrets.env", b"").decode())
     if not re.fullmatch(r"[0-9a-f]{64}", sec.get("NOSTR_NSEC", "")) or not re.fullmatch(r"[0-9a-f]{64}", sec.get("SECRET_KEY", "")):
         raise ValueError("The backup lacks the coordinator's keys.")
+    if sec.get("ESCROW_SECRET") and not re.fullmatch(r"[0-9a-f]{64}", sec["ESCROW_SECRET"]):
+        raise ValueError("The backup's escrow secret is not valid.")
     if any("tor/" + n not in files for n in TOR_FILES) or "db.sql" not in files:
         raise ValueError("The backup lacks the onion's keys or the database.")
     host = files["tor/hostname"].decode().strip()
@@ -983,12 +1223,13 @@ def import_backup(data, pw, confirm, replace):
         os.replace(tmp, p)
 
     # The coordinator's identity (Django's key, the Nostr key), from its next start.
-    update_secrets({k: sec[k] for k in RESTORE_SECRETS})
+    # (A backup without an escrow secret keeps this install's, if it made one.)
+    update_secrets({k: sec[k] for k in RESTORE_SECRETS if sec.get(k)})
 
     # Settings and the federation request.
     local = files.get("settings/settings.local.env")
     user = files.get("settings/settings.env")
-    names = {n for n, _, _, _ in FIELDS} | {"NODE_ALIAS"}
+    names = {n for n, _, _, _ in ALL_FIELDS} | {"NODE_ALIAS"}
     if user and not P["user"]:
         # From Umbrel to StartOS: the user's own settings file joins the page's.
         merged = {k: v for k, v in parse_env(user.decode()).items() if k in names}
@@ -1035,7 +1276,7 @@ def restore_note():
 
 BACKUP_EXPORT = """<div class=card><h2>Export a backup</h2>%s
 <p>One file with everything that makes this coordinator itself: its secrets (Django's key, the Nostr key, the database and
-admin passwords), the onion's keys, your settings and federation request, and a copy of the database (orders, robots, rewards,
+admin passwords, and the on-chain escrow secret once on-chain escrow has been switched on), the onion's keys, your settings and federation request, and a copy of the database (orders, robots, rewards,
 disputes). The relay's events are left out: they come back from the federation.</p>
 <p>The file is encrypted with your passphrase (OpenPGP, AES-256). Without the passphrase nobody can use it, and nobody can
 recover it for you: write it down. Keep the file off this server (your computer, a USB stick, a password manager), and export

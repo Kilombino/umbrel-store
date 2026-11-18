@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.8.8-rl30-1"
+version: "0.9.0"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -34,6 +34,24 @@ description: >-
   the same one Lightning Fork uses.
 
 
+  OPTIONAL: ON-CHAIN ESCROW
+
+
+  Lightning-only by default. Since Roblosats 0.9.0 you can also offer
+  non-custodial on-chain orders: switch "On-chain escrow" on in Settings
+  with an address of your own wallet on the BLAKE2b chain (your fees and bond
+  penalties go there), the order limits (20,000 to 101,000 sats to start),
+  optionally a list of robots allowed to use them, and the rescue timelock
+  (2016 blocks). The app then makes an escrow secret, kept with the
+  coordinator's other secrets and never shown: the keys of every on-chain
+  escrow and bond come from it and from your coordinator name. It is in the
+  app's encrypted backup and in Umbrel's backups; export a new backup after
+  switching on, because losing the secret means you can no longer co-sign
+  open escrows. The coordinator keeps a watch-only wallet (no private keys)
+  on your Bitcoin node to follow deposits and bonds; the node needs wallet
+  support.
+
+
   EVERYTHING FROM THE TILE
 
 
@@ -55,6 +73,20 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.9.0: optional non-custodial on-chain escrow.
+  Nothing changes unless you switch it on: your coordinator stays
+  Lightning-only. Settings has a new "On-chain escrow (optional)" section:
+  switch, your fee and penalty address (checked), on-chain order limits
+  (20,000 to 101,000 sats), robots allowed (empty = everyone) and the rescue
+  timelock (2016 blocks). Switching on makes the escrow secret (never shown)
+  and the watch-only wallet on your Bitcoin node; the secret is in the app's
+  encrypted backup: export a new one after switching on. The status page
+  shows the on-chain state. Also in 0.9.0: fixed-price and "丰 sat" orders,
+  past orders and a final summary for robots, an on-chain view in the admin
+  panel, and many fixes. The database is migrated when the app starts
+  (0063 to 0069): update with no order in progress and export a backup first.
+
+
   Roblosats Coordinator 0.8.8-rl30-1 (same server). Runs on Lightning XBT from
   this store as well as on Paul's Lightning Fork: pick either in the app's
   node selector (Lightning XBT must be installed first). Nothing changes if you

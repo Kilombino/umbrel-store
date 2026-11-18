@@ -7,7 +7,8 @@ version: "3.7"
 # Paul's Lightning Fork (PaulsCode.Com store), or Lightning XBT from this store, which implements
 # it. Only the picked app's exports are sourced, so Lightning XBT's names (APP_LIGHTNING_XBT_*) are
 # read first and Lightning Fork's (which Lightning XBT fills too) after them. Chain: the node picked
-# for the "bitcoin" dependency (on the BLAKE2b chain), for addresses of on-chain payouts.
+# for the "bitcoin" dependency (on the BLAKE2b chain), for addresses of on-chain payouts and,
+# when on-chain escrow is switched on, its watch-only wallet (ESCROW_WATCH_WALLET).
 
 # The app's own files (run.sh, panel.py, defaults.env, nginx.conf, torrc, strfry.conf, the relay's
 # sync and lists, db-tool.sh) are written to app/ by hooks/pre-start on every start: on an update,
@@ -15,7 +16,7 @@ version: "3.7"
 # settings, secrets, the database, the onion), and Umbrel never overwrites what is already there.
 
 x-roblosats: &roblosats
-  image: ghcr.io/kilombino/roblosats-coordinator:0.8.8-rl30@sha256:ef9c3dc9b3f006b2887d67385579e676fe62f498ac78982b40b681a035d16652
+  image: ghcr.io/kilombino/roblosats-coordinator:0.9.0@sha256:b1060f1155833947e8f54e57a1ea8cfa6d4e7dfcc94344bdc153c63060db3575
   restart: on-failure
   network_mode: service:tor
   entrypoint: ["/umbrel/run.sh"]
@@ -108,6 +109,10 @@ x-roblosats: &roblosats
     REWARD_WITHDRAW_DAILY_MAX: "250000"
     REWARD_WITHDRAW_COOLDOWN: "86400"
     REWARD_WITHDRAW_GLOBAL_DAILY_MAX: "500000"
+    # On-chain escrow (optional, off by default; switched on from the app's Settings): the
+    # watch-only descriptor wallet (no private keys) the server keeps on the "bitcoin" node to
+    # follow bond and deposit addresses. ESCROW_SECRET comes from data/secrets.env.
+    ESCROW_WATCH_WALLET: roblosats-coordinator-escrow
 
 services:
   app_proxy:
@@ -190,7 +195,7 @@ services:
     environment:
       <<: *env
       PANEL_PLATFORM: umbrel
-      APP_VERSION: "0.8.8-rl27-2"
+      APP_VERSION: "0.9.0"
       # The admin login that a restored database is given (the password Umbrel shows).
       ADMIN_PASSWORD: "${APP_PASSWORD}"
     volumes:

@@ -11,6 +11,19 @@ fi
 # No single buyer payout above the largest order, as on Kilobot.
 export PAYOUT_MAX_SATS="${PAYOUT_MAX_SATS:-$MAX_ORDER_SIZE}"
 
+# On-chain escrow (0.9.0, optional): only with the escrow secret and the operator's address; the
+# secret itself is never printed.
+case "$(printf %s "${ONCHAIN_ESCROW:-False}" | tr A-Z a-z)" in
+  true|1|yes|on)
+    if [ -z "${ESCROW_SECRET:-}" ] || [ -z "${ESCROW_COORDINATOR_ADDRESS:-}" ]; then
+      [ "${ROBLOSATS_ROLE:-}" = main ] && echo "On-chain escrow: OFF (it needs the escrow secret and your fee address: save Settings on the app's page, then restart)"
+      export ONCHAIN_ESCROW=False
+    else
+      [ "${ROBLOSATS_ROLE:-}" = main ] && echo "On-chain escrow: on (orders ${ESCROW_MIN_SATS:-?}-${ESCROW_MAX_SATS:-?} sats, watch-only wallet ${ESCROW_WATCH_WALLET:-roblosats-escrow})"
+    fi ;;
+  *) export ONCHAIN_ESCROW=False ;;
+esac
+
 onion_file=/tor/coordinator/hostname
 until [ -s "$onion_file" ]; do echo "waiting for the coordinator's onion"; sleep 3; done
 onion="$(cat "$onion_file")"

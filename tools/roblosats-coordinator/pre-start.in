@@ -16,6 +16,12 @@ if [ ! -s "${S}" ]; then
   } > "${S}"
 fi
 chmod 600 "${S}"
+# 0.9.0: on-chain escrow switched on by hand (data/settings.env) rather than from the app's page,
+# which makes the secret itself: make it here, once. Never printed.
+if ! grep -q '^ESCROW_SECRET=' "${S}" && { cat "${D}/settings.env" "${D}/panel/settings.local.env" 2>/dev/null || true; } \
+    | grep -Eiq "^[[:space:]]*ONCHAIN_ESCROW[[:space:]]*=[[:space:]]*['\"]?(true|1|yes|on)"; then
+  echo "ESCROW_SECRET='$(openssl rand -hex 32)'" >> "${S}"
+fi
 # Tor wants its hidden service directory to itself (the image runs it as uid 100, group 1000).
 chmod 700 "${D}/tor" 2>/dev/null || true
 
