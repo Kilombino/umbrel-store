@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.9.3"
+version: "0.9.5"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -73,6 +73,18 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.9.5 (includes 0.9.4). On-chain orders: the
+  seller's app signs the cooperative release alone through its leaf with
+  your coordinator, which adds its signature and broadcasts; the buyer signs
+  nothing and nobody has to come back for a second round. Releases started
+  with older apps can be finished the same way. New mixed orders where the
+  buyer took with Lightning use the seller's own rescue, so the buyer signs
+  nothing on-chain. From 0.9.4: a notice for every step of an order
+  (Telegram, Nostr and webhook, in English, Spanish or Catalan) and
+  reminders 30 and 10 minutes before every deadline. No database migration;
+  older escrows and older apps keep working.
+
+
   Roblosats Coordinator 0.9.3, recommended if you switched on on-chain
   escrow. An on-chain order could stay stuck before the deposit ("the
   seller's funding is short by N sats" on every loop) when the seller sent
