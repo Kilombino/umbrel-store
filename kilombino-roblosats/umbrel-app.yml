@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.1"
+version: "0.9.2"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,12 +34,13 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
-  Roblosats 0.9.1: Spamcoin works like any other currency in the create form
-  (Buy/Sell, market price + premium or a fixed price, on-chain escrow switch)
-  instead of switching to RoboSats' swap mode; amounts are typed in whole
-  Spamsats. Taking a Spamcoin range order shows Spamsats and the right fee
-  estimate, and the final summary shows Spamcoin amounts in Spamsats and
-  "丰 sat" orders in sats.
+  Roblosats 0.9.2: clearer "丰 sat" orders. In the book a 丰 sat order shows
+  its sats in Amount and what is paid in exchange next to its payment methods
+  ("2,100 Spamsats", or "≈ 2,100 Spamsats" while it follows the market price);
+  "Sats now" shows "—" for them and explains the column in a tooltip. The
+  order page reads "Paid with: 2,100 Spamsats via <methods>". The leftover
+  RoboSats "Swap In/Out" options are gone from the book filter and the Search
+  dialog.
 
 
   Roblosats 0.8.8-rl30: when the lightning payment to you as buyer fails, the
