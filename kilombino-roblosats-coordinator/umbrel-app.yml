@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.9.5"
+version: "0.9.7"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -73,6 +73,16 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.9.7. A free onchain bond goes back by itself: the
+  owner's app pre-signs the return to its return or payout address with the
+  penalty, and your coordinator broadcasts it only once the bond is free
+  (never while it can be penalized or is in a deposit); otherwise the manual
+  return works as before. The order summary shows each onchain payout as in
+  the mempool or confirmed. A sat order paid only with Spamcoin is kept in
+  Spamcoin. One database migration (0070), applied on start: update with no
+  order in progress.
+
+
   Roblosats Coordinator 0.9.5 (includes 0.9.4). On-chain orders: the
   seller's app signs the cooperative release alone through its leaf with
   your coordinator, which adds its signature and broadcasts; the buyer signs
