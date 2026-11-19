@@ -90,7 +90,7 @@ FIELDS = [
     ("NOTICE_MESSAGE", "Notice text", "text", ""),
     ("TELEGRAM_TOKEN", "Telegram bot token", "secret", "Optional. In Telegram, talk to @BotFather, send /newbot and paste the token it gives you. Your robots get their order alerts through this bot."),
     ("TELEGRAM_BOT_NAME", "Telegram bot name", "text", "The bot's username, without the @ (it ends in bot)."),
-    ("TELEGRAM_COORDINATOR_CHAT_ID", "Your Telegram chat id", "text", "Where the bot tells you about disputes: send any message to @userinfobot and copy the number it answers (your Id). After restarting, send /start to your own bot once."),
+    ("TELEGRAM_COORDINATOR_CHAT_ID", "Your Telegram chat id", "text", "Where the bot tells you about disputes: send any message to @userinfobot and copy the number it answers (your Id). After restarting, send /start to your own bot once. What the bot tells you (orders, disputes, on-chain order events such as bonds, deposits, releases and payouts, and your node's on-chain wallet and channels) is switched on one group at a time in the admin panel → Telegram alerts, which also has a button to send a test message."),
     ("ADMIN_TIME_ZONE", "Time zone of the admin panel", "text", "For example UTC or Europe/Madrid."),
 ]
 # The optional on-chain escrow (Roblosats 0.9.0): its own card in Settings. Off by default; the
@@ -102,8 +102,13 @@ ESCROW_FIELDS = [
     ("ESCROW_MAX_SATS", "Largest on-chain order (sats)", "int", "Start small: Kilobot opened on-chain orders with 20,000 to 101,000 sats."),
     ("ESCROW_ALLOWED_ROBOTS", "Robots allowed (empty = everyone)", "robots", "Empty: every robot sees and takes your on-chain orders. A comma list of robot nicknames, hash ids or Nostr keys keeps them private to those robots (out of the public book and Nostr): test with two robots of your own first."),
     ("ESCROW_RESCUE_CSV", "Rescue timelock (blocks)", "int", "Blocks after the deposit confirms before the rescue both traders pre-signed becomes valid, so their funds never depend on you staying online. 2016 ≈ 2 weeks."),
+    # 0.9.7: settings the server already had, now on this page
+    ("ESCROW_LIGHTNING_TAKER", "Lightning takes of on-chain orders", "toggle", "On: a robot can take an on-chain order with Lightning. A Lightning buyer puts nothing on-chain (its fee comes out of its payout); a Lightning seller turns the order into a Lightning one and pays the buyer's swap to on-chain. Off: on-chain orders are taken on-chain only."),
+    ("ESCROW_MIN_COORDINATOR_FEE_SATS", "Smallest on-chain fee for you (sats)", "int", "The least an on-chain order pays you in total (both traders together), so your fee output is never dust."),
+    ("ESCROW_MIN_DEPOSIT_FEE_RATE", "Lowest deposit fee rate (sat/vB)", "num", "When a trader sent a little less than the current fee rate needs, the deposit pays the highest rate that funding covers, down to this floor, instead of asking the trader to pay again."),
 ]
-ESCROW_HINTED = ("ESCROW_MIN_SATS", "ESCROW_MAX_SATS", "ESCROW_RESCUE_CSV")
+ESCROW_HINTED = ("ESCROW_MIN_SATS", "ESCROW_MAX_SATS", "ESCROW_RESCUE_CSV", "ESCROW_LIGHTNING_TAKER",
+                 "ESCROW_MIN_COORDINATOR_FEE_SATS", "ESCROW_MIN_DEPOSIT_FEE_RATE")
 ALL_FIELDS = FIELDS + ESCROW_FIELDS
 # What "Use the recommended values" puts back: the trade terms, not the name, notice or Telegram.
 TERMS = ("FEE", "MAKER_FEE_SPLIT", "MIN_ORDER_SIZE", "MAX_ORDER_SIZE", "MAX_PUBLIC_ORDERS", "DISABLE_ONCHAIN",
@@ -625,7 +630,12 @@ def escrow_status_card(s):
     rows = [row("Fee and penalty address", copyable(s.get("ESCROW_COORDINATOR_ADDRESS", "")) if s.get("ESCROW_COORDINATOR_ADDRESS") else '<span class=bad>missing</span>'),
             row("On-chain orders", "%s to %s sats" % (sats(s.get("ESCROW_MIN_SATS") or 0), sats(s.get("ESCROW_MAX_SATS") or 0))),
             row("Who can use them", esc(s.get("ESCROW_ALLOWED_ROBOTS")) if s.get("ESCROW_ALLOWED_ROBOTS", "").strip() else "every robot"),
-            row("Rescue timelock", "%s blocks" % sats(s.get("ESCROW_RESCUE_CSV") or 0))]
+            row("Rescue timelock", "%s blocks" % sats(s.get("ESCROW_RESCUE_CSV") or 0)),
+            row("Lightning takes", "on (mixed orders)" if truthy(s.get("ESCROW_LIGHTNING_TAKER", "True")) else "off: on-chain only"),
+            row("Smallest fee for you", "%s sats per order" % sats(s.get("ESCROW_MIN_COORDINATOR_FEE_SATS") or 1000)),
+            # 0.9.5 and 0.9.7: always on, nothing to set
+            row("One-signature release", "on: the seller's app signs the release alone, with your coordinator"),
+            row("Bonds back by themselves", "on: a free on-chain bond goes back to its owner's return address, signed in advance by its app; otherwise the owner takes it back by hand")]
     has = escrow_secret_set()
     rows.append(row(('<span class=ok>●</span> ' if has else '<span class=bad>●</span> ') + "Escrow secret",
                     "set · in your backups" if has else "missing: save Settings again", "" if has else "bad"))
@@ -639,7 +649,7 @@ def escrow_status_card(s):
     tip = ""
     if has and not last:
         tip = '<p class="help warn">No backup yet: <a href="/setup/backup">export one</a> now. Without the escrow secret open on-chain escrows can no longer be co-signed.</p>'
-    return '<div class=card><h2>On-chain escrow</h2>%s%s<p class=help>Manage on-chain orders in the <a href="/coordinator/api/order/">admin panel</a> (Escrow column, summary and attention list).</p></div>' % ("".join(rows), tip)
+    return '<div class=card><h2>On-chain escrow</h2>%s%s<p class=help>Manage on-chain orders in the <a href="/coordinator/api/order/">admin panel</a> (Escrow column, summary and attention list). Telegram alerts for on-chain order events and the wallet of your node: <a href="/coordinator/roblosats_admin/telegramalerts/">admin panel → Telegram alerts</a>.</p></div>' % ("".join(rows), tip)
 
 
 def status_page():

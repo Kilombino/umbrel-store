@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.9.7"
+version: "0.9.7-1"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -73,6 +73,24 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.9.7-1, panels. Settings: three on-chain settings
+  the server already had are now on the page with their recommended values
+  (Lightning takes of on-chain orders, the smallest on-chain fee for you, the
+  lowest deposit fee rate); the on-chain card says the one-signature release
+  and the automatic bond return are always on. Admin panel: the dispute page
+  shows the on-chain section too; the order page shows how the release was
+  signed, the hybrid plan, each bond's automatic return and whether the
+  release and the on-chain payout are in the mempool or confirmed; Spamcoin
+  orders say Spamcoin; Failed payouts lists on-chain payouts still queued; a
+  new Telegram alert tells you when a free bond did not go back by itself.
+  New Telegram alert groups, each with its own switch in admin panel →
+  Telegram alerts: on-chain order events (bonds and deposits in the mempool
+  and confirmed, deposit signed, release, automatic bond returns, swap
+  payouts, rescues) and your node's on-chain wallet (payments in and out,
+  channel opens and closes, high mining fees). Nothing old is sent when you
+  switch them on. Alerts can now be in Catalan. One small migration of the
+  admin app, applied on start.
+
   Roblosats Coordinator 0.9.7. A free onchain bond goes back by itself: the
   owner's app pre-signs the return to its return or payout address with the
   penalty, and your coordinator broadcasts it only once the bond is free

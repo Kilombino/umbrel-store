@@ -16,7 +16,7 @@ version: "3.7"
 # settings, secrets, the database, the onion), and Umbrel never overwrites what is already there.
 
 x-roblosats: &roblosats
-  image: ghcr.io/kilombino/roblosats-coordinator:0.9.7@sha256:0f037d0dc39db0e149520097f8685f632579ae28893566a237c32927ae7b361c
+  image: ghcr.io/kilombino/roblosats-coordinator:0.9.7-1@sha256:4698a5e806eb7be2eea9f4547c24256a05c4252d0ec5eec4314f1cf950d72507
   restart: on-failure
   network_mode: service:tor
   entrypoint: ["/umbrel/run.sh"]
