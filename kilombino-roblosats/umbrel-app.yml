@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.7"
+version: "0.9.8"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,12 +34,12 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
-  Roblosats 0.9.7: your free onchain bond comes back by itself to a return
-  address (or your payout address), signed in advance by your app; the order
-  summary shows your onchain payout and whether it is confirmed; a Spamcoin
-  payment method locks the order currency to Spamsats; clearer onchain payout
-  after a Lightning take; the mining fee field no longer keeps a leading zero
-  nor lets the payout go below the minimum.
+  Roblosats 0.9.8: an onchain taker that loses the race to a faster taker
+  gets its bond back right away from the order page (never penalized) and is
+  told; two bonds locking at the same moment go to the robot that took first;
+  the onchain take screen warns that a faster taker can still win until your
+  bond confirms; cancelling before an onchain bond confirms no longer shows the
+  Lightning warning.
 
 
   Roblosats 0.8.8-rl30: when the lightning payment to you as buyer fails, the
