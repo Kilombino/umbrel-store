@@ -16,7 +16,7 @@ version: "3.7"
 # settings, secrets, the database, the onion), and Umbrel never overwrites what is already there.
 
 x-roblosats: &roblosats
-  image: ghcr.io/kilombino/roblosats-coordinator:0.9.9@sha256:a3b5a5613674e1196525938327f8f4a541f859f6c4476878cded427760447c98
+  image: ghcr.io/kilombino/roblosats-coordinator:0.9.9-1@sha256:7ab651e378165c0d661d554525eaa688ae42fbd5d115f79c00c44b2f36f47161
   restart: on-failure
   network_mode: service:tor
   entrypoint: ["/umbrel/run.sh"]
@@ -195,7 +195,7 @@ services:
     environment:
       <<: *env
       PANEL_PLATFORM: umbrel
-      APP_VERSION: "0.9.9"
+      APP_VERSION: "0.9.9-1"
       # The admin login that a restored database is given (the password Umbrel shows).
       ADMIN_PASSWORD: "${APP_PASSWORD}"
     volumes:
