@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.4.0"
+version: "1.4.1"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -39,8 +39,9 @@ description: >-
 
   MRR has no API for support tickets. When a rental delivers less than you
   paid for, the dashboard prepares the ticket text with the evidence and opens
-  the rental on MRR for you to paste it. An automatic notice can be switched on
-  (it is off by default).
+  the rental on MRR for you to paste it. An automatic notice after the rental
+  ends, following MRR's 12-hour claim window, can be switched on (it is off by
+  default).
 
 
   RENTING BY HAND ONLY
@@ -84,6 +85,16 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.4.1: the automatic ticket follows MRR's policy: it looks at a rental only
+  after it ends, inside MRR's 12-hour window and after MRR's own review (8.5 h),
+  flags it when the final delivery is below 100 % beyond statistical noise (3
+  sigmas), skips rentals MRR already refunded and sends you the ticket text with
+  the time left; posting the evidence to the owner is a separate option. The
+  mid-rental part is now an optional early message to the owner. Your own
+  miners (a rig listed on PyBLØCK market that comes back to your gateway) are no
+  longer shown as rentals: mark them with "es mío".
+
+
   1.4.0: rentals that underdeliver get an "Abrir ticket" button with the evidence
   (paid, what MRR says, what reached your DATUM CONVOY) ready to paste and the
   rental opened on MRR, which has no API for tickets; finished rentals keep it
