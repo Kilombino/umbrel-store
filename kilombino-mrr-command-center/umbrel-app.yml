@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.3.0"
+version: "1.4.0"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -32,6 +32,15 @@ description: >-
   one, from what really reaches your gateway. Every rental shows the price per
   TH and day you paid and what renewing it costs now. Orders you made on
   PyBLØCK's own web or app can be added by pasting their id.
+
+
+  TICKETS
+
+
+  MRR has no API for support tickets. When a rental delivers less than you
+  paid for, the dashboard prepares the ticket text with the evidence and opens
+  the rental on MRR for you to paste it. An automatic notice can be switched on
+  (it is off by default).
 
 
   RENTING BY HAND ONLY
@@ -75,6 +84,19 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.4.0: rentals that underdeliver get an "Abrir ticket" button with the evidence
+  (paid, what MRR says, what reached your DATUM CONVOY) ready to paste and the
+  rental opened on MRR, which has no API for tickets; finished rentals keep it
+  while MRR's 12-hour claim window is open. An optional automatic notice, off by
+  default, keeps the evidence, alerts you and can post it on the rental's
+  message thread for the owner, once per rental. Each history entry can be
+  deleted by hand; PyBLØCK orders stay in the history too; hashrate from
+  PyBLØCK market and other rental markets (p2phash, TideHash, RouteHash) is shown
+  as detected. Fixes: rentals no longer taken for finished while still running,
+  rig names no longer escaped twice, renewal prices kept through MRR's rate
+  limit.
+
+
   1.3.0: add PyBLØCK orders made outside the panel (PyBLØCK's web or app, any
   payment method) by pasting the order id or its tracking link, and follow
   them like the others (measured on their worker if you give it, otherwise by
