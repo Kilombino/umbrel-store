@@ -7,7 +7,7 @@ services:
       APP_PORT: 12596
 
   web:
-    image: ghcr.io/kilombino/roblosats-client:v0.9.8@sha256:da3472368a058799783a3a795291f869f64062fcff32a52d69f010e9b2bc56e4
+    image: ghcr.io/kilombino/roblosats-client:v0.9.9@sha256:4d6262a25a754522589edd8340543d3e66ab68f4a39434097f26a24bc86de61f
     restart: on-failure
     stop_grace_period: 1m
     init: true
