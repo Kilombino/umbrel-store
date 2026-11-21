@@ -11,7 +11,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "..", "kilombino-roblosats-coordinator", "hooks", "pre-start")
 FILES = [("run.sh", "755"), ("panel.py", "644"), ("defaults.env", "644"), ("nginx.conf", "644"),
          ("torrc", "644"), ("strfry.conf", "644"), ("federation_urls.txt", "644"),
-         ("external_urls.txt", "644"), ("relay-sync.sh", "755"), ("db-tool.sh", "755")]
+         ("external_urls.txt", "644"), ("relay-sync.sh", "755"), ("db-tool.sh", "755"),
+         ("relay-write-policy.py", "755"), ("relay-fedlist.py", "755"),
+         ("relay-allowed-order-pubkeys.txt", "644")]
 # Mounted from app/ by an older version, before it was written here (see the end of the hook).
 OLD_MOUNTED = ["run.sh", "panel.py", "nginx.conf", "torrc", "strfry.conf", "federation_urls.txt"]
 

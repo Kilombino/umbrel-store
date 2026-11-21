@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.9.11"
+version: "0.9.11-1"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -73,6 +73,20 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.9.11-1 (packaging only, same server image). Relay
+  federation filter: the coordinator's Nostr relay now stores order events
+  (kind 38383) only from the coordinators of the Roblosats federation, and
+  ratings (31986) only of them; its sync with the other relays asks only for
+  those, and no longer copies chat wraps (1059) from them (robots publish
+  their chats straight to each coordinator's relay). The coordinator list
+  follows the official federation.json by itself, checked every hour: a new
+  coordinator is accepted with no update of this app, and on any error the
+  last good list stays. Your own coordinator is always in the list, even
+  before federation.json lists it. Orders of other federations stored earlier
+  are dropped once. The list is data/relay/allowed-order-pubkeys.txt; a line
+  "manual" in it stops the updates.
+
+
   Roblosats Coordinator 0.9.11. Nostr order book: events of orders that
   left the book are accepted by the relay (an expired order's update carried
   a past expiration and stayed listed), with NIP-69 statuses and a NIP-09

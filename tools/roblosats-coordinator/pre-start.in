@@ -63,3 +63,25 @@ if [ ! -e "${M}" ]; then
   done
   : > "${M}"
 fi
+
+# 0.9.11-1: the relay keeps to the federation's coordinators (write policy + relay-sync.sh), and must
+# always take this coordinator's own orders, even before federation.json lists it: give it the
+# public key (only that) of NOSTR_NSEC, worked out with openssl. Empty if that fails (the relay then
+# just follows federation.json).
+mkdir -p "${APP_DATA_DIR}/app"
+own_pub() {
+  local k
+  k="$(sed -n "s/^NOSTR_NSEC=['\"]\{0,1\}\([0-9a-fA-F]\{64\}\)['\"]\{0,1\}[[:space:]]*$/\1/p" "${S}" | head -n1)"
+  [ -n "${k}" ] || return 0
+  printf "$(printf '302e0201010420%sa00706052b8104000a' "${k}" | sed 's/../\\x&/g')" \
+    | openssl ec -inform DER -pubout -conv_form compressed -outform DER 2>/dev/null \
+    | tail -c 32 | od -An -v -tx1 | tr -d ' \n'
+}
+P="$(own_pub || true)"
+case "${P}" in
+  [0-9a-f]*) [ "${#P}" -eq 64 ] || P="" ;;
+  *) P="" ;;
+esac
+printf '%s\n' "${P}" > "${APP_DATA_DIR}/app/own-pubkey.txt.tmp"
+chmod 644 "${APP_DATA_DIR}/app/own-pubkey.txt.tmp"
+mv -f "${APP_DATA_DIR}/app/own-pubkey.txt.tmp" "${APP_DATA_DIR}/app/own-pubkey.txt"

@@ -243,4 +243,11 @@ services:
       # The image's sync, plus publishing the orders to public relays, as Kilobot does.
       - ${APP_DATA_DIR}/app/relay-sync.sh:/app/sync.sh:ro
       - ${APP_DATA_DIR}/app/external_urls.txt:/app/external_urls.txt:ro
+      # 0.9.11-1: only this federation's orders and ratings (write policy), with the coordinator
+      # list kept in step with federation.json every hour (relay-fedlist.py, from the sync); the
+      # list itself lives in data/relay/allowed-order-pubkeys.txt.
+      - ${APP_DATA_DIR}/app/relay-write-policy.py:/etc/strfry/write-policy.py:ro
+      - ${APP_DATA_DIR}/app/relay-fedlist.py:/app/fedlist.py:ro
+      - ${APP_DATA_DIR}/app/relay-allowed-order-pubkeys.txt:/app/allowed-order-pubkeys.seed:ro
+      - ${APP_DATA_DIR}/app/own-pubkey.txt:/app/own-pubkey.txt:ro
       - ${APP_DATA_DIR}/data/relay:/app/strfry-db
