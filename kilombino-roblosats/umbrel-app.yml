@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.12"
+version: "0.9.13"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,6 +34,13 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
+  Roblosats 0.9.13 (client hotfix): the Android app no longer closes by
+  itself at its first start after an update; nothing meant for Tor leaves
+  before Tor is ready (no .onion lookups outside Tor in Clearnet mode); the
+  notification service fetches only recent notices; the federation check at
+  start-up no longer reports "no majority" when coordinators answer late.
+
+
   Roblosats 0.9.12: an onchain bond is no longer penalized when a dispute
   opens (it waits for the decision and comes straight back if you keep it);
   your bond's penalty is signed at a few fee rates; Spamcoin (SHA-256) sent by
