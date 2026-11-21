@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.10"
+version: "0.9.11"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,6 +34,13 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
+  Roblosats 0.9.11: Clearnet mode (beta) in the Android app; network changes
+  without restarting; the automatic return of your onchain bond is signed at a
+  few fee rates and the coordinator sends the cheapest one the mempool needs
+  (it always paid up to 10 sat/vB); expired, cancelled or taken orders no
+  longer stay listed in the order book.
+
+
   Roblosats 0.9.10: the chat reconnects when the connection to the
   coordinator's relay drops (it stayed empty); typed onchain addresses are
   checked (checksum, network, type) and confirmed in groups of four before
