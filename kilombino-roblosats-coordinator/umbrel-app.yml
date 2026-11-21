@@ -2,7 +2,7 @@ manifestVersion: 1.3.0
 id: kilombino-roblosats-coordinator
 category: bitcoin
 name: Roblosats Coordinator
-version: "0.9.11-1"
+version: "0.9.12"
 tagline: Run your own Roblosats coordinator on Bitcoin (BLAKE2b)
 description: >-
   Run a coordinator of Roblosats, the P2P exchange of the Bitcoin BLAKE2b
@@ -73,6 +73,16 @@ description: >-
   https://github.com/Kilombino/roblosats-deploy/blob/roblosats/COORDINATOR.md
   first.
 releaseNotes: >-
+  Roblosats Coordinator 0.9.12. An onchain bond is no longer penalized when a
+  dispute opens: it waits for your decision (back to its owner on chain, or
+  penalized then), with a safety penalty before its timelock. Penalties use a
+  fee ladder (ESCROW_PENALTY_RATES). A new watch tells robots, and you
+  (on-chain alert group), when Spamcoin (SHA-256) lands on an onchain bond or
+  funding address by mistake (mempool.space onion over Tor; SPAMCHAIN_WATCH
+  False turns it off). The relay federation filter of 0.9.11-1 is kept. One
+  additive database migration (0072): going back to 0.9.11 is safe.
+
+
   Roblosats Coordinator 0.9.11-1 (packaging only, same server image). Relay
   federation filter: the coordinator's Nostr relay now stores order events
   (kind 38383) only from the coordinators of the Roblosats federation, and
