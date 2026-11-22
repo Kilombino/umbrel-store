@@ -14,7 +14,7 @@ https://github.com/Kilombino/umbrel-store
 
 | App | What it is |
 | --- | --- |
-| [Bitcoin Knots](kilombino-bitcoin-knots) | Bitcoin Knots 29.5, a full node on the BLAKE2b chain: Horizon BTC and Léo Haf's Bitcoin Knots app, same images, on ports of its own (P2P 18454, RPC 18453) so it installs beside any other node app. Answers the `bitcoin` dependency of every app here |
+| [Bitcoin Knots](kilombino-bitcoin-knots) | Bitcoin Knots 29.5.1, a full node on the BLAKE2b chain: Horizon BTC and Léo Haf's Bitcoin Knots app, same images, on ports of its own (P2P 18454, RPC 18453) so it installs beside any other node app. Answers the `bitcoin` dependency of every app here |
 | [Lightning XBT](kilombino-lightning-xbt) | Paul Lamb's Lightning Fork (LND for the BLAKE2b chain), with the dashboard changes Kilombino proposed to Paul that are not released yet (newest payments first, Mempool Kilombino and any Mempool app). Installs beside Lightning Fork, on ports of its own, and stands in for it in apps that ask for Lightning Fork |
 | [Electrs Pruned (Kilombino)](kilombino-electrs-pruned) | Paul Lamb's Electrs Pruned (MIT), same images and digests, with all the credit to Paul: an Electrum server that indexes a pruned node. On port 50601, so it installs beside Paul's (50201), and stands in for it in apps that ask for Electrs Pruned |
 | [ThunderHub XBT](kilombino-thunderhub-xbt) | ThunderHub forked for the BLAKE2b chain, managing Lightning XBT or Paul's Lightning Fork |

@@ -4,11 +4,11 @@ category: bitcoin
 name: Bitcoin Knots
 implements:
   - bitcoin
-version: "1.2.22.1"
+version: "1.2.23"
 tagline: Run your personal node powered by Bitcoin Knots
 icon: https://raw.githubusercontent.com/getumbrel/umbrel-apps-gallery/refs/heads/master/bitcoin-knots/icon.svg
 description: >-
-  Bitcoin Knots 29.5, a full node on the BLAKE2b chain: the Bitcoin Knots app
+  Bitcoin Knots 29.5.1, a full node on the BLAKE2b chain: the Bitcoin Knots app
   that Horizon BTC and Léo Haf publish in their Misc store
   (github.com/Horizon-btc/Bitcoin-store), with the same images and digests,
   offered here so Kilombino's apps (Lightning XBT, DATUM CONVOY, Kilowallet)
@@ -49,8 +49,18 @@ gallery:
 path: ""
 defaultPassword: ""
 releaseNotes: >-
-  Bitcoin Knots v29.5.knots20260508 and the world map fixed: Horizon's 1.2.22
-  in Kilombino's store.
+  Bitcoin Knots v29.5.1.knots20260508 (Horizon's 1.2.23 in Kilombino's store).
+  Consensus: the BIP110 rule that bans the Taproot annex (BAN_ANNEX) now also
+  applies when spending outputs created before block 961640. A scan of the
+  whole chain found no annex used since 961640, so no block already in the
+  chain becomes invalid (no reorg), but update so your node follows the same
+  rules as the rest. Security: CVE-2026-117348 fixed (a peer could stall the
+  node by announcing an orphan transaction with many missing parents), and
+  wallet names are taken literally in -walletnotify. Spam filters: a key only
+  counts as used when a signature is checked against it, so decoy keys can no
+  longer carry data past the datacarrier limit; script reuse is rejected inside
+  packages; out-of-range values of bytespersigop, maxscriptsize and the
+  ancestor/descendant size limits now stop the node at startup.
 widgets:
   - id: "stats"
     type: "four-stats"
