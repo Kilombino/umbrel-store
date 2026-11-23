@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.4.2"
+version: "1.4.3"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,16 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.4.3: the finished-rentals table shows how much MRR refunded (in the coin and
+  as a % of what was paid, read from your MRR transactions) and whether a ticket
+  was opened: stamped by the panel's ticket button, ticked by hand for tickets
+  opened on MRR's site, or by the automatic ticket. The page is shorter: finished
+  rentals, ASICs, the market (MRR and PyBLØCK, with its packages and P2Hash
+  folding separately) and the logs are collapsible, closed by default, and each
+  browser remembers what is open. The total gateway hashrate is always in the
+  header.
+
+
   1.4.2: rent on P2Hash (PyBLØCK's hashrate market on Nostr) from the panel,
   each tranche paid in advance from a separate pay-only wallet connection (NWC)
   and only while your DATUM sees the hash. By default every tranche waits for
