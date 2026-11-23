@@ -7,7 +7,7 @@ services:
       APP_PORT: 7160
 
   web:
-    image: ghcr.io/kilombino/mrr-command-center:1.4.3@sha256:076500b4ced240a3213f3e79f2a477cf8f53927e1b058b0af5c30ae8bdd66b3f
+    image: ghcr.io/kilombino/mrr-command-center:1.4.4@sha256:051eaa786b77ede1083bcc70190c5e7016e0a52fef0194a819b4de45335d20aa
     user: "1000:1000"
     restart: on-failure
     stop_grace_period: 20s

@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.4.3"
+version: "1.4.4"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,16 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.4.4: the market has a blacklist. A rig goes on it by itself when a rental of
+  it ends with the sad face (less than 95 % of what was paid reached your
+  gateway) or when a ticket is opened for it (by hand, from the ticket dialog,
+  or by the automatic notice at the end). The market keeps showing it in red
+  with a tag that says why and asks again before renting it; a switch hides
+  them. The thumbs-down next to the star puts a rig on the list or takes it off
+  by hand, and the finished rentals section lists them so you can remove them.
+  The first start fills the list from the rentals already in your history.
+
+
   1.4.3: the finished-rentals table shows how much MRR refunded (in the coin and
   as a % of what was paid, read from your MRR transactions) and whether a ticket
   was opened: stamped by the panel's ticket button, ticked by hand for tickets
