@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.4.5"
+version: "1.5.0"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,15 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.5.0: price alerts by private Nostr message. In the new collapsible section
+  at the end, enter your npub and a threshold (your unit per TH per day, MRR's
+  fee included unless unticked), with optional filters (minimum TH/s and hours,
+  online only, favourites only). When a rig on the market drops below it, the
+  dashboard sends you a NIP-17 private message from its own Nostr key, readable
+  in Amethyst, 0xchat, Primal and other NIP-17 clients: no Telegram, no central
+  server. One message per rig until it goes back above and crosses again.
+  Off by default; "Enviar prueba" sends a test.
+
   1.4.5: you can save several public stratums for PyBLOCK and P2Hash, each with
   an optional name, and choose in a dropdown which one new orders and rentals
   use: for instance two ports of the same host running different gateways, one
