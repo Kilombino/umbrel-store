@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.5.0"
+version: "1.6.0"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,16 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.6.0: several DATUM gateways, for instance your DATUM and the gateway of a
+  PyBLOCK PATUM install (stratum 23334, 23335..., status page 7152, 7153...).
+  In the new card "Tus gateways" each one has a name, its stratum and its
+  status page (reachable from this Umbrel, with that DATUM's admin password).
+  Each MRR pool profile shows the host:port it mines to and its gateway, and
+  picking a profile also moves PyBLOCK/P2Hash orders to that stratum. Every
+  rental shows where it mines, and a selector at the top ("Todos" or one
+  gateway) filters rentals, hashrate, ASICs and the audit to that gateway.
+  With a single gateway the dashboard looks as before.
+
   1.5.0: price alerts by private Nostr message. In the new collapsible section
   at the end, enter your npub and a threshold (your unit per TH per day, MRR's
   fee included unless unticked), with optional filters (minimum TH/s and hours,
