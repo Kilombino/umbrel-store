@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.4.4"
+version: "1.4.5"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,14 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.4.5: you can save several public stratums for PyBLOCK and P2Hash, each with
+  an optional name, and choose in a dropdown which one new orders and rentals
+  use: for instance two ports of the same host running different gateways, one
+  at a time, never mixed. Running orders keep mining where they started. Your
+  current stratum becomes the first one of the list, and "Probar gateway" checks
+  the one in use.
+
+
   1.4.4: the market has a blacklist. A rig goes on it by itself when a rental of
   it ends with the sad face (less than 95 % of what was paid reached your
   gateway) or when a ticket is opened for it (by hand, from the ticket dialog,
