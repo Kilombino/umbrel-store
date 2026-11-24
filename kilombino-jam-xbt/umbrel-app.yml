@@ -24,8 +24,9 @@ description: >-
   follows the BLAKE2b chain: on any other node it does not start. It reaches the
   node only through its own RPC filter, which allows just the calls JoinBlaket
   needs, on its own wallets. It talks to
-  the JoinBlaket directory over its own Tor, with verified nick
-  authentication, and only to JoinMarket peers on the BLAKE2b chain. It mixes only with makers
+  the JoinBlaket directories (three, so the market keeps going if one is
+  down) over its own Tor, with verified nick authentication, and only to
+  JoinMarket peers on the BLAKE2b chain. It mixes only with makers
   that hold a fidelity bond; to earn you need one too (created in Jam, it
   locks the coins in it until the date you choose). Every signature uses the
   unified sighash (0x21), so nothing can be replayed on the SHA-256 chain.
