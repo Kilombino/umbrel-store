@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.6.0"
+version: "1.6.1"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,13 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.6.1: when the MRR pool profile you pick points at a pool's DATUM port
+  (28915, the port your gateway uses to talk to its pool) the dashboard now
+  says so beside the profile, instead of offering to save the pool as one of
+  your gateways. Rentals sent there never reach your gateway: change the
+  profile in MRR to your own stratum (your IP or domain and your DATUM's
+  stratum port, e.g. 23334).
+
   1.6.0: several DATUM gateways, for instance your DATUM and the gateway of a
   PyBLOCK PATUM install (stratum 23334, 23335..., status page 7152, 7153...).
   In the new card "Tus gateways" each one has a name, its stratum and its
