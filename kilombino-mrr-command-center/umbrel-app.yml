@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.6.1"
+version: "1.6.2"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,12 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.6.2: with a single saved gateway, an MRR pool profile that mines to
+  another port is no longer taken for it, so choosing it no longer moves
+  PyBLOCK/P2Hash orders to the wrong stratum. Such a profile shows "sin
+  gateway guardado": save that gateway (name, stratum and status page) to
+  use it.
+
   1.6.1: when the MRR pool profile you pick points at a pool's DATUM port
   (28915, the port your gateway uses to talk to its pool) the dashboard now
   says so beside the profile, instead of offering to save the pool as one of
