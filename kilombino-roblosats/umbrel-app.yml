@@ -2,7 +2,7 @@ manifestVersion: 2
 id: kilombino-roblosats
 category: bitcoin
 name: Roblosats
-version: "0.9.14"
+version: "0.9.15"
 tagline: Simple and private P2P exchange for Bitcoin (BLAKE2b)
 description: >-
   Roblosats is RoboSats for the Bitcoin BLAKE2b chain (BTC): a simple and
@@ -34,6 +34,12 @@ description: >-
   Lightning Fork with ThunderHub XBT, or any wallet that pays BLAKE2b
   Lightning invoices).
 releaseNotes: >-
+  Roblosats 0.9.15: coordinator "Stats for Nerds" fixes: the 24 h contracted
+  volume counts Spamcoin trades and trades taken with an onchain bond, the
+  coordinator's commit hash links to its commit on Kilombino/roblosats, and
+  its Lightning node links to its Nodex page.
+
+
   Roblosats 0.9.14: take a Lightning order with an onchain bond (as the
   buyer only your bond is on chain; as the seller you lock your bond and fund
   the escrow on chain); the maker sees onchain takes on their way with their
