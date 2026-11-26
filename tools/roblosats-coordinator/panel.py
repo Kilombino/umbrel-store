@@ -86,6 +86,9 @@ FIELDS = [
     ("MIN_SWAP_AMOUNT", "Smallest on-chain payout (sats)", "int", ""),
     ("MAX_SWAP_AMOUNT", "Largest on-chain payout (sats)", "int", ""),
     ("DEVFUND", "Donation to Roblosats", "num", "Share of your fees, by keysend to the Roblosats maintainer (0.1 = 10 %)."),
+    # 0.9.17: signed actions (transition by default)
+    ("REQUIRE_SIGNED_ACTIONS", "Require signed actions", "toggle", "Every write a robot makes carries a signature by its own key, so the token that every coordinator of the federation sees cannot be used to act as that robot. Off (transition, recommended for now): apps too old to sign keep working, and a robot whose app has signed once must always sign. On: only apps that sign (Roblosats 0.9.17 and later) can trade with you."),
+    ("WARN_UNSIGNED_CLIENTS", "Tell old apps to update", "toggle", "With signed actions not required: a robot whose app does not sign is told once, in its notifications, to update."),
     ("NOTICE_SEVERITY", "Notice on your page", "severity", ""),
     ("NOTICE_MESSAGE", "Notice text", "text", ""),
     ("TELEGRAM_TOKEN", "Telegram bot token", "secret", "Optional. In Telegram, talk to @BotFather, send /newbot and paste the token it gives you. Your robots get their order alerts through this bot."),
