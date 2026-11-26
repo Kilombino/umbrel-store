@@ -2,7 +2,7 @@ manifestVersion: 1.1
 id: kilombino-mrr-command-center
 category: bitcoin
 name: MRR Command Center
-version: "1.6.2"
+version: "1.6.3"
 tagline: Rent BLAKE2b hashrate on MiningRigRentals and check it reaches your DATUM
 description: >-
   A dashboard for renting hashrate on MiningRigRentals (MRR) and pointing it at
@@ -85,6 +85,10 @@ path: ""
 defaultUsername: ""
 deterministicPassword: true
 releaseNotes: >-
+  1.6.3: a damaged audit database ("file is not a database", e.g. after a
+  power cut or a full disk) no longer stops the dashboard from starting. It is
+  moved aside and a new one is started; keys, settings and gateways are kept.
+
   1.6.2: with a single saved gateway, an MRR pool profile that mines to
   another port is no longer taken for it, so choosing it no longer moves
   PyBLOCK/P2Hash orders to the wrong stratum. Such a profile shows "sin
