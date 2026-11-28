@@ -11,8 +11,8 @@ services:
   # (rpc_filter.py in the image); Jam and everything that talks to the network
   # (web, below) get the filter's own random credentials instead.
   rpcfilter:
-    # Reproducible build of joinblaket v0.43.0-xbt9 + jam v2.0.0-beta.4-xbt8 (amd64 + arm64).
-    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt9@sha256:33c8cc2a11a59573aa80e4448c570da66b4345cfc63359f59165e362654fc58f
+    # Reproducible build of joinblaket v0.43.0-xbt10 + jam v2.0.0-beta.4-xbt9 (amd64 + arm64).
+    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt10@sha256:c5cf2407e2c61fad7b3dfb68a234a2d400c99140698f27efb7551307b5e89d0b
     user: "1000:1000"
     restart: on-failure
     volumes:
@@ -69,7 +69,7 @@ services:
       NODE_BITCOIN_PASS: "${APP_BITCOIN_RPC_PASS:-}"
 
   web:
-    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt9@sha256:33c8cc2a11a59573aa80e4448c570da66b4345cfc63359f59165e362654fc58f
+    image: ghcr.io/kilombino/jam-xbt:0.43.0-xbt10@sha256:c5cf2407e2c61fad7b3dfb68a234a2d400c99140698f27efb7551307b5e89d0b
     user: "1000:1000"
     restart: on-failure
     # A CoinJoin in progress may be signing when stopped.

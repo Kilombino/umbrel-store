@@ -4,7 +4,7 @@ manifestVersion: 1.3.0
 id: kilombino-jam-xbt
 category: bitcoin
 name: JoinBlaket
-version: "0.43.0-xbt9"
+version: "0.43.0-xbt10"
 tagline: CoinJoin on Bitcoin (BLAKE2b) with the Jam wallet
 description: >-
   JoinBlaket is JoinMarket-NG built for the Bitcoin (BLAKE2b) chain, with the
@@ -57,11 +57,13 @@ path: ""
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
-  JoinBlaket 0.43.0-xbt9. JoinBlaket now has three directories, the meeting
-  points where makers announce their offers and takers find them: ours and two
-  more run by trusted people. The app uses all three by default, so if one is
-  down the market keeps working, and takers see makers on any of them. Nothing
-  to do on your side; your wallets are kept. From 0.43.0-xbt8: another fidelity
-  bond next to the one you have. Jam v2.0.0-beta.4-xbt8.
+  JoinBlaket 0.43.0-xbt10. The orderbook now shows the largest CoinJoin 1, 2
+  and 3 makers with a fidelity bond can fill right now: in a CoinJoin each maker
+  has to cover the whole amount alone, so liquidity does not add up across
+  makers. When you send with CoinJoin, Jam warns before an amount bigger than
+  the chosen number of makers can cover, says what fits now and suggests how to
+  split it into several CoinJoins or use the scheduler. It is only a warning;
+  you can still send. Your wallets are kept. From 0.43.0-xbt9: three
+  directories by default. Jam v2.0.0-beta.4-xbt9.
 submitter: Kilombino
 submission: https://github.com/Kilombino/umbrel-store
